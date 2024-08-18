@@ -1,0 +1,48 @@
+{
+  "name": "pantryplus-api",
+  "version": "0.1.0",
+  "description": "This is the API layer for the PantryPlus mobile app",
+  "main": "./src/v1/server.js",
+  "scripts": {
+    "prestart": "npm install",
+    "start": "node -r dotenv/config ./src/server.js",
+    "dev": "nodemon -r dotenv/config ./src/server.js"
+  },
+  "keywords": [
+    "swagger"
+  ],
+  "license": "Unlicense",
+  "private": true,
+  "engines": {
+    "node": "22.6.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js}": [
+      "eslint --fix"
+    ],
+    "*.{json}": [
+      "eslint --fix"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^22.4.0",
+    "eslint": "^9.9.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "husky": "^9.1.4",
+    "lint-staged": "^15.2.9",
+    "prettier": "^3.3.3"
+  },
+  "dependencies": {
+    "camelcase": "8.0.0",
+    "dotenv": "16.4.5",
+    "express": "4.19.2",
+    "mysql2": "3.11.0",
+    "winston": "3.14.2"
+  }
+}
