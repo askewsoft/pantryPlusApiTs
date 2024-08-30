@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="pantry_store" id="Project_149a" database="MySql" >
+	<schema name="pantry_store" >
+		<table name="category" prior="tbl" >
+			<column name="id" type="binary" length="16" jt="-2" mandatory="y" />
+			<column name="id_txt" type="varchar" length="36" jt="12" mandatory="y" >
+				<comment><![CDATA[string version of ID]]></comment>
+			</column>
+			<column name="name" type="varchar" length="100" jt="12" mandatory="y" />
+			<column name="list_id" prior="listid" type="binary" length="16" jt="-2" mandatory="y" >
+				<comment><![CDATA[category names belong to lists which belong to Shopper owner of list, so an owner can customize the category name]]></comment>
+			</column>
+			<index name="pk_category_id" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="fk_category_list" to_schema="pantry_store" to_table="list" >
+				<fk_column name="list_id" pk="id" />
+			</fk>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="category_order" prior="tbl" >
+			<column name="category_id" type="binary" length="16" jt="-2" mandatory="y" />
+			<column name="location_id" type="binary" length="16" jt="-2" mandatory="y" />
+			<column name="ordinal" type="int" jt="4" mandatory="y" >
+				<defo><![CDATA[0]]></defo>
+			</column>
+			<fk name="fk_category_order_category" to_schema="pantry_store" to_table="category" >
+				<fk_column name="category_id" pk="id" />
+			</fk>
+			<fk name="fk_category_order_location" to_schema="pantry_store" to_table="location" >
+				<fk_column name="location_id" pk="id" />
+			</fk>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="group" prior="account" >
+			<column name="id" type="binary" length="16" jt="-2" mandatory="y" />
+			<column name="id_txt" type="varchar" length="36" jt="12" mandatory="y" >
+				<comment><![CDATA[string version of ID]]></comment>
+			</column>
+			<column name="name" type="varchar" length="100" jt="12" mandatory="y" />
+			<column name="owner_id" prior="owner" type="binary" length="16" jt="-2" mandatory="y" />
+			<index name="pk_account_id" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="fk_group_owner" to_schema="pantry_store" to_table="shopper" >
+				<fk_column name="owner_id" pk="id" />
+			</fk>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="group_shopper_relation" prior="account_shopper_relation" >
+			<column name="group_id" prior="account_id" type="binary" length="16" jt="-2" mandatory="y" />
+			<column name="shopper_id" prior="member_id" type="binary" length="16" jt="-2" mandatory="y" />
+			<fk name="fk_account_shopper_relation_account" to_schema="pantry_store" to_table="group" >
+				<fk_column name="group_id" pk="id" />
+			</fk>
+			<fk name="fk_account_shopper_relation_shopper" to_schema="pantry_store" to_table="shopper" >
+				<fk_column name="shopper_id" pk="id" />
+			</fk>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="item" prior="it" >
+			<column name="id" type="binary" length="16" jt="-2" mandatory="y" >
+				<comment><![CDATA[UUID in binary form (16 bit)]]></comment>
+			</column>
+			<column name="id_txt" type="varchar" length="36" jt="12" mandatory="y" >
+				<comment><![CDATA[string version of ID]]></comment>
+			</column>
+			<column name="name" type="varchar" length="100" jt="12" mandatory="y" />
+			<column name="upc" type="char" length="15" jt="1" />
+			<index name="pk_item_id" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="item_category_relation" prior="item_history_relation_0" >
+			<comment><![CDATA[log table, inserts only to capture events at completion of shopping session]]></comment>
+			<column name="item_id" type="binary" length="16" jt="-2" mandatory="y" />
+			<column name="category_id" prior="history_id" type="binary" length="16" jt="-2" mandatory="y" />
+			<fk name="fk_item_history_relation" to_schema="pantry_store" to_table="item" >
+				<fk_column name="item_id" pk="id" />
+			</fk>
+			<fk name="fk_item_category_relation" to_schema="pantry_store" to_table="category" >
+				<fk_column name="category_id" pk="id" />
+			</fk>
+		</table>
+		<table name="item_history_relation" prior="purchase_history" >
+			<comment><![CDATA[log table, inserts only to capture events at completion of shopping session]]></comment>
+			<column name="item_id" type="binary" length="16" jt="-2" mandatory="y" />
+			<column name="history_id" prior="added_date" type="binary" length="16" jt="-2" mandatory="y" />
+			<fk name="fk_item_history_relation_item" to_schema="pantry_store" to_table="item" >
+				<fk_column name="item_id" pk="id" />
+			</fk>
+			<fk name="fk_item_history_relation_shopping_history" to_schema="pantry_store" to_table="purchase_history" >
+				<fk_column name="history_id" pk="id" />
+			</fk>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="list" prior="tbl" >
+			<column name="id" type="binary" length="16" jt="-2" mandatory="y" />
+			<column name="id_txt" type="varchar" length="36" jt="12" mandatory="y" >
+				<comment><![CDATA[string version of ID]]></comment>
+			</column>
+			<column name="name" type="varchar" length="100" jt="12" mandatory="y" />
+			<column name="owner_id" type="binary" length="16" jt="-2" mandatory="y" />
+			<column name="group_id" prior="account_id" type="binary" length="16" jt="-2" />
+			<index name="pk_list_id" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="fk_list_shopper" to_schema="pantry_store" to_table="shopper" >
+				<fk_column name="owner_id" pk="id" />
+			</fk>
+			<fk name="fk_list_group" to_schema="pantry_store" to_table="group" >
+				<fk_column name="group_id" pk="id" />
+			</fk>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="list_item_relation" prior="account_item_relation" >
+			<comment><![CDATA[all of the items ever added to an account's shopping list]]></comment>
+			<column name="list_id" prior="account_id" type="binary" length="16" jt="-2" mandatory="y" />
+			<column name="item_id" type="binary" length="16" jt="-2" mandatory="y" />
+			<index name="pk_account_item_relation_account_id" unique="PRIMARY_KEY" >
+				<column name="list_id" />
+			</index>
+			<fk name="fk_account_item_relation_item" to_schema="pantry_store" to_table="item" >
+				<fk_column name="item_id" pk="id" />
+			</fk>
+			<fk name="fk_list_item_relation_list" to_schema="pantry_store" to_table="list" >
+				<fk_column name="list_id" pk="id" />
+			</fk>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="location" prior="locations" >
+			<column name="id" type="int" jt="4" mandatory="y" />
+			<column name="id_txt" type="varchar" length="36" jt="12" mandatory="y" >
+				<comment><![CDATA[string version of ID]]></comment>
+			</column>
+			<column name="name" type="varchar" length="100" jt="12" mandatory="y" />
+			<column name="geohash" type="varchar" length="10" jt="12" />
+			<column name="source" type="enum" jt="12" mandatory="y" >
+				<defo><![CDATA['user']]></defo>
+			</column>
+			<index name="pk_locations_id" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="purchase_history" prior="shopping_history" >
+			<column name="id" type="binary" length="16" jt="-2" mandatory="y" />
+			<column name="id_txt" type="varchar" length="36" jt="12" mandatory="y" >
+				<comment><![CDATA[string version of ID]]></comment>
+			</column>
+			<column name="purchase_date" type="date" jt="91" mandatory="y" />
+			<column name="location_id" type="binary" length="16" jt="-2" mandatory="y" />
+			<column name="list_id" prior="group_id" type="binary" length="16" jt="-2" mandatory="y" />
+			<column name="location_name" type="varchar" length="100" jt="12" mandatory="y" />
+			<column name="category_name" type="varchar" length="100" jt="12" />
+			<index name="pk_shopping_history_id" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="fk_shopping_history_list" to_schema="pantry_store" to_table="list" >
+				<fk_column name="list_id" pk="id" />
+			</fk>
+			<fk name="fk_shopping_history_location" to_schema="pantry_store" to_table="location" >
+				<fk_column name="location_id" pk="id" />
+			</fk>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="shopper" prior="tbl" >
+			<column name="id" type="binary" length="16" jt="-2" mandatory="y" />
+			<column name="id_txt" type="varchar" length="36" jt="12" mandatory="y" >
+				<comment><![CDATA[string version of ID]]></comment>
+			</column>
+			<column name="name" type="varchar" length="100" jt="12" mandatory="y" />
+			<column name="email" type="varchar" length="256" jt="12" mandatory="y" />
+			<index name="pk_shopper_id" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+	</schema>
+	<layout name="Default Layout" id="Layout_16e3" show_relation="columns" >
+		<entity schema="pantry_store" name="category" color="D3C1EE" x="752" y="544" />
+		<entity schema="pantry_store" name="category_order" color="C1D8EE" x="416" y="576" />
+		<entity schema="pantry_store" name="group" color="D3C1EE" x="80" y="64" />
+		<entity schema="pantry_store" name="group_shopper_relation" color="C1D8EE" x="320" y="48" />
+		<entity schema="pantry_store" name="item" color="D3C1EE" x="48" y="608" />
+		<entity schema="pantry_store" name="item_category_relation" color="3986C1" x="336" y="704" />
+		<entity schema="pantry_store" name="item_history_relation" color="C1D8EE" x="96" y="432" />
+		<entity schema="pantry_store" name="list" color="D3C1EE" x="336" y="208" />
+		<entity schema="pantry_store" name="list_item_relation" color="C1D8EE" x="48" y="256" />
+		<entity schema="pantry_store" name="location" color="D3C1EE" x="576" y="416" />
+		<entity schema="pantry_store" name="purchase_history" color="C1D8EE" x="352" y="400" />
+		<entity schema="pantry_store" name="shopper" color="D3C1EE" x="640" y="64" />
+	</layout>
+</project>
