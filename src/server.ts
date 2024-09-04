@@ -3,6 +3,8 @@ import { RegisterRoutes } from "./routes";
 import config from './shared/config';
 import { errorHandler } from './shared/errorHandler';
 import { logger, Logger } from './shared/logger';
+import swaggerUi from 'swagger-ui-express';
+
 // import cluster from 'cluster';
 
 const log: Logger = logger('server');
@@ -16,6 +18,11 @@ app.use(
 );
 app.use(json());
 app.use(errorHandler);
+
+// Swagger UI setup
+const swaggerFile = require('./swagger.json');
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
+
 
 RegisterRoutes(app);
 
