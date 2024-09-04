@@ -1,5 +1,7 @@
-import { logger } from './logger.js';
-const log = logger('config');
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const logger_1 = require("./logger");
+const log = (0, logger_1.logger)('config');
 const config = {
     port: Number(process.env.DBPORT),
     host: process.env.DBHOST,
@@ -16,4 +18,4 @@ const verifyConfig = (conf) => {
     }
 };
 verifyConfig(config);
-export default config;
+exports.default = config;

@@ -1,0 +1,139 @@
+{
+	"openapi": "3.0.0",
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"Shopper": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"firstName",
+					"lastName",
+					"email"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Pick_Shopper.firstName-or-lastName-or-email_": {
+				"properties": {
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"firstName",
+					"lastName",
+					"email"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"ShopperCreationParams": {
+				"$ref": "#/components/schemas/Pick_Shopper.firstName-or-lastName-or-email_"
+			}
+		},
+		"securitySchemes": {}
+	},
+	"info": {
+		"title": "pantryplus-api",
+		"version": "0.1.0",
+		"description": "This is the API layer for the PantryPlus mobile app",
+		"license": {
+			"name": "Unlicense"
+		},
+		"contact": {}
+	},
+	"paths": {
+		"/shoppers": {
+			"post": {
+				"operationId": "Create",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Shopper"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Shoppers"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ShopperCreationParams"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/shoppers/{shopperId}": {
+			"get": {
+				"operationId": "Retrieve",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Shopper"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Shoppers"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "shopperId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "/"
+		}
+	]
+}
