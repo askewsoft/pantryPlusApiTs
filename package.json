@@ -6,8 +6,8 @@
   "scripts": {
     "prestart": "npm install",
     "build": "tsoa spec-and-routes && tsc",
-    "start": "node -r dotenv/config ./src/server.js",
-    "dev": "nodemon -r dotenv/config ./src/server.js"
+    "start": "node -r dotenv/config ./build/server.js",
+    "dev": "nodemon -r dotenv/config ./build/server.js"
   },
   "keywords": [
     "swagger"

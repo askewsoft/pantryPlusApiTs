@@ -1,5 +1,5 @@
 import express, {json, urlencoded} from "express";
-import { RegisterRoutes } from "../build/routes";
+import { RegisterRoutes } from "./routes";
 import config from './shared/config';
 import { errorHandler } from './shared/errorHandler';
 import { logger, Logger } from './shared/logger';
