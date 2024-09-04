@@ -1,10 +1,10 @@
-import { logger, Logger } from './logger.js';
+import { logger, Logger } from './logger';
 
 const log: Logger = logger('dbDriver');
 import mysql from 'mysql2';
 import { readFile } from 'fs/promises';
 import camelcaseKeys from 'camelcase-keys';
-import config from './config.js';
+import config from './config';
 
 const extractQuery = async (template: string): Promise<string> => {
   const sqlFile = await readFile(template, 'utf8');

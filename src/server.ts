@@ -1,8 +1,8 @@
 import express, {json, urlencoded} from "express";
-import { RegisterRoutes } from "../build/routes.js";
-import config from './shared/config.js';
-import { errorHandler } from './shared/errorHandler.js';
-import { logger, Logger } from './shared/logger.js';
+import { RegisterRoutes } from "../build/routes";
+import config from './shared/config';
+import { errorHandler } from './shared/errorHandler';
+import { logger, Logger } from './shared/logger';
 // import cluster from 'cluster';
 
 const log: Logger = logger('server');

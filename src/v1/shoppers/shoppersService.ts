@@ -1,6 +1,6 @@
 import path from "path";
-import { Shopper, ShopperCreationParams } from "./shopper.js";
-import { dbPost, extractDbResult } from "../../shared/dbDriver.js";
+import { Shopper, ShopperCreationParams } from "./shopper";
+import { dbPost, extractDbResult } from "../../shared/dbDriver";
 
 export abstract class ShoppersService {
   public static async retrieve(shopperId: string): Promise<Shopper> {

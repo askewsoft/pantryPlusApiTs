@@ -1,4 +1,4 @@
-import { logger, Logger } from './logger.js';
+import { logger, Logger } from './logger';
 
 const log: Logger = logger('Custom Error');
 

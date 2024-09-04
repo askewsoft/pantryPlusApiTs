@@ -12,10 +12,10 @@ import {
 } from "tsoa";
 
 import path from "path";
-import { logger } from "../../shared/logger.js";
-import { errEnum } from "../../shared/errorHandler.js";
-import { Shopper, ShopperCreationParams } from "./shopper.js";
-import { ShoppersService } from "./shoppersService.js";
+import { logger } from "../../shared/logger";
+import { errEnum } from "../../shared/errorHandler";
+import { Shopper, ShopperCreationParams } from "./shopper";
+import { ShoppersService } from "./shoppersService";
 // import { mayProceed } from "../../shared/mayProceed";
 
 const accessTemplate = path.join(__dirname, 'mayAccessShopper.sql');
