@@ -1,9 +1,9 @@
 import { logger, Logger } from './logger';
-
 const log: Logger = logger('dbDriver');
+
 import mysql from 'mysql2';
 import { readFile } from 'fs/promises';
-import camelcaseKeys from 'camelcase-keys';
+import { snakeToCamel } from './camelCaseKeys';
 import config from './config';
 
 const extractQuery = async (template: string): Promise<string> => {
@@ -45,7 +45,7 @@ const dbPost = async (template: string, params: any): Promise<any> => {
 const extractDbResult = (rows: any): any => {
   if (rows && Array.isArray(rows) && Array.isArray(rows[rows.length - 1])) {
     const results = rows.pop();
-    return camelcaseKeys(results);
+    return snakeToCamel(results);
   } else {
     const errObj = new Error('invalid database response');
     errObj.name = 'BAD_DB_RESPONSE';
