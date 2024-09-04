@@ -2,8 +2,7 @@
   "name": "pantryplus-api",
   "version": "0.1.0",
   "description": "This is the API layer for the PantryPlus mobile app",
-  "type": "module",
-  "exports": "./src/server.js",
+  "main": "./src/server.js",
   "scripts": {
     "prestart": "npm install",
     "build": "tsoa spec-and-routes && tsc",
@@ -43,7 +42,6 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "camelcase-keys": "^9.1.3",
     "dotenv": "16.4.5",
     "express": "4.19.2",
     "express-async-handler": "^1.2.0",
