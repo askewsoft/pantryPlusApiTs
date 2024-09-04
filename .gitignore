@@ -4,3 +4,4 @@ node_modules
 .env
 pantry_store.dbs.bak
 build
+src/routes.ts
