@@ -1,4 +1,4 @@
-import { logger, Logger } from './logger';
+import { logger, Logger } from './logger.js';
 
 const log: Logger = logger('config');
 

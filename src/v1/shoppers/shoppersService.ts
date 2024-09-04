@@ -1,10 +1,9 @@
 import path from "path";
-import { UUID } from "node:crypto";
-import { Shopper, ShopperCreationParams } from "./shopper";
-import { dbPost, extractDbResult } from "../../shared/dbDriver";
+import { Shopper, ShopperCreationParams } from "./shopper.js";
+import { dbPost, extractDbResult } from "../../shared/dbDriver.js";
 
 export abstract class ShoppersService {
-  public static async retrieve(shopperId: UUID): Promise<Shopper> {
+  public static async retrieve(shopperId: string): Promise<Shopper> {
     const template = path.join(__dirname, 'getShopper.sql');
     const [rows] = await dbPost(template, { shopperId });
     const results = extractDbResult(rows)?.[0];

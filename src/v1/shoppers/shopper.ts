@@ -1,7 +1,5 @@
-import { UUID } from "node:crypto";
-
 export interface Shopper {
-    id: UUID;
+    id: string;
     firstName: string;
     lastName: string;
     email: string;

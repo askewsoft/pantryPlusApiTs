@@ -1,23 +1,10 @@
-import { logger, Logger } from './logger';
+import { logger, Logger } from './logger.js';
 
 const log: Logger = logger('dbDriver');
 import mysql from 'mysql2';
 import { readFile } from 'fs/promises';
-import camelCase from 'camelcase';
-import config from './config';
-
-const snakeToCamel = (obj: any): any => {
-  if (Array.isArray(obj)) return obj.map(snakeToCamel);
-
-  if (typeof obj !== 'object') return obj;
-
-  let newObj: any = {};
-  for (const key in obj) {
-    const newKey = camelCase(key);
-    newObj[newKey] = snakeToCamel(obj[key]);
-  }
-  return newObj;
-};
+import camelcaseKeys from 'camelcase-keys';
+import config from './config.js';
 
 const extractQuery = async (template: string): Promise<string> => {
   const sqlFile = await readFile(template, 'utf8');
@@ -58,7 +45,7 @@ const dbPost = async (template: string, params: any): Promise<any> => {
 const extractDbResult = (rows: any): any => {
   if (rows && Array.isArray(rows) && Array.isArray(rows[rows.length - 1])) {
     const results = rows.pop();
-    return snakeToCamel(results);
+    return camelcaseKeys(results);
   } else {
     const errObj = new Error('invalid database response');
     errObj.name = 'BAD_DB_RESPONSE';

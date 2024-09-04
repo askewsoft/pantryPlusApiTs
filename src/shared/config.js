@@ -1,7 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const logger_1 = require("./logger");
-const log = (0, logger_1.logger)('config');
+import { logger } from './logger.js';
+const log = logger('config');
 const config = {
     port: Number(process.env.DBPORT),
     host: process.env.DBHOST,
@@ -18,4 +16,4 @@ const verifyConfig = (conf) => {
     }
 };
 verifyConfig(config);
-exports.default = config;
+export default config;
