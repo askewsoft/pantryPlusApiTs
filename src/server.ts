@@ -1,4 +1,4 @@
-import express, {json, urlencoded} from "express";
+import express, {json, urlencoded, Request, Response} from "express";
 import { RegisterRoutes } from "./routes";
 import config from './shared/config';
 import { errorHandler } from './shared/errorHandler';
@@ -19,15 +19,18 @@ app.use(
 app.use(json());
 app.use(errorHandler);
 
-// Swagger UI setup
-const swaggerFile = require('./swagger.json');
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
+// Reload and serve the latest swagger.json
+app.use("/docs", swaggerUi.serve, async (_req: Request, res: Response) => {
+  return res.send(
+    swaggerUi.generateHTML(await import("../build/swagger.json"))
+  );
+});
 
 
 RegisterRoutes(app);
 
 app.get('/healthcheck', (req, res) => {
-  res.status(200).send('OK');
+  res.status(200).send('OK - this seems to work');
 });
 
 // TODO: set up clustering

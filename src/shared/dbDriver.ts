@@ -17,9 +17,9 @@ const extractQuery = async (template: string): Promise<string> => {
 };
 
 const sqlConnectOpts: mysql.PoolOptions = {
-  host: config.host,
-  user: config.user,
-  password: config.password,
+  host: config.dbhost,
+  user: config.dbuser,
+  password: config.dbpassword,
   database: config.database,
   multipleStatements: true,
   ssl: 'Amazon RDS',

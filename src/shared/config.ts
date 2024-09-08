@@ -5,17 +5,19 @@ const log: Logger = logger('config');
 // TODO: use AWS secrets to set env vars for DB connection
 type Config = {
   port: number | undefined;
-  host: string | undefined;
-  user: string | undefined;
-  password: string | undefined;
+  dbport: number | undefined;
+  dbhost: string | undefined;
+  dbuser: string | undefined;
+  dbpassword: string | undefined;
   database: string | undefined;
 };
 
 const config: Config = {
-  port: Number(process.env.DBPORT),
-  host: process.env.DBHOST,
-  user: process.env.DBUSER,
-  password: process.env.DBPASSWORD,
+  port: Number(process.env.PORT),
+  dbport: Number(process.env.DBPORT),
+  dbhost: process.env.DBHOST,
+  dbuser: process.env.DBUSER,
+  dbpassword: process.env.DBPASSWORD,
   database: process.env.DATABASE
 };
 
