@@ -7,18 +7,19 @@
     "prestart": "npm install && npm run build",
     "build": "tsoa spec-and-routes && tsc",
     "start": "node -r dotenv/config ./build/server.js",
-    "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\""
+    "dev": "nodemon"
   },
   "nodemonConfig": {
     "watch": [
-      "src/**",
+      "src",
       ".env"
     ],
+    "ext": "ts",
     "ignore": [
       "src/routes.ts",
       "src/swagger.json"
     ],
-    "exec": "npm run build && NODE_OPTIONS='--require dotenv/config' ts-node src/server.ts"
+    "exec": "npm run build && ts-node -r dotenv/config src/server.ts"
   },
   "keywords": [
     "swagger"
@@ -52,6 +53,7 @@
     "husky": "^9.1.4",
     "lint-staged": "^15.2.9",
     "prettier": "^3.3.3",
+    "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   },
   "dependencies": {

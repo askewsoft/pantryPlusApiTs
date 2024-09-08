@@ -24,7 +24,7 @@ app.use("/docs", swaggerUi.serve, async (_req: Request, res: Response) => {
   return res.send(
     // Must use `require` here because `import` tries to immediately load the file
     // at build time and the file is not generated yet.
-    swaggerUi.generateHTML(require("./swagger.json"))
+    swaggerUi.generateHTML(require("../build/swagger.json"))
   );
 });
 
@@ -32,7 +32,7 @@ app.use("/docs", swaggerUi.serve, async (_req: Request, res: Response) => {
 RegisterRoutes(app);
 
 app.get('/healthcheck', (req, res) => {
-  res.status(200).send('OK - this seems to work');
+  res.status(200).send('OK');
 });
 
 // TODO: set up clustering
