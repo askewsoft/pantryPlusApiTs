@@ -22,7 +22,9 @@ app.use(errorHandler);
 // Reload and serve the latest swagger.json
 app.use("/docs", swaggerUi.serve, async (_req: Request, res: Response) => {
   return res.send(
-    swaggerUi.generateHTML(await import("../build/swagger.json"))
+    // Must use `require` here because `import` tries to immediately load the file
+    // at build time and the file is not generated yet.
+    swaggerUi.generateHTML(require("./swagger.json"))
   );
 });
 
