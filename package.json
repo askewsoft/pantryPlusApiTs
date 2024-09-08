@@ -4,10 +4,21 @@
   "description": "This is the API layer for the PantryPlus mobile app",
   "main": "./src/server.js",
   "scripts": {
-    "prestart": "npm install",
+    "prestart": "npm install && npm run build",
     "build": "tsoa spec-and-routes && tsc",
     "start": "node -r dotenv/config ./build/server.js",
-    "dev": "nodemon -r dotenv/config ./build/server.js"
+    "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\""
+  },
+  "nodemonConfig": {
+    "watch": [
+      "src/**",
+      ".env"
+    ],
+    "ignore": [
+      "src/routes.ts",
+      "src/swagger.json"
+    ],
+    "exec": "npm run build && NODE_OPTIONS='--require dotenv/config' ts-node src/server.ts"
   },
   "keywords": [
     "swagger"
@@ -34,6 +45,7 @@
     "@types/express": "^4.17.21",
     "@types/node": "^22.4.0",
     "@types/swagger-ui-express": "^4.1.6",
+    "concurrently": "^8.2.2",
     "eslint": "^9.9.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
