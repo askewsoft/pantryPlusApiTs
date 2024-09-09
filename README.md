@@ -26,7 +26,7 @@ We also recommend that you use [nvm](https://nvm.sh) to manage different version
 **Folder Structure**
 * All source code is in the `src` directory
 * Under `src` is a directory for each supported version (e.g., `./src/v1/`)
-* The version directories contain Express route handlers _and_ SQL code (e.g., `/.src/v1/queries`)
+* The version directories contain Express route handlers _and_ SQL code (e.g., `/.src/v1/sql`)
 
 **Documentation**
 * See details about the database design [here](https://github.com/askewsoft/pantryPlusApi/tree/main/schema)
