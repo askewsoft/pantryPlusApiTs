@@ -19,7 +19,7 @@
       "src/routes.ts",
       "src/swagger.json"
     ],
-    "exec": "npm run build && ts-node -r dotenv/config src/server.ts"
+    "exec": "npm run build && ts-node -r dotenv/config src/server.ts || exit 1"
   },
   "keywords": [
     "swagger"
