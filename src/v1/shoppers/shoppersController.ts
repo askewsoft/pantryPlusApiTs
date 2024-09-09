@@ -16,9 +16,9 @@ import { logger } from "../../shared/logger";
 import { errEnum } from "../../shared/errorHandler";
 import { Shopper, ShopperCreationParams } from "./shopper";
 import { ShoppersService } from "./shoppersService";
-// import { mayProceed } from "../../shared/mayProceed";
+import { mayProceed } from "../../shared/mayProceed";
 
-const accessTemplate = path.join(__dirname, 'mayAccessShopper.sql');
+const accessTemplate = path.join(__dirname, './sql/mayAccessShopper.sql');
 const log = logger("Shopper");
 
 // TODO: Utilize swagger validation for email address instead?
@@ -48,6 +48,8 @@ export class ShoppersController extends Controller {
   @SuccessResponse(200, "OK")
   @Get("{shopperId}")
   public async retrieve(@Path() shopperId: string): Promise<Shopper> {
+    // TODO: grab X-Auth-User for logging or validation?
+    // TODO: add mayProceed check?
     return ShoppersService.retrieve(shopperId);
   }
 };
