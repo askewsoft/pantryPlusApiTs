@@ -21,4 +21,12 @@ export abstract class ShoppersService {
     const results = extractDbResult(rows);
     return results;
   }
+
+  public static async update(shopperId: string, shopper: Shopper): Promise<string> {
+    const template = path.join(__dirname, './sql/updateShopper.sql');
+    const [rows, fields] = await dbPost(template, shopper);
+    const results = extractDbResult(rows);
+    const id = results[0].id;
+    return id;
+  }
 }

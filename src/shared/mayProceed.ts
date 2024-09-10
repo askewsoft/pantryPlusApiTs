@@ -5,8 +5,11 @@ import { errEnum } from "./errorHandler";
 const log = logger("Shared");
 
 export interface AccessParams {
+  /** name of the SQL template to use for access checking */
   accessTemplate: string;
+  /** email of the user */
   email: string;
+  /** ID of the object for which access is being checked */
   id: string;
 };
 

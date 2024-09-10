@@ -4,8 +4,10 @@ import {
   Body,
   Controller,
   Get,
+  Header,
   Path,
   Post,
+  Put,
   Route,
   SuccessResponse,
   Tags
@@ -38,107 +40,43 @@ const validate = (person: ShopperCreationParams) => {
 @Route("shoppers")
 @Tags("Shoppers")
 export class ShoppersController extends Controller {
-  @SuccessResponse(201, "Created")
+  /**
+   * @summary Creates a new shopper
+   * @returns The created shopper
+   */
   @Post()
+  @SuccessResponse(201, "Created")
   public async create(@Body() person: ShopperCreationParams ): Promise<Shopper> {
     validate(person);
     return ShoppersService.create(person);
   }
 
-  @SuccessResponse(200, "OK")
+  /**
+   * @summary Retrieves a shopper by ID
+   * @param shopperId - The ID of the shopper to retrieve
+   * @returns The retrieved shopper
+   */
   @Get("{shopperId}")
+  @SuccessResponse(200, "OK")
   public async retrieve(@Path() shopperId: string): Promise<Shopper> {
     // TODO: grab X-Auth-User for logging or validation?
     // TODO: add mayProceed check?
     return ShoppersService.retrieve(shopperId);
   }
+
+  /**
+   * @summary Updates an existing shopper
+   * @returns The updated shopper ID
+   */
+  @Put("{shopperId}")
+  @SuccessResponse(202, "Accepted")
+  public async update(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Body() shopper: Shopper): Promise<string> {
+    await mayProceed({ email, id: shopperId, accessTemplate });
+    validate(shopper);
+    return ShoppersService.update(shopperId, shopper);
+  }
 };
 
-/**
- * @openapi
- * /shoppers/{shopperId}:
- *    get:
- *      summary: Returns the user associated with the supplied ID
- *      tags:
- *        - shoppers
- *      parameters:
- *        - name: X-Auth-User
- *          in: header
- *          required: true
- *          description: the email for the user
- *          schema:
- *            type: string
- *        - name: shopperId
- *          in: path
- *          required: true
- *          description: the Id of the shopper to retrieve
- *          schema:
- *            type: string
- *      responses:
- *        '200':
- *          description: OK
- *        '404':
- *          description: Not Found
- */
-
-
-/**
- * @openapi
- * /shoppers/{shopperId}:
- *    patch:
- *      summary: Updates the email or name of a person
- *      tags:
- *        - shoppers
- *      parameters:
- *        - name: X-Auth-User
- *          in: header
- *          required: true
- *          description: the email for the user
- *          schema:
- *            type: string
- *        - name: shopperId
- *          in: path
- *          required: true
- *          description: the internal ID of the user to be updated
- *          schema:
- *            type: string
- *      requestBody:
- *        required: true
- *        description: updated shopper info
- *        content:
- *          application/json:
- *            schema:
- *              type: object
- *              properties:
- *                firstName:
- *                  type: string
- *                lastName:
- *                  type: string
- *                email:
- *                  type: string
- *      responses:
- *        '202':
- *          description: Accepted
- *        '404':
- *          description: Not Found
- *        '422':
- *          description: Unprocessable Entity
-const update = async (req, res, next) => {
-  const email = req.get('X-Auth-User');
-  const { shopperId } = req.params;
-  const person = { shopperId, ...req.body };
-
-  await mayProceed({ email, id: shopperId, accessTemplate });
-
-  validate(person);
-
-  const template = path.join(__dirname, 'updateShopper.sql');
-  const [rows, fields] = await dbPost(template, person);
-  const results = extractDbResult(rows);
-  const id = results[0].id;
-  return res.status(202).send(id);
-};
- */
 
 /**
  * @openapi
