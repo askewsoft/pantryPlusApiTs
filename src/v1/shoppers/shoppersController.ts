@@ -1,5 +1,4 @@
 // SHOPPERS
-// TODO: use TSOA annotations instead of express routing
 import {
   Body,
   Controller,
@@ -19,27 +18,13 @@ import { errEnum } from "../../shared/errorHandler";
 import { Shopper, ShopperCreationParams } from "./shopper";
 import { Group } from "../groups/group";
 import { Item } from "../items/item";
-import { Location } from "../locations/location";
 import { List } from "../lists/list";
+import { Location } from "../locations/location";
 import { ShoppersService } from "./shoppersService";
 import { mayProceed } from "../../shared/mayProceed";
 
 const accessTemplate = path.join(__dirname, './sql/mayAccessShopper.sql');
 const log = logger("Shopper");
-
-// TODO: Utilize swagger validation for email address instead?
-const validate = (person: ShopperCreationParams) => {
-  // good-enough email address validation
-  const emailRegEx =
-    /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-
-  const { email } = person;
-  if (email && !emailRegEx.test(String(email).toLowerCase())) {
-    const err = new Error('Email address is disallowed');
-    err.name = errEnum.DISALLOWED_EMAIL;
-    throw err;
-  }
-};
 
 @Route("shoppers")
 @Tags("Shoppers")
@@ -51,21 +36,7 @@ export class ShoppersController extends Controller {
   @Post()
   @SuccessResponse(201, "Created")
   public async create(@Body() person: ShopperCreationParams ): Promise<Shopper> {
-    validate(person);
     return ShoppersService.create(person);
-  }
-
-  /**
-   * @summary Retrieves a shopper by ID
-   * @param shopperId - The ID of the shopper to retrieve
-   * @returns The retrieved shopper
-   */
-  @Get("{shopperId}")
-  @SuccessResponse(200, "OK")
-  public async retrieve(@Path() shopperId: string): Promise<Shopper> {
-    // TODO: grab X-Auth-User for logging or validation?
-    // TODO: add mayProceed check?
-    return ShoppersService.retrieve(shopperId);
   }
 
   /**
@@ -78,8 +49,18 @@ export class ShoppersController extends Controller {
   @SuccessResponse(202, "Accepted")
   public async update(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Body() shopper: Shopper): Promise<string> {
     await mayProceed({ email, id: shopperId, accessTemplate });
-    validate(shopper);
     return ShoppersService.update(shopperId, shopper);
+  }
+
+  /**
+   * @summary Retrieves a shopper by ID
+   * @param shopperId - The ID of the shopper to retrieve
+   * @returns The retrieved shopper
+   */
+  @Get("{shopperId}")
+  @SuccessResponse(200, "OK")
+  public async retrieve(@Path() shopperId: string): Promise<Shopper> {
+    return ShoppersService.retrieve(shopperId);
   }
 
   /**
@@ -107,81 +88,30 @@ export class ShoppersController extends Controller {
     await mayProceed({ email, id: shopperId, accessTemplate });
     return ShoppersService.getItems(shopperId);
   }
+
+  /**
+   * @summary Retrieves all lists associated with a Shopper 
+   * @param email - the email address of the user
+   * @param shopperId - the ID of the shopper for whom lists will be returned
+   * @returns The lists associated with the supplied shopper
+   */
+  @Get("{shopperId}/lists")
+  @SuccessResponse(200, "OK")
+  public async getLists(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<List>> {
+    await mayProceed({ email, id: shopperId, accessTemplate });
+    return ShoppersService.getLists(shopperId);
+  }
+
+  /**
+   * @summary Retrieves all locations associated with a Shopper 
+   * @param email - the email address of the user
+   * @param shopperId - the ID of the shopper for whom locations will be returned
+   * @returns The locations associated with the supplied shopper
+   */
+  @Get("{shopperId}/locations")
+  @SuccessResponse(200, "OK")
+  public async getLocations(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Location>> {
+    await mayProceed({ email, id: shopperId, accessTemplate });
+    return ShoppersService.getLocations(shopperId);
+  }
 };
-
-
-/**
- * @openapi
- * /shoppers/{shopperId}/lists:
- *    get:
- *      summary: Returns the lists associated with the supplied user
- *      tags:
- *        - shoppers
- *      parameters:
- *        - name: X-Auth-User
- *          in: header
- *          required: true
- *          description: the email for the user
- *          schema:
- *            type: string
- *        - name: shopperId
- *          in: path
- *          required: true
- *          description: the ID of the user
- *          schema:
- *            type: string
- *      responses:
- *        '200':
- *          description: OK
- *        '404':
- *          description: Not Found
-const getLists = async (req, res, next) => {
-  const email = req.get('X-Auth-User');
-  const { shopperId } = req.params;
-
-  await mayProceed({ email, id: shopperId, accessTemplate });
-
-  const template = path.join(__dirname, 'getLists.sql');
-  const [rows, fields] = await dbPost(template, { email, shopperId });
-  const results = extractDbResult(rows)?.[0];
-  return res.status(200).send(results);
-};
- */
-
-/**
- * @openapi
- * /shoppers/{shopperId}/locations:
- *    get:
- *      summary: Returns the locations associated with the supplied user
- *      tags:
- *        - shoppers
- *      parameters:
- *        - name: X-Auth-User
- *          in: header
- *          required: true
- *          description: the email for the user
- *          schema:
- *            type: string
- *        - name: shopperId
- *          in: path
- *          required: true
- *          description: the ID of the user
- *          schema:
- *            type: string
- *      responses:
- *        '200':
- *          description: OK
- *        '404':
- *          description: Not Found
-const getLocations = async (req, res, next) => {
-  const email = req.get('X-Auth-User');
-  const { shopperId } = req.params;
-
-  await mayProceed({ email, id: shopperId, accessTemplate });
-
-  const template = path.join(__dirname, 'getLocations.sql');
-  const [rows, fields] = await dbPost(template, { email, shopperId });
-  const results = extractDbResult(rows)?.[0];
-  return res.status(200).send(results);
-};
- */

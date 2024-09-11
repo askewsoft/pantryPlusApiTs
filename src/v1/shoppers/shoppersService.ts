@@ -46,4 +46,18 @@ export abstract class ShoppersService {
     const results = extractDbResult(rows);
     return results;
   };
+
+  public static async getLists(shopperId: string): Promise<Array<List>> {
+    const template = path.join(__dirname, './sql/getLists.sql');
+    const [rows, fields] = await dbPost(template, { shopperId });
+    const results = extractDbResult(rows);
+    return results;
+  }
+
+  public static async getLocations(shopperId: string): Promise<Array<Location>> {
+    const template = path.join(__dirname, './sql/getLocations.sql');
+    const [rows, fields] = await dbPost(template, { shopperId });
+    const results = extractDbResult(rows);
+    return results;
+  }
 }

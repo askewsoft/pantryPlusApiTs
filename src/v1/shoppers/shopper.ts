@@ -8,7 +8,9 @@ export interface Shopper {
     firstName: string;
     /** The last name of the shopper */
     lastName: string;
-    /** The email of the shopper */
+    /** The email of the shopper
+     * @pattern ^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$ Invalid email address
+    */
     email: string;
 }
 
