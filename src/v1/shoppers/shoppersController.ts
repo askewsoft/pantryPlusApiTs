@@ -17,6 +17,10 @@ import path from "path";
 import { logger } from "../../shared/logger";
 import { errEnum } from "../../shared/errorHandler";
 import { Shopper, ShopperCreationParams } from "./shopper";
+import { Group } from "../groups/group";
+import { Item } from "../items/item";
+import { Location } from "../locations/location";
+import { List } from "../lists/list";
 import { ShoppersService } from "./shoppersService";
 import { mayProceed } from "../../shared/mayProceed";
 
@@ -66,6 +70,8 @@ export class ShoppersController extends Controller {
 
   /**
    * @summary Updates an existing shopper
+   * @param email - the email address of the user
+   * @param shopperId - the ID of the shopper to be updated
    * @returns The updated shopper ID
    */
   @Put("{shopperId}")
@@ -75,84 +81,34 @@ export class ShoppersController extends Controller {
     validate(shopper);
     return ShoppersService.update(shopperId, shopper);
   }
+
+  /**
+   * @summary Retrieves all of the groups associated with a Shopper 
+   * @param email - the email address of the user
+   * @param shopperId - the ID of the shopper for whom groups will be returned
+   * @returns The groups associated with the supplied shopper
+   */
+  @Get("{shopperId}/groups")
+  @SuccessResponse(200, "OK")
+  public async getGroups(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Group>> {
+    await mayProceed({ email, id: shopperId, accessTemplate });
+    return ShoppersService.getGroups(shopperId);
+  }
+
+  /**
+   * @summary Retrieves all previously purchased items associated with a Shopper 
+   * @param email - the email address of the user
+   * @param shopperId - the ID of the shopper for whom items will be returned
+   * @returns The items associated with the supplied shopper
+   */
+  @Get("{shopperId}/items")
+  @SuccessResponse(200, "OK")
+  public async getItems(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Item>> {
+    await mayProceed({ email, id: shopperId, accessTemplate });
+    return ShoppersService.getItems(shopperId);
+  }
 };
 
-
-/**
- * @openapi
- * /shoppers/{shopperId}/groups:
- *    get:
- *      summary: Returns the groups associated with the supplied user
- *      tags:
- *        - shoppers
- *      parameters:
- *        - name: X-Auth-User
- *          in: header
- *          required: true
- *          description: the email for the user
- *          schema:
- *            type: string
- *        - name: shopperId
- *          in: path
- *          required: true
- *          description: the ID of the user's groups to be returned
- *          schema:
- *            type: string
- *      responses:
- *        '200':
- *          description: OK
- *        '404':
- *          description: Not Found
-const getGroups = async (req, res, next) => {
-  const email = req.get('X-Auth-User');
-  const { shopperId } = req.params;
-
-  await mayProceed({ email, id: shopperId, accessTemplate });
-
-  const template = path.join(__dirname, 'getGroups.sql');
-  const [rows, fields] = await dbPost(template, { email, shopperId });
-  const results = extractDbResult(rows)?.[0];
-  return res.status(200).send(results);
-};
- */
-
-/**
- * @openapi
- * /shoppers/{shopperId}/items:
- *    get:
- *      summary: Returns the items associated with the supplied user
- *      tags:
- *        - shoppers
- *      parameters:
- *        - name: X-Auth-User
- *          in: header
- *          required: true
- *          description: the email for the user
- *          schema:
- *            type: string
- *        - name: shopperId
- *          in: path
- *          required: true
- *          description: the ID of the user
- *          schema:
- *            type: string
- *      responses:
- *        '200':
- *          description: OK
- *        '404':
- *          description: Not Found
-const getItems = async (req, res, next) => {
-  const email = req.get('X-Auth-User');
-  const { shopperId } = req.params;
-
-  await mayProceed({ email, id: shopperId, accessTemplate });
-
-  const template = path.join(__dirname, 'getItems.sql');
-  const [rows, fields] = await dbPost(template, { email, shopperId });
-  const results = extractDbResult(rows)?.[0];
-  return res.status(200).send(results);
-};
- */
 
 /**
  * @openapi

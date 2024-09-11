@@ -33,7 +33,7 @@ const sqlConnectOpts: mysql.PoolOptions = {
 const pool = mysql.createPool(sqlConnectOpts);
 
 // dbPost returns a promise
-const dbPost = async (template: string, params: any): Promise<any> => {
+const dbPost = async (template: string, params: Object): Promise<any> => {
   log.info(`Executing query ${template}`);
   const sqlStr = await extractQuery(template);
   const dbConn = pool.promise();
@@ -42,8 +42,8 @@ const dbPost = async (template: string, params: any): Promise<any> => {
 };
 
 // returns the array of results w/o all the MySQL wrapping
-const extractDbResult = (rows: any): any => {
-  if (rows && Array.isArray(rows) && Array.isArray(rows[rows.length - 1])) {
+const extractDbResult = (rows: Array<any>): Array<any> => {
+  if (Array.isArray(rows[rows.length - 1])) {
     const results = rows.pop();
     return snakeToCamel(results);
   } else {
