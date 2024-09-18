@@ -13,8 +13,7 @@ import {
 } from "tsoa";
 
 import path from "path";
-import { logger } from "../../shared/logger";
-import { errEnum } from "../../shared/errorHandler";
+// import { logger } from "../../shared/logger";
 import { Shopper, ShopperCreationParams } from "./shopper";
 import { Group } from "../groups/group";
 import { Item } from "../items/item";
@@ -24,7 +23,7 @@ import { ShoppersService } from "./shoppersService";
 import { mayProceed } from "../../shared/mayProceed";
 
 const accessTemplate = path.join(__dirname, './sql/mayAccessShopper.sql');
-const log = logger("Shopper");
+// const log = logger("Shopper");
 
 @Route("shoppers")
 @Tags("Shoppers")
