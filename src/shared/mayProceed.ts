@@ -1,6 +1,6 @@
 import { logger } from "./logger";
 import { dbPost, extractDbResult } from "./dbDriver";
-import { errEnum } from "./errorHandler";
+import { ErrorCode } from "./errorHandler";
 
 const log = logger("Shared");
 
@@ -22,7 +22,7 @@ export const hasAccess = async ({ accessTemplate, email, id }: AccessParams): Pr
 export const mayProceed = async ({ accessTemplate, email, id }: AccessParams): Promise<void> => {
   if (!email) {
     const err = new Error('missing user identity');
-    err.name = errEnum.MISSING_IDENTITY;
+    err.name = ErrorCode.MISSING_IDENTITY;
     throw err;
     return;
   }
@@ -33,7 +33,7 @@ export const mayProceed = async ({ accessTemplate, email, id }: AccessParams): P
     if (!access) {
       log.warn(`user ${email} not allowed to modify object via ${accessTemplate}`);
       const err = new Error('user not allowed access');
-      err.name = errEnum.NO_ACCESS;
+      err.name = ErrorCode.NO_ACCESS;
       throw err;
       return;
     }

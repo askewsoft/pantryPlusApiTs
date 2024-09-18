@@ -1,10 +1,11 @@
 import { logger, Logger } from './logger';
-const log: Logger = logger('dbDriver');
-
-import mysql from 'mysql2';
+import { ErrorCode } from './errorHandler';
+import mysql, { PoolOptions } from 'mysql2/promise';
 import { readFile } from 'fs/promises';
 import { snakeToCamel } from './camelCaseKeys';
 import config from './config';
+
+const log: Logger = logger('dbDriver');
 
 const extractQuery = async (template: string): Promise<string> => {
   const sqlFile = await readFile(template, 'utf8');
@@ -16,7 +17,7 @@ const extractQuery = async (template: string): Promise<string> => {
   return sqlStr;
 };
 
-const sqlConnectOpts: mysql.PoolOptions = {
+const sqlConnectOpts: PoolOptions = {
   host: config.dbhost,
   user: config.dbuser,
   password: config.dbpassword,
@@ -35,10 +36,16 @@ const pool = mysql.createPool(sqlConnectOpts);
 // dbPost returns a promise
 const dbPost = async (template: string, params: Object): Promise<any> => {
   log.info(`Executing query ${template}`);
-  const sqlStr = await extractQuery(template);
-  const dbConn = pool.promise();
-  const results = await dbConn.query(sqlStr, params);
-  return results;
+  try {
+    const sqlStr = await extractQuery(template);
+    const dbConn = await pool.getConnection()
+    const results = await dbConn.query(sqlStr, params);
+    dbConn.release();
+    return results;
+  } catch (err: any) {
+    err.code = ErrorCode.DATABASE_ERR;
+    throw err;
+  }
 };
 
 // returns the array of results w/o all the MySQL wrapping
