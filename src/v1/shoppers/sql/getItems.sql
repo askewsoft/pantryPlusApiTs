@@ -1,9 +1,11 @@
 -- gets all the items for the shopper ID
 -- associated with the user
 
-SET @shopperId = :shopperId;
+SET @shopperIdTxt = :shopperId;
 SET @lookBackDays = 365;
 SET @lookBackDate = (SELECT ADDDATE(CURDATE(), -@lookBackDays));
+
+SET @shopperId = (SELECT ID FROM SHOPPER WHERE ID_TXT = @shopperIdTxt);
 
 ; WITH shopperGroups as (
   SELECT gr.ID as GROUP_ID

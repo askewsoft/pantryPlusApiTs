@@ -13,7 +13,6 @@ import {
 } from "tsoa";
 
 import path from "path";
-// import { logger } from "../../shared/logger";
 import { Shopper, ShopperCreationParams } from "./shopper";
 import { Group } from "../groups/group";
 import { Item } from "../items/item";
