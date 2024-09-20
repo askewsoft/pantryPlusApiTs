@@ -16,7 +16,6 @@ export enum ErrorCode {
 export const errorHandler = (err: any, req: any, res: any, next: any) => {
   switch (err.code) {
     case ErrorCode.MISSING_IDENTITY:
-      // TODO: probably do not need this now that it is handled by typescript validation
       log.warn(`${ErrorCode.MISSING_IDENTITY}: ${err.message}\n${err.stack}`);
       res.status(401).send(err.message);
       break;
@@ -31,11 +30,6 @@ export const errorHandler = (err: any, req: any, res: any, next: any) => {
     case ErrorCode.ER_DUP_ENTRY:
       log.error(`${ErrorCode.ER_DUP_ENTRY}: ${err.message}\n${err.stack}`);
       res.status(409).send(err.message);
-      break;
-    case ErrorCode.INVALID_OBJECT:
-      // TODO: probably do not need this now that it is handled by typescript validation
-      log.warn(`${ErrorCode.INVALID_OBJECT}: ${err.message}\n${err.stack}`);
-      res.status(422).send(err.message);
       break;
     default:
       log.error(`${ErrorCode.UNEXPECTED_ERR}: ${JSON.stringify(err)}`);
