@@ -170,7 +170,8 @@
 			<column name="id_txt" type="varchar" length="36" jt="12" mandatory="y" >
 				<comment><![CDATA[string version of ID]]></comment>
 			</column>
-			<column name="name" type="varchar" length="100" jt="12" mandatory="y" />
+			<column name="first_name" prior="name" type="varchar" length="100" jt="12" mandatory="y" />
+			<column name="last_name" type="varchar" length="100" jt="12" mandatory="y" />
 			<column name="email" type="varchar" length="256" jt="12" mandatory="y" />
 			<index name="pk_shopper_id" unique="PRIMARY_KEY" >
 				<column name="id" />
