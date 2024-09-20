@@ -29,7 +29,7 @@ We also recommend that you use [nvm](https://nvm.sh) to manage different version
 * The version directories contain Express route handlers _and_ SQL code (e.g., `/.src/v1/sql`)
 
 **Documentation**
-* See details about the database design [here](https://github.com/askewsoft/pantryPlusApi/tree/main/schema)
+* See details about the database design [here](https://github.com/askewsoft/pantryPlusApiTs/tree/main/schema)
 * A swagger specification (`swagger-doc.js`) is automatically generated when you access the documentation URL (e.g., http://localhost:3000/api/v1/docs)
 * A separate specification per API verison is generated from JSDoc comments in the source code
 
