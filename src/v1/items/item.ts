@@ -10,5 +10,4 @@ export interface Item {
     upc?: string;
 }
 
-// TODO: add category ID
 export type ItemCreationParams = Omit<Item, "id">;
