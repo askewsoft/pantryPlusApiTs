@@ -10,7 +10,7 @@ export interface List {
     /** The shopper that originally created the list */
     ownerId: string;
     /** The group of users with whom this list is shared */
-    groupId: string;
+    groupId?: string | undefined;
 }
 
-export type ListCreationParams = Pick<List, "name" | "ownerId" | "groupId">;
+export type ListCreationParams = Omit<List, "id">;
