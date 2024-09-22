@@ -8,7 +8,7 @@ import { ItemsService } from "./itemsService";
 export class ItemsController extends Controller {
   /**
    * @summary Creates a new item
-   * @param email - the email address of the user
+   * @param email the email address of the user
    * @returns The ID of the created item
    */
   @Post()

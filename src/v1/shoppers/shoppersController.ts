@@ -39,12 +39,12 @@ export class ShoppersController extends Controller {
 
   /**
    * @summary Updates an existing shopper
-   * @param email - the email address of the user
-   * @param shopperId - the ID of the shopper to be updated
+   * @param email the email address of the user
+   * @param shopperId the ID of the shopper to be updated
    * @returns The updated shopper ID
    */
   @Put("{shopperId}")
-  @SuccessResponse(202, "Accepted")
+  @SuccessResponse(205, "Content Updated")
   public async update(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Body() shopper: Shopper): Promise<string> {
     await mayProceed({ email, id: shopperId, accessTemplate });
     return ShoppersService.update(shopperId, shopper);
@@ -52,7 +52,7 @@ export class ShoppersController extends Controller {
 
   /**
    * @summary Retrieves a shopper by ID
-   * @param shopperId - The ID of the shopper to retrieve
+   * @param shopperId The ID of the shopper to retrieve
    * @returns The retrieved shopper
    */
   @Get("{shopperId}")
@@ -63,8 +63,8 @@ export class ShoppersController extends Controller {
 
   /**
    * @summary Retrieves all of the groups associated with a Shopper 
-   * @param email - the email address of the user
-   * @param shopperId - the ID of the shopper for whom groups will be returned
+   * @param email the email address of the user
+   * @param shopperId the ID of the shopper for whom groups will be returned
    * @returns The groups associated with the supplied shopper
    */
   @Get("{shopperId}/groups")
@@ -76,8 +76,8 @@ export class ShoppersController extends Controller {
 
   /**
    * @summary Retrieves all previously purchased items associated with a Shopper 
-   * @param email - the email address of the user
-   * @param shopperId - the ID of the shopper for whom items will be returned
+   * @param email the email address of the user
+   * @param shopperId the ID of the shopper for whom items will be returned
    * @returns The items previously purchased by a shopper
    */
   @Get("{shopperId}/items")
@@ -89,8 +89,8 @@ export class ShoppersController extends Controller {
 
   /**
    * @summary Retrieves all lists associated with a Shopper 
-   * @param email - the email address of the user
-   * @param shopperId - the ID of the shopper for whom lists will be returned
+   * @param email the email address of the user
+   * @param shopperId the ID of the shopper for whom lists will be returned
    * @returns The lists associated with the supplied shopper
    */
   @Get("{shopperId}/lists")
@@ -102,8 +102,8 @@ export class ShoppersController extends Controller {
 
   /**
    * @summary Retrieves all locations associated with a Shopper 
-   * @param email - the email address of the user
-   * @param shopperId - the ID of the shopper for whom locations will be returned
+   * @param email the email address of the user
+   * @param shopperId the ID of the shopper for whom locations will be returned
    * @returns The locations at which items were purchased by a shopper
    */
   @Get("{shopperId}/locations")

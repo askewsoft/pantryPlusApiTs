@@ -12,7 +12,7 @@ import { ErrorCode } from "../../shared/errorHandler";
 export class GroupsController extends Controller {
   /**
    * @summary Creates a new group of shoppers
-   * @param email - the email address of the user
+   * @param email the email address of the user
    * @returns The created group and added members
    */
   @Post()
@@ -37,12 +37,12 @@ export class GroupsController extends Controller {
 
   /**
    * @summary Updates an existing group name and/or associated members
-   * @param email - the email address of the user
-   * @param groupId - the ID of the group to be updated
+   * @param email the email address of the user
+   * @param groupId the ID of the group to be updated
    * @returns Boolean indicating success of the update
    */
   @Put("{groupId}")
-  @SuccessResponse(202, "Accepted")
+  @SuccessResponse(205, "Content Updated")
   public async update(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() group: Group): Promise<GroupCreationResponse> {
     const { name, members } = group;
     try {
@@ -58,20 +58,20 @@ export class GroupsController extends Controller {
 
   /**
    * @summary Deletes an existing group
-   * @param email - the email address of the user
-   * @param groupId - the ID of the group to be deleted
+   * @param email the email address of the user
+   * @param groupId the ID of the group to be deleted
    * @returns Boolean indicating success of the removal
    */
   @Delete("{groupId}")
-  @SuccessResponse(202, "Accepted")
+  @SuccessResponse(205, "Content Updated")
   public async delete(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<boolean> {
     return GroupsService.delete(groupId);
   };
 
   /**
    * @summary Gets an existing group
-   * @param email - the email address of the user
-   * @param groupId - the ID of the group to be returned
+   * @param email the email address of the user
+   * @param groupId the ID of the group to be returned
    * @returns The details of the group
    */
   @Get("{groupId}")
@@ -82,8 +82,8 @@ export class GroupsController extends Controller {
 
   /**
    * @summary Gets all shoppers in an existing group
-   * @param email - the email address of the user
-   * @param groupId - the ID of the group to be returned
+   * @param email the email address of the user
+   * @param groupId the ID of the group to be returned
    * @returns The shoppers in the group
    */
   @Get("{groupId}/shoppers")
