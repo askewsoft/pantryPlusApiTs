@@ -7,7 +7,8 @@ export interface Item {
     /** The name of the item */
     name: string;
     /** The universal product code of the item */
-    upc: string;
+    upc?: string;
 }
 
-export type ItemCreationParams = Pick<Item, "name" | "upc">;
+// TODO: add category ID
+export type ItemCreationParams = Omit<Item, "id">;

@@ -8,7 +8,11 @@ INSERT INTO ITEM (NAME, UPC)
 VALUES (@name, @upc)
 ;
 
-SELECT ID_TXT as ID
-FROM ITEM
-WHERE ID = last_insert_id()
+SET @itemId = last_insert_id();
+
+INSERT INTO ITEM_CATEGORY_RELATION (ITEM_ID, CATEGORY_ID)
+VALUES (@itemId, @categoryIdTxt)
+;
+
+SELECT @itemId as ID
 ;

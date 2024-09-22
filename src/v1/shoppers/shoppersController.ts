@@ -78,7 +78,7 @@ export class ShoppersController extends Controller {
    * @summary Retrieves all previously purchased items associated with a Shopper 
    * @param email - the email address of the user
    * @param shopperId - the ID of the shopper for whom items will be returned
-   * @returns The items associated with the supplied shopper
+   * @returns The items previously purchased by a shopper
    */
   @Get("{shopperId}/items")
   @SuccessResponse(200, "OK")
@@ -104,7 +104,7 @@ export class ShoppersController extends Controller {
    * @summary Retrieves all locations associated with a Shopper 
    * @param email - the email address of the user
    * @param shopperId - the ID of the shopper for whom locations will be returned
-   * @returns The locations associated with the supplied shopper
+   * @returns The locations at which items were purchased by a shopper
    */
   @Get("{shopperId}/locations")
   @SuccessResponse(200, "OK")
