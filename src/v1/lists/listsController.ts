@@ -3,7 +3,7 @@ import { Body, Controller, Delete, Get, Header, Path, Post, Put, Route, SuccessR
 
 import { List, ListCreationParams } from "./list";
 import { Category, CategoryCreationParams } from "../categories/category";
-import { Item } from "../items/item";
+import { Item, ItemCreationParams } from "../items/item";
 import { ListsService } from "./listsService";
 import { ErrorCode } from "../../shared/errorHandler";
 
@@ -46,7 +46,7 @@ export class ListsController extends Controller {
    */
   @Post("{listId}/items")
   @SuccessResponse(201, "Created")
-  public async addItem(@Path() listId: string, @Body() item: Item): Promise<Pick<Item, "id">> {
+  public async addItem(@Path() listId: string, @Body() item: Item | ItemCreationParams): Promise<Pick<Item, "id">> {
     return await ListsService.addItem(listId, item);
   };
 

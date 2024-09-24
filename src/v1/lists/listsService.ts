@@ -2,7 +2,7 @@ import path from "path";
 import { dbPost, extractDbResult } from "../../shared/dbDriver";
 import { List, ListCreationParams } from "./list";
 import { Category, CategoryCreationParams } from "../categories/category";
-import { Item } from "../items/item";
+import { Item, ItemCreationParams } from "../items/item";
 import { Logger, logger } from "../../shared/logger";
 
 const log: Logger = logger('List Service')
@@ -51,7 +51,7 @@ export abstract class ListsService {
     return;
   };
 
-  public static async addItem(listId: string, item: Item): Promise<Pick<Item, "id">> {
+  public static async addItem(listId: string, item: Item | ItemCreationParams): Promise<Pick<Item, "id">> {
     const addItemTemplate = path.join(__dirname, '.sql/addItem.sql');
     const [rows, fields] = await dbPost(addItemTemplate, { id: listId, item });
     const results = extractDbResult(rows);
@@ -60,12 +60,14 @@ export abstract class ListsService {
   };
 
   public static async removeItem(listId: string, itemId: string): Promise<void> {
+    // TODO: create removeItem.sql
     const removeItemTemplate = path.join(__dirname, '.sql/removeItem.sql');
     await dbPost(removeItemTemplate, { id: listId, itemId });
     return;
   };
 
   public static async purchaseItem(listId: string, itemId: string): Promise<void> {
+    // TODO: create purchaseItem.sql
     const purchaseItemTemplate = path.join(__dirname, '.sql/purchaseItem.sql');
     await dbPost(purchaseItemTemplate, { id: listId, itemId });
     return;
