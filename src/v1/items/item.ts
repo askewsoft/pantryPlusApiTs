@@ -8,6 +8,8 @@ export interface Item {
     name: string;
     /** The universal product code of the item */
     upc?: string;
+    /** The ID of the category to which this item belongs */
+    categoryId?: string;
 }
 
 export type ItemCreationParams = Omit<Item, "id">;
