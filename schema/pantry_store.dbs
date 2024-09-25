@@ -135,9 +135,11 @@
 				<comment><![CDATA[string version of ID]]></comment>
 			</column>
 			<column name="name" type="varchar" length="100" jt="12" mandatory="y" />
-			<column name="geohash" type="varchar" length="10" jt="12" />
-			<column name="source" type="enum" jt="12" mandatory="y" >
-				<defo><![CDATA['user']]></defo>
+			<column name="geolocation" prior="geohash" type="point" length="10" jt="1111" mandatory="y" >
+				<comment><![CDATA[MySQL geo-spatial data type denoted by 'POINT(latitude longitude)']]></comment>
+			</column>
+			<column name="created_by" type="int" jt="4" mandatory="y" >
+				<comment><![CDATA[The ID of the shopper that created this location]]></comment>
 			</column>
 			<index name="pk_locations_id" unique="PRIMARY_KEY" >
 				<column name="id" />
