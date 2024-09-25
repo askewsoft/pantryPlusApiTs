@@ -7,8 +7,10 @@ export interface Location {
     id: string;
     /** The name of the location */
     name: string;
-    /** From what or whom this location info was originally provided */
-    source: string;
+    /** The latitude of the user's current location */
+    latitude: number;
+    /** The longitude of the user's current location */
+    longitude: number;
 }
 
-export type LocationCreationParams = Pick<Location, "name" | "source">;
+export type LocationCreationParams = Omit<Location, "id">;
