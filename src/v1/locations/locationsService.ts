@@ -14,4 +14,9 @@ export abstract class LocationsService {
     const locationId = results[0].id;
     return { id: locationId };
   };
+
+  public static async update(locationId: string, name: string, email: string): Promise<void> {
+    const updateTemplate = path.join(__dirname, '.sql/updateLocation.sql');
+    return await dbPost(updateTemplate, { locationId, name, email });
+  };
 };

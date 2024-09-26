@@ -11,16 +11,21 @@ export class LocationsController extends Controller {
   /**
    * @summary Creates a new location
    * @param email the email address of the user
-   * @returns The ID of the created location
    */
   @Post()
   @SuccessResponse(201, "Created")
   public async create(@Header("X-Auth-User") email: string, @Body() location: LocationCreationParams ): Promise<Pick<Location, "id">> {
-    try {
-      return await LocationsService.create(location);
-    } catch (err: any) {
-      err.code = ErrorCode.DATABASE_ERR
-      throw err;
-    }
+    return await LocationsService.create(location);
+  };
+
+  /**
+   * @summary Updates an existing location name
+   * @param email the email address of the user
+   * @param locationId the ID of the location to be updated
+   */
+  @Put("{locationId}")
+  @SuccessResponse(205, "Content Updated")
+  public async update(@Header("X-Auth-User") email: string, @Path() locationId: string, @Body() name: string): Promise<void> {
+    return await LocationsService.update(locationId, name, email);
   };
 };
