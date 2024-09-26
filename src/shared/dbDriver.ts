@@ -54,8 +54,8 @@ const extractDbResult = (rows: Array<any>): Array<any> => {
     const results = rows.pop();
     return snakeToCamel(results);
   } else {
-    const errObj = new Error('invalid database response');
-    errObj.name = 'BAD_DB_RESPONSE';
+    const errObj = new Error('invalid database response') as any;
+    errObj.code = ErrorCode.DATABASE_ERR;
     throw errObj;
   }
 };

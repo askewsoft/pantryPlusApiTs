@@ -20,32 +20,20 @@ export abstract class GroupsService {
     try {
       await dbPost(addToGroupTemplate, {shopperId, groupId});
     } catch (err: any) {
-      log.warn(`Unable to attach shopper ${shopperId} to group ${groupId}: ${err.message}`); 
+      log.warn(`Unable to attach shopper ${shopperId} to group ${groupId}: ${err.message}`);
       return false;
     }
     return true;
   };
 
-  public static async removeAllShoppersFromGroup(groupId: string): Promise<boolean> {
+  public static async removeAllShoppersFromGroup(groupId: string): Promise<void> {
     const removeAllFromGroupTemplate = path.join(__dirname, '.sql/removeAllShoppersFromGroup.sql');
-    try {
-      await dbPost(removeAllFromGroupTemplate, { groupId });
-    } catch (err: any) {
-      log.warn(`Unable to remove all shoppers from group ${groupId}: ${err.message}`); 
-      return false;
-    }
-    return true;
+    return await dbPost(removeAllFromGroupTemplate, { groupId });
   };
 
-  public static async delete(groupId: string): Promise<boolean> {
+  public static async delete(groupId: string): Promise<void> {
     const deleteGroupTemplate = path.join(__dirname, '.sql/deleteGroup.sql');
-    try {
-      await dbPost(deleteGroupTemplate, groupId);
-    } catch (err: any) {
-      log.error(`Unable to delete group ${groupId}: ${err.message}`); 
-      return false;
-    }
-    return true;
+    return await dbPost(deleteGroupTemplate, groupId);
   };
 
   public static async get(groupId: string): Promise<GroupGetResponse> {
@@ -53,15 +41,9 @@ export abstract class GroupsService {
     return dbPost(getGroupTemplate, groupId);
   };
 
-  public static async update(groupId: string, name: string): Promise<boolean> {
+  public static async update(groupId: string, name: string): Promise<void> {
     const updateGroupTemplate = path.join(__dirname, '.sql/updateGroupName.sql');
-    try {
-      await dbPost(updateGroupTemplate, { groupId, name });
-    } catch (err: any) {
-      log.error(`Unable to update group ${groupId}: ${err.message}`); 
-      return false;
-    }
-    return true;
+    return await dbPost(updateGroupTemplate, { groupId, name });
   };
 
   public static async getGroupShoppers(groupId: string): Promise<Array<Shopper>> {

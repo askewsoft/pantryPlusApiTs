@@ -19,20 +19,17 @@ export class GroupsController extends Controller {
   @SuccessResponse(201, "Created")
   public async create(@Header("X-Auth-User") email: string, @Body() group: GroupCreationParams ): Promise<GroupCreationResponse> {
     const { name, members } = group;
-    try {
-      const groupId = await GroupsService.create(name, email);
+    const groupId = await GroupsService.create(name, email);
 
-      if (!groupId) {
-        throw new Error("Unable to create group ID");
-      }
-      if (!members.length) return { id: groupId, members: [] };
-
-      const membersUpdated = await addAllMembersToGroup(groupId, members);
-      return { id: groupId, members: membersUpdated };
-    } catch (err: any) {
-      err.code = ErrorCode.DATABASE_ERR
+    if (!groupId) {
+      const err = new Error("Unable to create group ID") as any;
+      err.code = ErrorCode.DATABASE_ERR;
       throw err;
     }
+    if (!members.length) return { id: groupId, members: [] };
+
+    const membersUpdated = await addAllMembersToGroup(groupId, members);
+    return { id: groupId, members: membersUpdated };
   };
 
   /**
@@ -43,17 +40,11 @@ export class GroupsController extends Controller {
    */
   @Put("{groupId}")
   @SuccessResponse(205, "Content Updated")
-  public async update(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() group: Group): Promise<GroupCreationResponse> {
+  public async update(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() group: Group): Promise<void> {
     const { name, members } = group;
-    try {
-      await GroupsService.removeAllShoppersFromGroup(groupId);
-      const membersUpdated = await addAllMembersToGroup(groupId, members);
-      await GroupsService.update(groupId, name);
-      return { id: groupId, members: membersUpdated };
-    } catch (err: any) {
-      err.code = ErrorCode.DATABASE_ERR
-      throw err;
-    }
+    await GroupsService.removeAllShoppersFromGroup(groupId);
+    await addAllMembersToGroup(groupId, members);
+    return await GroupsService.update(groupId, name);
   };
 
   /**
@@ -64,7 +55,7 @@ export class GroupsController extends Controller {
    */
   @Delete("{groupId}")
   @SuccessResponse(205, "Content Updated")
-  public async delete(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<boolean> {
+  public async delete(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<void> {
     return GroupsService.delete(groupId);
   };
 

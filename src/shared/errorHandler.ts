@@ -4,7 +4,7 @@ const log = logger('Custom Error');
 
 export enum ErrorCode {
   DISALLOWED_EMAIL = 'DISALLOWED_EMAIL',
-  ER_DUP_ENTRY = 'ER_DUP_ENTRY',
+  DUPE_ENTRY = 'DUPE_ENTRY',
   INVALID_OBJECT = 'INVALID_OBJECT',
   MISSING_IDENTITY = 'MISSING_IDENTITY',
   NO_ACCESS = 'NO_ACCESS',
@@ -27,9 +27,13 @@ export const errorHandler = (err: any, req: any, res: any, next: any) => {
       log.warn(`${ErrorCode.NOT_FOUND}: ${err.message}\n${err.stack}`);
       res.status(404).send(err.message);
       break;
-    case ErrorCode.ER_DUP_ENTRY:
-      log.error(`${ErrorCode.ER_DUP_ENTRY}: ${err.message}\n${err.stack}`);
+    case ErrorCode.DUPE_ENTRY:
+      log.error(`${ErrorCode.DUPE_ENTRY}: ${err.message}\n${err.stack}`);
       res.status(409).send(err.message);
+      break;
+    case ErrorCode.DATABASE_ERR:
+      log.error(`${ErrorCode.DATABASE_ERR}: ${err.message}\n${err.stack}`);
+      res.status(500).send(err.message);
       break;
     default:
       log.error(`${ErrorCode.UNEXPECTED_ERR}: ${JSON.stringify(err)}`);

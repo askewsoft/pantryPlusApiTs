@@ -18,12 +18,7 @@ export class ListsController extends Controller {
   @Post()
   @SuccessResponse(201, "Created")
   public async create(@Header("X-Auth-User") email: string, @Body() newList: ListCreationParams ): Promise<Pick<List, "id">> {
-    try {
-      return await ListsService.create(newList);
-    } catch (err: any) {
-      err.code = ErrorCode.DATABASE_ERR
-      throw err;
-    }
+    return await ListsService.create(newList);
   };
 
   /**
