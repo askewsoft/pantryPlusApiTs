@@ -49,12 +49,25 @@ export class ListsController extends Controller {
    * @summary Purchases an item on a list
    * @param listId the ID of the list
    * @param itemId the ID of the item to purchase
-   * @returns boolean indicating the success of the operation
    */
   @Post("{listId}/items/{itemId}/purchase")
   @SuccessResponse(201, "Created")
-  public async purchaseItem(@Path() listId: string, @Path() itemId: string): Promise<void> {
-    await ListsService.purchaseItem(listId, itemId);
+  public async purchaseItem(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() listId: string, @Path() itemId: string): Promise<void> {
+    // TODO: validate user taking the action and submit their ID to the service
+    await ListsService.purchaseItem(listId, itemId, locationId);
+    return;
+  };
+
+  /**
+   * @summary Removes the purchase of an item from purchase history
+   * @param listId the ID of the list
+   * @param itemId the ID of the item to remove
+   */
+  @Post("{listId}/items/{itemId}/unpurchase")
+  @SuccessResponse(201, "Created")
+  public async unpurchaseItem(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() listId: string, @Path() itemId: string, @Body() purchaseDate: string): Promise<void> {
+    // TODO: validate user taking the action and submit their ID to the service
+    await ListsService.unpurchaseItem(listId, itemId, locationId, purchaseDate);
     return;
   };
 

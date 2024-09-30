@@ -3,11 +3,13 @@ import { dbPost, extractDbResult } from "../../shared/dbDriver";
 import { List, ListCreationParams } from "./list";
 import { Category, CategoryCreationParams } from "../categories/category";
 import { Item, ItemCreationParams } from "../items/item";
+import { ItemsService } from "../items/itemsService";
 import { Logger, logger } from "../../shared/logger";
 
 const log: Logger = logger('List Service')
 
 export abstract class ListsService {
+  // LIST ACTIONS
   public static async create(list: ListCreationParams): Promise<Pick<List, "id">> {
     const { name, ownerId, groupId } = list;
     const createTemplate = path.join(__dirname, '.sql/createList.sql');
@@ -30,6 +32,7 @@ export abstract class ListsService {
     return;
   };
 
+  // CATEGORY ACTIONS
   public static async addCategory(listId: string, category: CategoryCreationParams): Promise<Pick<Category, "id">> {
     const addCategoryTemplate = path.join(__dirname, '.sql/addCategory.sql');
     const [rows, fields] = await dbPost(addCategoryTemplate, { id: listId, category });
@@ -51,25 +54,41 @@ export abstract class ListsService {
     return;
   };
 
-  public static async addItem(listId: string, item: Item | ItemCreationParams): Promise<Pick<Item, "id">> {
+  // ITEM ACTIONS
+  public static async addItem(listId: string, item: string | ItemCreationParams): Promise<Pick<Item, "id">> {
+    let itemId: string;
+    let categoryId: string | undefined;
+    if (typeof item === 'string') {
+      itemId = item;
+    } else {
+      categoryId = item.categoryId;
+      const { id } = await ItemsService.create(item);
+      itemId = id;
+    }
     const addItemTemplate = path.join(__dirname, '.sql/addItem.sql');
-    const [rows, fields] = await dbPost(addItemTemplate, { id: listId, item });
-    const results = extractDbResult(rows);
-    const itemId = results[0].id;
+    await dbPost(addItemTemplate, { listId, itemId, categoryId });
     return { id: itemId };
   };
 
   public static async removeItem(listId: string, itemId: string): Promise<void> {
-    // TODO: create removeItem.sql
     const removeItemTemplate = path.join(__dirname, '.sql/removeItem.sql');
     await dbPost(removeItemTemplate, { id: listId, itemId });
     return;
   };
 
-  public static async purchaseItem(listId: string, itemId: string): Promise<void> {
-    // TODO: create purchaseItem.sql
+  public static async purchaseItem(listId: string, itemId: string, locationId: string): Promise<void> {
     const purchaseItemTemplate = path.join(__dirname, '.sql/purchaseItem.sql');
-    await dbPost(purchaseItemTemplate, { id: listId, itemId });
+    await dbPost(purchaseItemTemplate, { listId, itemId, locationId });
+    await this.removeItem(listId, itemId);
+    return;
+  };
+
+  public static async unpurchaseItem(listId: string, itemId: string, locationId: string, purchaseDate: string): Promise<void> {
+    const unpurchaseItemTemplate = path.join(__dirname, '.sql/unpurchaseItem.sql');
+    const [rows, fields] = await dbPost(unpurchaseItemTemplate, { listId, itemId, locationId, purchaseDate });
+    const results = extractDbResult(rows);
+    const categoryId = results[0].categoryId;
+    await this.addItem(listId, itemId);
     return;
   };
 };
