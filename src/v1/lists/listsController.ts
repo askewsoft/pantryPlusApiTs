@@ -63,8 +63,8 @@ export class ListsController extends Controller {
    * @param listId the ID of the list
    * @param itemId the ID of the item to remove
    */
-  @Post("{listId}/items/{itemId}/unpurchase")
-  @SuccessResponse(201, "Created")
+  @Delete("{listId}/items/{itemId}/purchase")
+  @SuccessResponse(205, "Content Updated")
   public async unpurchaseItem(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() listId: string, @Path() itemId: string, @Body() purchaseDate: string): Promise<void> {
     // TODO: validate user taking the action and submit their ID to the service
     await ListsService.unpurchaseItem(listId, itemId, locationId, purchaseDate);
