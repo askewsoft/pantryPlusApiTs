@@ -1,4 +1,6 @@
 import { logger } from './logger';
+import { Request, Response, NextFunction } from 'express';
+import { ValidateError } from 'tsoa';
 
 const log = logger('Custom Error');
 
@@ -13,9 +15,16 @@ export enum ErrorCode {
   DATABASE_ERR = 'DATABASE_ERR'
 };
 
-export const errorHandler = (err: any, req: any, res: any, next: any) => {
-  switch (err.code) {
-    case ErrorCode.MISSING_IDENTITY:
+export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction): Response | void => {
+  log.info("\n*** In Error Handler ***\n");
+  if (err instanceof ValidateError) {
+    log.warn(`Validation error for ${req.method} ${req.url}: ${err.fields}`);
+    res.status(422).json( { message: err.message, details: err?.fields });
+    return next();
+  }
+  if ("code" in err) {
+    switch (err.code) {
+      case ErrorCode.MISSING_IDENTITY:
       log.warn(`${ErrorCode.MISSING_IDENTITY}: ${err.message}\n${err.stack}`);
       res.status(401).send(err.message);
       break;
@@ -37,6 +46,11 @@ export const errorHandler = (err: any, req: any, res: any, next: any) => {
       break;
     default:
       log.error(`${ErrorCode.UNEXPECTED_ERR}: ${JSON.stringify(err)}`);
-      res.status(500).send(err.message);
+        res.status(500).send(err.message);
+    }
+  } else {
+    log.error(`${ErrorCode.UNEXPECTED_ERR}: ${JSON.stringify(err)}`);
+    res.status(500).send(ErrorCode.UNEXPECTED_ERR);
   }
+  return next();
 };

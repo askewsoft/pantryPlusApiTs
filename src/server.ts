@@ -4,6 +4,7 @@ import config from './shared/config';
 import { errorHandler } from './shared/errorHandler';
 import { logger, Logger } from './shared/logger';
 import swaggerUi from 'swagger-ui-express';
+// TODO: validate env vars?
 
 // import cluster from 'cluster';
 
@@ -16,8 +17,15 @@ app.use(
     extended: true,
   })
 );
+
 app.use(json());
 app.use(errorHandler);
+
+RegisterRoutes(app);
+
+app.get('/healthcheck', (req, res) => {
+  res.status(200).send('OK');
+});
 
 // Reload and serve the latest swagger.json
 app.use("/docs", swaggerUi.serve, async (_req: Request, res: Response) => {
@@ -28,11 +36,10 @@ app.use("/docs", swaggerUi.serve, async (_req: Request, res: Response) => {
   );
 });
 
-
-RegisterRoutes(app);
-
-app.get('/healthcheck', (req, res) => {
-  res.status(200).send('OK');
+app.use(function notFoundHandler(_req: Request, res: Response) {
+  res.status(404).send({
+    message: "Not Found",
+  });
 });
 
 // TODO: set up clustering

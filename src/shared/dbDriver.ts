@@ -43,8 +43,9 @@ const dbPost = async (template: string, params: Object): Promise<any> => {
     dbConn.release();
     return results;
   } catch (err: any) {
-    err.code = ErrorCode.DATABASE_ERR;
-    throw err;
+    log.error(err);
+    // Do not expose the error details to the client
+    throw ErrorCode.DATABASE_ERR;
   }
 };
 
