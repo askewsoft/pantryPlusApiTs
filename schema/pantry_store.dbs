@@ -102,6 +102,9 @@
 			<fk name="fk_item_history_relation_shopping_history" to_schema="pantry_store" to_table="purchase_history" >
 				<fk_column name="history_id" pk="id" />
 			</fk>
+			<fk name="fk_item_history_relation" to_schema="pantry_store" to_table="shopper" >
+				<fk_column name="purchased_by" pk="id" />
+			</fk>
 			<options><![CDATA[engine=InnoDB]]></options>
 		</table>
 		<table name="list" prior="tbl" >
@@ -147,12 +150,15 @@
 			<column name="geolocation" prior="geohash" type="point" length="10" jt="1111" mandatory="y" >
 				<comment><![CDATA[MySQL geo-spatial data type denoted by 'POINT(latitude longitude)']]></comment>
 			</column>
-			<column name="created_by" type="int" jt="4" mandatory="y" >
+			<column name="created_by" type="binary" length="16" jt="-2" mandatory="y" >
 				<comment><![CDATA[The ID of the shopper that created this location]]></comment>
 			</column>
 			<index name="pk_locations_id" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
+			<fk name="fk_location_shopper" to_schema="pantry_store" to_table="shopper" >
+				<fk_column name="created_by" pk="id" />
+			</fk>
 			<options><![CDATA[engine=InnoDB]]></options>
 		</table>
 		<table name="purchase_history" prior="shopping_history" >
@@ -195,17 +201,17 @@
 		</table>
 	</schema>
 	<layout name="Default Layout" id="Layout_16e3" show_relation="columns" >
-		<entity schema="pantry_store" name="category" color="D3C1EE" x="784" y="288" />
-		<entity schema="pantry_store" name="category_order" color="C1D8EE" x="448" y="272" />
-		<entity schema="pantry_store" name="group" color="D3C1EE" x="80" y="64" />
+		<entity schema="pantry_store" name="category" color="D3C1EE" x="544" y="448" />
+		<entity schema="pantry_store" name="category_order" color="C1D8EE" x="496" y="288" />
+		<entity schema="pantry_store" name="group" color="D3C1EE" x="112" y="64" />
 		<entity schema="pantry_store" name="group_shopper_relation" color="C1D8EE" x="320" y="48" />
-		<entity schema="pantry_store" name="item" color="D3C1EE" x="48" y="608" />
-		<entity schema="pantry_store" name="item_category_relation" color="3986C1" x="704" y="640" />
-		<entity schema="pantry_store" name="item_history_relation" color="C1D8EE" x="96" y="448" />
-		<entity schema="pantry_store" name="list" color="D3C1EE" x="304" y="208" />
-		<entity schema="pantry_store" name="list_item_relation" color="C1D8EE" x="48" y="256" />
-		<entity schema="pantry_store" name="location" color="D3C1EE" x="608" y="368" />
-		<entity schema="pantry_store" name="purchase_history" color="C1D8EE" x="352" y="432" />
-		<entity schema="pantry_store" name="shopper" color="D3C1EE" x="640" y="64" />
+		<entity schema="pantry_store" name="item" color="D3C1EE" x="48" y="592" />
+		<entity schema="pantry_store" name="item_category_relation" color="3986C1" x="640" y="640" />
+		<entity schema="pantry_store" name="item_history_relation" color="C1D8EE" x="64" y="416" />
+		<entity schema="pantry_store" name="list" color="D3C1EE" x="336" y="208" />
+		<entity schema="pantry_store" name="list_item_relation" color="C1D8EE" x="64" y="240" />
+		<entity schema="pantry_store" name="location" color="D3C1EE" x="784" y="288" />
+		<entity schema="pantry_store" name="purchase_history" color="C1D8EE" x="320" y="512" />
+		<entity schema="pantry_store" name="shopper" color="D3C1EE" x="576" y="64" />
 	</layout>
 </project>
