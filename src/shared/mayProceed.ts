@@ -24,7 +24,6 @@ export const mayProceed = async ({ accessTemplate, email, id }: AccessParams): P
     const err = new Error('missing user identity');
     err.name = ErrorCode.MISSING_IDENTITY;
     throw err;
-    return;
   }
 
   // confirm access
@@ -35,7 +34,6 @@ export const mayProceed = async ({ accessTemplate, email, id }: AccessParams): P
       const err = new Error('user not allowed access');
       err.name = ErrorCode.NO_ACCESS;
       throw err;
-      return;
     }
   }
   return;
