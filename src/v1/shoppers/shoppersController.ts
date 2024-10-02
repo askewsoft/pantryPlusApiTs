@@ -34,7 +34,11 @@ export class ShoppersController extends Controller {
   @Post()
   @SuccessResponse(201, "Created")
   public async create(@Body() person: ShopperCreationParams ): Promise<Shopper> {
-    // TODO: how do we confirm that a user has created a username/password?
+    /* TODO:
+     * how do we confirm that a user has created a username/password?
+     * look into using the @Security decorator to ensure that the user is authenticated
+     * https://tsoa-community.github.io/docs/authentication.html
+    */
     return ShoppersService.create(person);
   }
 
