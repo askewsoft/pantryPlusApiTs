@@ -3,7 +3,6 @@ import { Body, Controller, Delete, Get, Header, Path, Post, Put, Route, SuccessR
 
 import { Location, LocationCreationParams } from "./location";
 import { LocationsService } from "./locationsService";
-import { ErrorCode } from "../../shared/errorHandler";
 
 @Route("locations")
 @Tags("Locations")

@@ -1,11 +1,16 @@
 // GROUPS
 import { Body, Controller, Delete, Get, Header, Path, Post, Put, Route, SuccessResponse, Tags} from "tsoa";
+import path from "path";
 
 import { Group, GroupCreationParams, GroupCreationResponse, GroupGetResponse } from "./group";
 import { Shopper } from "../shoppers/shopper";
 import { GroupsService } from "./groupsService";
 import { addAllMembersToGroup } from "./groupHelper";
 import { ErrorCode } from "../../shared/errorHandler";
+import { mayProceed } from "../../shared/mayProceed";
+
+const mayModifyGroupTemplate = path.join(__dirname, "./sql/mayModifyGroup.sql");
+const mayAccessGroupTemplate = path.join(__dirname, "./sql/mayAccessGroup.sql");
 
 @Route("groups")
 @Tags("Groups")
@@ -18,6 +23,7 @@ export class GroupsController extends Controller {
   @Post()
   @SuccessResponse(201, "Created")
   public async create(@Header("X-Auth-User") email: string, @Body() group: GroupCreationParams ): Promise<GroupCreationResponse> {
+    // any authenticated user can create a group
     const { name, members } = group;
     const groupId = await GroupsService.create(name, email);
 
@@ -41,6 +47,7 @@ export class GroupsController extends Controller {
   @Put("{groupId}")
   @SuccessResponse(205, "Content Updated")
   public async update(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() group: Group): Promise<void> {
+    await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
     const { name, members } = group;
     await GroupsService.removeAllShoppersFromGroup(groupId);
     await addAllMembersToGroup(groupId, members);
@@ -56,6 +63,7 @@ export class GroupsController extends Controller {
   @Delete("{groupId}")
   @SuccessResponse(205, "Content Updated")
   public async delete(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<void> {
+    await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
     return GroupsService.delete(groupId);
   };
 
@@ -68,6 +76,7 @@ export class GroupsController extends Controller {
   @Get("{groupId}")
   @SuccessResponse(200, "OK")
   public async get(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<GroupGetResponse> {
+    await mayProceed({ email, id: groupId, accessTemplate: mayAccessGroupTemplate });
     return GroupsService.get(groupId);
   };
 
@@ -80,6 +89,7 @@ export class GroupsController extends Controller {
   @Get("{groupId}/shoppers")
   @SuccessResponse(200, "OK")
   public async getGroupShoppers(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<Array<Shopper>> {
+    await mayProceed({ email, id: groupId, accessTemplate: mayAccessGroupTemplate });
     return GroupsService.getGroupShoppers(groupId);
   };
 };

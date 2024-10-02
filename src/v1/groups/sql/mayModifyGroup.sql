@@ -1,5 +1,5 @@
--- confirm access to view group
--- groups may be viewed by any member or owner
+-- confirm access to alter group
+-- groups may be changed or deleted by owner only
 
 SET @userEmail = :email;
 SET @groupIdTxt = :id;
@@ -13,11 +13,4 @@ SELECT 1
 FROM GROUP g
 WHERE g.OWNER_ID = @shopperId
   AND g.ID = @groupId
-
-UNION
-
-SELECT 1
-FROM GROUP_SHOPPER_RELATION gsr
-WHERE gsr.SHOPPER_ID = @shopperId
-  AND gsr.GROUP_ID = @groupId
 ;
