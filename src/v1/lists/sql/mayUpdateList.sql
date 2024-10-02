@@ -2,7 +2,7 @@
 -- only the list owner can make changes
 
 SET @email = :email;
-SET @listId = :id;
+SET @listIdTxt = :id;
 
 SELECT 1
 FROM SHOPPER s
