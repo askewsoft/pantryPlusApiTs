@@ -21,8 +21,8 @@ import { Location } from "../locations/location";
 import { ShoppersService } from "./shoppersService";
 import { mayProceed } from "../../shared/mayProceed";
 
-const accessTemplate = path.join(__dirname, './sql/mayAccessShopper.sql');
-// const log = logger("Shopper");
+const accessShopperTemplate = path.join(__dirname, './sql/mayAccessShopper.sql');
+const canSeeShopperDetailsTemplate = path.join(__dirname, './sql/canSeeShopperDetails.sql');
 
 @Route("shoppers")
 @Tags("Shoppers")
@@ -34,6 +34,7 @@ export class ShoppersController extends Controller {
   @Post()
   @SuccessResponse(201, "Created")
   public async create(@Body() person: ShopperCreationParams ): Promise<Shopper> {
+    // TODO: how do we confirm that a user has created a username/password?
     return ShoppersService.create(person);
   }
 
@@ -46,18 +47,20 @@ export class ShoppersController extends Controller {
   @Put("{shopperId}")
   @SuccessResponse(205, "Content Updated")
   public async update(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Body() shopper: Shopper): Promise<string> {
-    await mayProceed({ email, id: shopperId, accessTemplate });
+    await mayProceed({ email, id: shopperId, accessTemplate: accessShopperTemplate });
     return ShoppersService.update(shopperId, shopper);
   }
 
   /**
    * @summary Retrieves a shopper by ID
+   * @param email the email address of the user
    * @param shopperId The ID of the shopper to retrieve
    * @returns The retrieved shopper
    */
   @Get("{shopperId}")
   @SuccessResponse(200, "OK")
-  public async retrieve(@Path() shopperId: string): Promise<Shopper> {
+  public async retrieve(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Shopper> {
+    await mayProceed({ email, id: shopperId, accessTemplate: canSeeShopperDetailsTemplate });
     return ShoppersService.retrieve(shopperId);
   }
 
@@ -70,7 +73,7 @@ export class ShoppersController extends Controller {
   @Get("{shopperId}/groups")
   @SuccessResponse(200, "OK")
   public async getGroups(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Group>> {
-    await mayProceed({ email, id: shopperId, accessTemplate });
+    await mayProceed({ email, id: shopperId, accessTemplate: accessShopperTemplate });
     return ShoppersService.getGroups(shopperId);
   }
 
@@ -83,7 +86,7 @@ export class ShoppersController extends Controller {
   @Get("{shopperId}/items")
   @SuccessResponse(200, "OK")
   public async getItems(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Item>> {
-    await mayProceed({ email, id: shopperId, accessTemplate });
+    await mayProceed({ email, id: shopperId, accessTemplate: accessShopperTemplate });
     return ShoppersService.getItems(shopperId);
   }
 
@@ -96,7 +99,7 @@ export class ShoppersController extends Controller {
   @Get("{shopperId}/lists")
   @SuccessResponse(200, "OK")
   public async getLists(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<List>> {
-    await mayProceed({ email, id: shopperId, accessTemplate });
+    await mayProceed({ email, id: shopperId, accessTemplate: accessShopperTemplate });
     return ShoppersService.getLists(shopperId);
   }
 
@@ -109,7 +112,7 @@ export class ShoppersController extends Controller {
   @Get("{shopperId}/locations")
   @SuccessResponse(200, "OK")
   public async getLocations(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Location>> {
-    await mayProceed({ email, id: shopperId, accessTemplate });
+    await mayProceed({ email, id: shopperId, accessTemplate: accessShopperTemplate });
     return ShoppersService.getLocations(shopperId);
   }
 };

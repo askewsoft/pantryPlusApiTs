@@ -90,6 +90,12 @@
 			<comment><![CDATA[log table, inserts only to capture events at completion of shopping session]]></comment>
 			<column name="item_id" type="binary" length="16" jt="-2" mandatory="y" />
 			<column name="history_id" prior="added_date" type="binary" length="16" jt="-2" mandatory="y" />
+			<column name="purchased_by" prior="shopper_id" type="binary" length="16" jt="-2" mandatory="y" >
+				<comment><![CDATA[The shopper_id of the user that clicked the purchase button]]></comment>
+			</column>
+			<index name="pk_item_history_relation_history_id" unique="PRIMARY_KEY" >
+				<column name="history_id" />
+			</index>
 			<fk name="fk_item_history_relation_item" to_schema="pantry_store" to_table="item" >
 				<fk_column name="item_id" pk="id" />
 			</fk>
