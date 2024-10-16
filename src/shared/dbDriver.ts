@@ -23,7 +23,10 @@ const sqlConnectOpts: PoolOptions = {
   password: config.dbpassword,
   database: config.database,
   multipleStatements: true,
-  ssl: 'Amazon RDS',
+  ssl: {
+    // config.dbssl, -- replace ssl object w/ a string value
+    rejectUnauthorized: config.dbrejectunauthorized
+  },
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,

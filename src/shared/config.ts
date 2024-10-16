@@ -10,20 +10,26 @@ type Config = {
   dbuser: string | undefined;
   dbpassword: string | undefined;
   database: string | undefined;
+  dbssl: string | undefined;
+  dbrejectunauthorized: boolean | undefined;
 };
 
+const { PORT, DBPORT, DBHOST, DBUSER, DBPASSWORD, DATABASE, DBSSL, DBREJECTUNAUTHORIZED } = process.env;
+
 const config: Config = {
-  port: Number(process.env.PORT),
-  dbport: Number(process.env.DBPORT),
-  dbhost: process.env.DBHOST,
-  dbuser: process.env.DBUSER,
-  dbpassword: process.env.DBPASSWORD,
-  database: process.env.DATABASE
+  port: Number(PORT),
+  dbport: Number(DBPORT),
+  dbhost: DBHOST,
+  dbuser: DBUSER,
+  dbpassword: DBPASSWORD,
+  database: DATABASE,
+  dbssl: DBSSL,
+  dbrejectunauthorized: DBREJECTUNAUTHORIZED === "true"
 };
 
 const verifyConfig = (conf: Config) => {
   for (const key in conf) {
-    if (!conf[key as keyof Config]) {
+    if (!(key.toUpperCase() in process.env)) {
       log.error(`Missing Env Var ${key}`);
       process.kill(process.pid, 'SIGTERM');
     }
