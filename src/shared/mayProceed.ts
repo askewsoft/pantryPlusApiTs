@@ -16,7 +16,8 @@ export interface AccessParams {
 export const hasAccess = async ({ accessTemplate, email, id }: AccessParams): Promise<boolean> => {
   const [rows, fields] = await dbPost(accessTemplate, { email, id });
   const results = extractDbResult(rows);
-  return Boolean(results.length);
+  const allowed = Boolean(results[0].allowed);
+  return allowed;
 };
 
 export const mayProceed = async ({ accessTemplate, email, id }: AccessParams): Promise<void> => {
@@ -30,7 +31,7 @@ export const mayProceed = async ({ accessTemplate, email, id }: AccessParams): P
   if (accessTemplate && id) {
     const access = await hasAccess({ accessTemplate, email, id });
     if (!access) {
-      log.warn(`user ${email} not allowed to modify object via ${accessTemplate}`);
+      log.warn(`user ${email} not allowed access via ${accessTemplate}`);
       const err = new Error('user not allowed access');
       err.name = ErrorCode.NO_ACCESS;
       throw err;

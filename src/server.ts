@@ -19,7 +19,6 @@ app.use(
 );
 
 app.use(json());
-app.use(errorHandler);
 
 RegisterRoutes(app);
 
@@ -41,6 +40,8 @@ app.use(function notFoundHandler(_req: Request, res: Response) {
     message: "Not Found",
   });
 });
+
+app.use(errorHandler);
 
 // TODO: set up clustering
 const server = app.listen(config.port, () => {
