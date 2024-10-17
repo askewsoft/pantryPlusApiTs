@@ -9,21 +9,18 @@ SELECT ID into @userId FROM SHOPPER WHERE EMAIL = @userEmail
 SELECT ID, EMAIL INTO @shopperId, @shopperEmail FROM SHOPPER WHERE ID_TXT = @shopperIdTxt
 ;
 
-IF @shopperEmail = @userEmail THEN
-    SELECT 1
-ELSE IF (
-    SELECT TOP 1 1
-    FROM GROUP_SHOPPER s
-    WHERE s.SHOPPER_ID = @shopperId
-      AND EXISTS (
-        SELECT 1
-        FROM GROUP_SHOPPER u
-        WHERE u.SHOPPER_ID = @userId
-            AND u.GROUP_ID = s.GROUP_ID
-    )
-) THEN
-    SELECT 1
-ELSE
-    SELECT 0
-END IF
+SELECT IF (
+    STRCMP(@shopperEmail, @userEmail) = 0, 1, (SELECT IF (
+        EXISTS (
+            SELECT s.GROUP_ID
+            FROM PANTRY_PLUS.GROUP_SHOPPER_RELATION s
+            WHERE s.SHOPPER_ID = @shopperId
+                AND EXISTS (
+                    SELECT u.GROUP_ID
+                    FROM PANTRY_PLUS.GROUP_SHOPPER_RELATION u
+                    WHERE u.SHOPPER_ID = @userId
+                        AND u.GROUP_ID = s.GROUP_ID
+                )
+        ), 1, 0))
+) AS allowed
 ;
