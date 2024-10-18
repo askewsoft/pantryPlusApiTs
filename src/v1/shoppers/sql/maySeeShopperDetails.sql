@@ -4,9 +4,9 @@
 SET @userEmail = :email;
 SET @shopperIdTxt = :id;
 
-SELECT ID into @userId FROM SHOPPER WHERE EMAIL = @userEmail
+SELECT ID into @userId FROM PANTRY_PLUS.SHOPPER WHERE EMAIL = @userEmail
 ;
-SELECT ID, EMAIL INTO @shopperId, @shopperEmail FROM SHOPPER WHERE ID_TXT = @shopperIdTxt
+SELECT ID, EMAIL INTO @shopperId, @shopperEmail FROM PANTRY_PLUS.SHOPPER WHERE ID_TXT = @shopperIdTxt
 ;
 
 SELECT IF (
