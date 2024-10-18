@@ -14,4 +14,4 @@ export interface Shopper {
     email: string;
 }
 
-export type ShopperCreationParams = Pick<Shopper, "firstName" | "lastName" | "email">;
+export type ShopperCreationParams = Omit<Shopper, "id">;
