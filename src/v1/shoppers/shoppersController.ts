@@ -50,7 +50,7 @@ export class ShoppersController extends Controller {
    */
   @Put("{shopperId}")
   @SuccessResponse(205, "Content Updated")
-  public async update(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Body() shopper: Shopper): Promise<string> {
+  public async update(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Body() shopper: ShopperCreationParams): Promise<string> {
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.update(shopperId, shopper);
   }

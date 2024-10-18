@@ -27,10 +27,11 @@ export abstract class ShoppersService {
     return result;
   };
 
-  public static async update(shopperId: string, shopper: Shopper): Promise<string> {
+  public static async update(shopperId: string, shopper: ShopperCreationParams): Promise<string> {
     const template = path.join(__dirname, './sql/updateShopper.sql');
-    const [rows, fields] = await dbPost(template, { shopperId, shopper });
+    const [rows, fields] = await dbPost(template, { shopperId, ...shopper });
     const result = extractDbResult(rows)?.[0];
+    console.log(`result: ${JSON.stringify(result)}`);
     return result?.id;
   };
 
