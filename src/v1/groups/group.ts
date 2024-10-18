@@ -21,4 +21,4 @@ export type GroupCreationParams = Pick<Group, "name" | "members">;
 
 export type GroupCreationResponse = Pick<Group, "id" | "members">;
 
-export type GroupGetResponse = Pick<Group, "ownerId" | "name">;
+export type GroupResponse = Pick<Group, "id" | "name" | "ownerId">;

@@ -1,6 +1,6 @@
 import path from "path";
 import { Shopper, ShopperCreationParams } from "./shopper";
-import { Group } from "../groups/group";
+import { GroupResponse } from "../groups/group";
 import { Item } from "../items/item";
 import { Location } from "../locations/location";
 import { List } from "../lists/list";
@@ -27,15 +27,15 @@ export abstract class ShoppersService {
     return result;
   };
 
-  public static async update(shopperId: string, shopper: ShopperCreationParams): Promise<string> {
+  public static async update(shopperId: string, shopper: ShopperCreationParams): Promise<Pick<Shopper, "id">> {
     const template = path.join(__dirname, './sql/updateShopper.sql');
     const [rows, fields] = await dbPost(template, { shopperId, ...shopper });
     const result = extractDbResult(rows)?.[0];
     console.log(`result: ${JSON.stringify(result)}`);
-    return result?.id;
+    return { id: result?.id };
   };
 
-  public static async getGroups(shopperId: string): Promise<Array<Group>> {
+  public static async getGroups(shopperId: string): Promise<Array<GroupResponse>> {
     const template = path.join(__dirname, './sql/getGroups.sql');
     const [rows, fields] = await dbPost(template, { shopperId });
     const results = extractDbResult(rows);

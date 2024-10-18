@@ -1,10 +1,13 @@
 // LISTS
-import { Body, Controller, Delete, Get, Header, Path, Post, Put, Route, SuccessResponse, Tags} from "tsoa";
+import { Body, Controller, Delete, Example, Get, Header, Path, Post, Put, Route, SuccessResponse, Tags} from "tsoa";
 import path from "path";
 
 import { List, ListCreationParams } from "./list";
-import { Category, CategoryCreationParams } from "../categories/category";
+import { listIdExample } from "./listsExamples";
+import { Category, CategoryCreationParams, CategoryResponse } from "../categories/category";
+import { categoriesExample, categoryIdExample } from "../categories/categoriesExamples";
 import { Item, ItemCreationParams } from "../items/item";
+import { itemIdExample } from "../items/itemsExamples";
 import { ListsService } from "./listsService";
 import { mayProceed } from "../../shared/mayProceed";
 
@@ -17,10 +20,14 @@ export class ListsController extends Controller {
   /**
    * @summary Creates a new list of items
    * @param email the email address of the user
+   * @param newList the list to create
+   * @example email "test@test.com"
+   * @example newList { "name": "Grocery List", "ownerId": "123E4567-E89B-12D3-A456-426614174000", "groupId": "123E4567-E89B-12D3-A456-426614174000" }
    * @returns The ID of the created list
    */
   @Post()
   @SuccessResponse(201, "Created")
+  @Example<Pick<List, "id">>(listIdExample)
   public async create(@Header("X-Auth-User") email: string, @Body() newList: ListCreationParams ): Promise<Pick<List, "id">> {
     // any authenticated user can create a list
     return await ListsService.create(newList);
@@ -28,12 +35,17 @@ export class ListsController extends Controller {
 
   /**
    * @summary Adds a category to a list
+   * @param email the email address of the user
    * @param listId the ID of the list
    * @param category the category to add
+   * @example email "test@test.com"
+   * @example listId "123E4567-E89B-12D3-A456-426614174000"
+   * @example category { "name": "Produce" }
    * @returns The ID of the created category
    */
   @Post("{listId}/categories")
   @SuccessResponse(201, "Created")
+  @Example<Pick<Category, "id">>(categoryIdExample)
   public async addCategory(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() category: CategoryCreationParams): Promise<Pick<Category, "id">> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     return await ListsService.addCategory(listId, category);
@@ -41,12 +53,17 @@ export class ListsController extends Controller {
 
   /**
    * @summary Adds an item to a list
+   * @param email the email address of the user
    * @param listId the ID of the list
    * @param item the item to add
+   * @example email "test@test.com"
+   * @example listId "123E4567-E89B-12D3-A456-426614174000"
+   * @example item { "name": "Tomato", "categoryId": "123E4567-E89B-12D3-A456-426614174000" }
    * @returns The ID of the created item
    */
   @Post("{listId}/items")
   @SuccessResponse(201, "Created")
+  @Example<Pick<Item, "id">>(itemIdExample)
   public async addItem(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() item: Item | ItemCreationParams): Promise<Pick<Item, "id">> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     return await ListsService.addItem(listId, item);
@@ -54,8 +71,14 @@ export class ListsController extends Controller {
 
   /**
    * @summary Purchases an item on a list
+   * @param email the email address of the user
+   * @param locationId the ID of the location
    * @param listId the ID of the list
    * @param itemId the ID of the item to purchase
+   * @example email "test@test.com"
+   * @example locationId "123E4567-E89B-12D3-A456-426614174000"
+   * @example listId "123E4567-E89B-12D3-A456-426614174000"
+   * @example itemId "123E4567-E89B-12D3-A456-426614174000"
    */
   @Post("{listId}/items/{itemId}/purchase")
   @SuccessResponse(201, "Created")
@@ -68,8 +91,16 @@ export class ListsController extends Controller {
 
   /**
    * @summary Removes the purchase of an item from purchase history
+   * @param email the email address of the user
+   * @param locationId the ID of the location
    * @param listId the ID of the list
    * @param itemId the ID of the item to remove
+   * @param purchaseDate the date of purchase
+   * @example email "test@test.com"
+   * @example locationId "123E4567-E89B-12D3-A456-426614174000"
+   * @example listId "123E4567-E89B-12D3-A456-426614174000"
+   * @example itemId "123E4567-E89B-12D3-A456-426614174000"
+   * @example purchaseDate "2024-02-29"
    */
   @Delete("{listId}/items/{itemId}/purchase")
   @SuccessResponse(205, "Content Updated")
@@ -82,12 +113,16 @@ export class ListsController extends Controller {
 
   /**
    * @summary Updates a list
+   * @param email the email address of the user
    * @param listId the ID of the list
-   * @returns A boolean indicating the success of the operation
+   * @param updatedList the updated list
+   * @example email "test@test.com"
+   * @example listId "123E4567-E89B-12D3-A456-426614174000"
+   * @example updatedList { "name": "Grocery List", "ownerId": "123E4567-E89B-12D3-A456-426614174000", "groupId": "123E4567-E89B-12D3-A456-426614174000" }
    */
   @Put("{listId}")
   @SuccessResponse(205, "Content Updated")
-  public async update(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() updatedList: List): Promise<void> {
+  public async update(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() updatedList: ListCreationParams): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayUpdateListTemplate });
     await ListsService.update(listId, updatedList);
     return;
@@ -95,8 +130,10 @@ export class ListsController extends Controller {
 
   /**
    * @summary Deletes a list of items
+   * @param email the email address of the user
    * @param listId the ID of the list
-   * @returns A boolean indicating the success of the operation
+   * @example email "test@test.com"
+   * @example listId "123E4567-E89B-12D3-A456-426614174000"
    */
   @Delete("{listId}")
   @SuccessResponse(205, "Content Updated")
@@ -108,9 +145,12 @@ export class ListsController extends Controller {
 
   /**
    * @summary Removes a category from a list
+   * @param email the email address of the user
    * @param listId the ID of the list
    * @param categoryId the ID of the category to remove
-   * @returns The list of items
+   * @example email "test@test.com"
+   * @example listId "123E4567-E89B-12D3-A456-426614174000"
+   * @example categoryId "123E4567-E89B-12D3-A456-426614174000"
    */
   @Delete("{listId}/categories/{categoryId}")
   @SuccessResponse(205, "Content Updated")
@@ -122,9 +162,12 @@ export class ListsController extends Controller {
 
   /**
    * @summary Removes an item from a list
+   * @param email the email address of the user
    * @param listId the ID of the list
    * @param itemId the ID of the item to remove
-   * @returns The list of items
+   * @example email "test@test.com"
+   * @example listId "123E4567-E89B-12D3-A456-426614174000"
+   * @example itemId "123E4567-E89B-12D3-A456-426614174000"
    */
   @Delete("{listId}/items/{itemId}")
   @SuccessResponse(205, "Content Updated")
@@ -136,12 +179,16 @@ export class ListsController extends Controller {
 
   /**
    * @summary Retrieves the categories for a list
+   * @param email the email address of the user
    * @param listId the ID of the list
+   * @example email "test@test.com"
+   * @example listId "123E4567-E89B-12D3-A456-426614174000"
    * @returns The list of categories
    */
   @Get("{listId}/categories")
   @SuccessResponse(200, "OK")
-  public async getCategories(@Header("X-Auth-User") email: string, @Path() listId: string): Promise<Category[]> {
+  @Example<Array<CategoryResponse>>(categoriesExample)
+  public async getCategories(@Header("X-Auth-User") email: string, @Path() listId: string): Promise<Array<CategoryResponse>> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     return await ListsService.getCategories(listId);
   };

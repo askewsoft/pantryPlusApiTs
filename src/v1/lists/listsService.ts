@@ -1,7 +1,7 @@
 import path from "path";
 import { dbPost, extractDbResult } from "../../shared/dbDriver";
 import { List, ListCreationParams } from "./list";
-import { Category, CategoryCreationParams } from "../categories/category";
+import { Category, CategoryCreationParams, CategoryResponse } from "../categories/category";
 import { Item, ItemCreationParams } from "../items/item";
 import { ItemsService } from "../items/itemsService";
 import { Logger, logger } from "../../shared/logger";
@@ -41,7 +41,7 @@ export abstract class ListsService {
     return { id: categoryId };
   };
 
-  public static async getCategories(listId: string): Promise<Array<Category>> {
+  public static async getCategories(listId: string): Promise<Array<CategoryResponse>> {
     const getCategoriesTemplate = path.join(__dirname, '.sql/getCategories.sql');
     const [rows, fields] = await dbPost(getCategoriesTemplate, { id: listId });
     const results = extractDbResult(rows);

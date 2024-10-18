@@ -1,6 +1,6 @@
 import path from "path";
 import { dbPost, extractDbResult } from "../../shared/dbDriver";
-import { GroupGetResponse } from "../groups/group";
+import { GroupResponse } from "../groups/group";
 import { Shopper } from "../shoppers/shopper";
 import { Logger, logger } from "../../shared/logger";
 
@@ -36,7 +36,7 @@ export abstract class GroupsService {
     return await dbPost(deleteGroupTemplate, groupId);
   };
 
-  public static async get(groupId: string): Promise<GroupGetResponse> {
+  public static async get(groupId: string): Promise<GroupResponse> {
     const getGroupTemplate = path.join(__dirname, '.sql/getGroup.sql');
     return dbPost(getGroupTemplate, groupId);
   };

@@ -14,6 +14,8 @@ export class CategoriesController extends Controller {
    * @summary Removes an item from a category
    * @param itemId the ID of the item
    * @param categoryId the ID of the category
+   * @example itemId "123E4567-E89B-12D3-A456-426614174000"
+   * @example categoryId "123E4567-E89B-12D3-A456-426614174000"
    */
   @Delete("{categoryId}/items/{itemId}")
   @SuccessResponse(205, "Content Updated")

@@ -10,5 +10,6 @@ export interface Category {
     listId: string;
 }
 
-// TODO: add category ID
 export type CategoryCreationParams = Omit<Category, "id">;
+
+export type CategoryResponse = Pick<Category, "id" | "name">;
