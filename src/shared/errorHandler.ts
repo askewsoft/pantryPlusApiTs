@@ -17,7 +17,7 @@ export enum ErrorCode {
 
 export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction): Response | void => {
   if (err instanceof ValidateError) {
-    log.warn(`Validation error for ${req.method} ${req.url}: ${err.fields}`);
+    log.warn(`Validation error for ${req.method} ${req.url}: ${JSON.stringify(err.fields)}`);
     res.status(422).json( { message: err.message, details: err?.fields });
     return next();
   }
