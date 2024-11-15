@@ -35,6 +35,10 @@ app.use("/docs", swaggerUi.serve, async (_req: Request, res: Response) => {
   );
 });
 
+app.use("/swagger.json", (req, res) => {
+  res.send(require("../build/swagger.json"));
+});
+
 app.use(function notFoundHandler(_req: Request, res: Response) {
   res.status(404).send({
     message: "Not Found",
