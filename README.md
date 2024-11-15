@@ -37,3 +37,7 @@ We also recommend that you use [nvm](https://nvm.sh) to manage different version
 * For hot reload while developing use `npm run dev`
 * This project utilizes [prettier](https://www.npmjs.com/package/prettier) and [eslint](https://www.npmjs.com/package/eslint) to maintain consistent formatting
 * All changes by non-Admin contributors must be done through github PR
+
+**Validation**
+* To ensure that the generated OpenAPI v3 `swagger.json`
+* `curl -X POST -d @build/swagger.json -H 'Content-Type:application/json' https://validator.swagger.io/validator/debug`
