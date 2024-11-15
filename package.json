@@ -6,6 +6,7 @@
   "scripts": {
     "prestart": "npm install && npm run build",
     "build": "tsoa spec-and-routes && tsc",
+    "codegen": "swagger-codegen generate -l typescript-axios -i build/swagger.json -o ../pantryPlusApiClient",
     "start": "node -r dotenv/config ./build/server.js",
     "dev": "nodemon"
   },
