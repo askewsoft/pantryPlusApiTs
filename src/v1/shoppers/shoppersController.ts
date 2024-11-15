@@ -46,7 +46,7 @@ export class ShoppersController extends Controller {
   @Post()
   @SuccessResponse(201, "Created")
   @Example<Shopper>(shopperExample)
-  public async create(@Body() person: ShopperCreationParams ): Promise<Shopper> {
+  public async createShopper(@Body() person: ShopperCreationParams ): Promise<Shopper> {
     /* TODO:
      * how do we confirm that a user has created a username/password?
      * look into using the @Security decorator to ensure that the user is authenticated
@@ -70,7 +70,7 @@ export class ShoppersController extends Controller {
   @Put("{shopperId}")
   @SuccessResponse(205, "Content Updated")
   @Example<Pick<Shopper, "id">>(shopperIdExample)
-  public async update(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Body() shopper: ShopperCreationParams): Promise<Pick<Shopper, "id">> {
+  public async updateShopper(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Body() shopper: ShopperCreationParams): Promise<Pick<Shopper, "id">> {
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.update(shopperId, shopper);
   }
@@ -84,7 +84,7 @@ export class ShoppersController extends Controller {
   @Get("{shopperId}")
   @SuccessResponse(200, "OK")
   @Example<Shopper>(shopperExample)
-  public async retrieve(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Shopper> {
+  public async retrieveShopper(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Shopper> {
     await mayProceed({ email, id: shopperId, accessTemplate: maySeeShopperDetailsTemplate });
     return ShoppersService.retrieve(shopperId);
   }

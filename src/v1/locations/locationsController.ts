@@ -21,7 +21,7 @@ export class LocationsController extends Controller {
   @Post()
   @SuccessResponse(201, "Created")
   @Example<Pick<Location, "id">>(locationIdExample)
-  public async create(@Header("X-Auth-User") email: string, @Body() location: LocationCreationParams ): Promise<Pick<Location, "id">> {
+  public async createLocation(@Header("X-Auth-User") email: string, @Body() location: LocationCreationParams ): Promise<Pick<Location, "id">> {
     return await LocationsService.create(location);
   };
 
@@ -35,7 +35,7 @@ export class LocationsController extends Controller {
    */
   @Put("{locationId}")
   @SuccessResponse(205, "Content Updated")
-  public async update(@Header("X-Auth-User") email: string, @Path() locationId: string, @Body() name: string): Promise<void> {
+  public async updateLocation(@Header("X-Auth-User") email: string, @Path() locationId: string, @Body() name: string): Promise<void> {
     return await LocationsService.update(locationId, name, email);
   };
 };

@@ -19,7 +19,7 @@ export class CategoriesController extends Controller {
    */
   @Delete("{categoryId}/items/{itemId}")
   @SuccessResponse(205, "Content Updated")
-  public async removeItem(@Header("X-Auth-User") email: string, @Path() categoryId: string, @Path() itemId: string): Promise<void> {
+  public async removeItemFromCategory(@Header("X-Auth-User") email: string, @Path() categoryId: string, @Path() itemId: string): Promise<void> {
     await mayProceed({ email, id: categoryId, accessTemplate: mayModifyCategoryTemplate });
     await CategoriesService.removeItem(itemId, categoryId);
     return;

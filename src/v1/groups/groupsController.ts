@@ -34,7 +34,7 @@ export class GroupsController extends Controller {
   @Post()
   @SuccessResponse(201, "Created")
   @Example<GroupCreationResponse>(groupCreationExample)
-  public async create(@Header("X-Auth-User") email: string, @Body() group: GroupCreationParams ): Promise<GroupCreationResponse> {
+  public async createGroup(@Header("X-Auth-User") email: string, @Body() group: GroupCreationParams ): Promise<GroupCreationResponse> {
     // any authenticated user can create a group
     const { name, members } = group;
     const groupId = await GroupsService.create(name, email);
@@ -68,7 +68,7 @@ export class GroupsController extends Controller {
    */
   @Put("{groupId}")
   @SuccessResponse(205, "Content Updated")
-  public async update(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() group: GroupCreationParams): Promise<void> {
+  public async updateGroup(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() group: GroupCreationParams): Promise<void> {
     await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
     const { name, members } = group;
     await GroupsService.removeAllShoppersFromGroup(groupId);
@@ -86,7 +86,7 @@ export class GroupsController extends Controller {
    */
   @Delete("{groupId}")
   @SuccessResponse(205, "Content Updated")
-  public async delete(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<void> {
+  public async deleteGroup(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<void> {
     await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
     return GroupsService.delete(groupId);
   };
@@ -102,7 +102,7 @@ export class GroupsController extends Controller {
   @Get("{groupId}")
   @SuccessResponse(200, "OK")
   @Example<GroupResponse>(groupExample)
-  public async get(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<GroupResponse> {
+  public async getGroup(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<GroupResponse> {
     await mayProceed({ email, id: groupId, accessTemplate: mayAccessGroupTemplate });
     return GroupsService.get(groupId);
   };

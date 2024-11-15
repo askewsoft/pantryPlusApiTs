@@ -28,7 +28,7 @@ export class ListsController extends Controller {
   @Post()
   @SuccessResponse(201, "Created")
   @Example<Pick<List, "id">>(listIdExample)
-  public async create(@Header("X-Auth-User") email: string, @Body() newList: ListCreationParams ): Promise<Pick<List, "id">> {
+  public async createList(@Header("X-Auth-User") email: string, @Body() newList: ListCreationParams ): Promise<Pick<List, "id">> {
     // any authenticated user can create a list
     return await ListsService.create(newList);
   };
@@ -122,7 +122,7 @@ export class ListsController extends Controller {
    */
   @Put("{listId}")
   @SuccessResponse(205, "Content Updated")
-  public async update(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() updatedList: ListCreationParams): Promise<void> {
+  public async updateList(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() updatedList: ListCreationParams): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayUpdateListTemplate });
     await ListsService.update(listId, updatedList);
     return;
@@ -137,7 +137,7 @@ export class ListsController extends Controller {
    */
   @Delete("{listId}")
   @SuccessResponse(205, "Content Updated")
-  public async delete(@Header("X-Auth-User") email: string, @Path() listId: string): Promise<void> {
+  public async deleteList(@Header("X-Auth-User") email: string, @Path() listId: string): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayUpdateListTemplate });
     await ListsService.delete(listId);
     return;
