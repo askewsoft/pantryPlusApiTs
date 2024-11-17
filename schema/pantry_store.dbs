@@ -191,9 +191,10 @@
 			<column name="id_txt" type="varchar" length="36" jt="12" mandatory="y" >
 				<comment><![CDATA[string version of ID]]></comment>
 			</column>
-			<column name="first_name" prior="name" type="varchar" length="100" jt="12" mandatory="y" />
-			<column name="last_name" type="varchar" length="100" jt="12" mandatory="y" />
 			<column name="email" type="varchar" length="256" jt="12" mandatory="y" />
+			<column name="nickname" type="varchar" length="100" jt="12" >
+				<comment><![CDATA[usually an alternate first name or informal title (e.g., Stef, Mom)]]></comment>
+			</column>
 			<index name="pk_shopper_id" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
@@ -212,6 +213,6 @@
 		<entity schema="pantry_store" name="list_item_relation" color="C1D8EE" x="64" y="240" />
 		<entity schema="pantry_store" name="location" color="D3C1EE" x="784" y="288" />
 		<entity schema="pantry_store" name="purchase_history" color="C1D8EE" x="320" y="512" />
-		<entity schema="pantry_store" name="shopper" color="D3C1EE" x="576" y="64" />
+		<entity schema="pantry_store" name="shopper" color="D3C1EE" x="624" y="64" />
 	</layout>
 </project>

@@ -14,9 +14,8 @@ CREATE TABLE IF NOT EXISTS PANTRY_PLUS.SHOPPER
                 19,0,'-'),
             24,0,'-')
         ) virtual,
-    FIRST_NAME varchar(100),
-    LAST_NAME varchar(100),
-    EMAIL varchar(256) UNIQUE
+    EMAIL varchar(256) UNIQUE,
+    NICKNAME varchar(100) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS PANTRY_PLUS.LOCATION (
