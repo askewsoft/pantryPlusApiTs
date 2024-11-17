@@ -37,8 +37,8 @@ export class ShoppersController extends Controller {
    * @summary Creates a new shopper
    * @param person the shopper to be created
    * @example person {
-   *   "firstName": "John",
-   *   "lastName": "Doe",
+   *   "id": "123e4567-e89b-12d3-a456-426614174000",
+   *   "nickName": "Johnny",
    *   "email": "john.doe@example.com"
    * }
    * @returns The created shopper
@@ -61,8 +61,7 @@ export class ShoppersController extends Controller {
    * @param shopperId the ID of the shopper to be updated
    * @param shopper the updated shopper properties
    * @example shopper {
-   *   "firstName": "John",
-   *   "lastName": "Doe",
+   *   "nickName": "Johnny",
    *   "email": "john.doe@example.com"
    * }
    * @returns The updated shopper ID

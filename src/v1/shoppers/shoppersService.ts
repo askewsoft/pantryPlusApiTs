@@ -31,7 +31,6 @@ export abstract class ShoppersService {
     const template = path.join(__dirname, './sql/updateShopper.sql');
     const [rows, fields] = await dbPost(template, { shopperId, ...shopper });
     const result = extractDbResult(rows)?.[0];
-    console.log(`result: ${JSON.stringify(result)}`);
     return { id: result?.id };
   };
 

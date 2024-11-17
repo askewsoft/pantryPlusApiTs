@@ -1,11 +1,11 @@
 -- creates a shopper and returns the shopper_id
 
 SET @email = :email;
-SET @firstName = :firstName;
-SET @lastName = :lastName;
+SET @nickName = :nickName;
+SET @idTxt = :id;
 
-INSERT INTO PANTRY_PLUS.SHOPPER (EMAIL, FIRST_NAME, LAST_NAME)
-VALUES (@email, @firstName, @lastName)
+INSERT INTO PANTRY_PLUS.SHOPPER (ID, EMAIL, NICKNAME)
+VALUES (uuid_to_bin(@idTxt), @email, @nickName)
 ;
 
 SELECT ID_TXT as ID
