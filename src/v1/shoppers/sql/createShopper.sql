@@ -4,7 +4,7 @@ SET @email = :email;
 SET @nickName = :nickName;
 SET @idTxt = :id;
 
-INSERT INTO PANTRY_PLUS.SHOPPER (ID, EMAIL, NICKNAME)
+INSERT IGNORE INTO PANTRY_PLUS.SHOPPER (ID, EMAIL, NICKNAME)
 VALUES (uuid_to_bin(@idTxt), @email, @nickName)
 ;
 
