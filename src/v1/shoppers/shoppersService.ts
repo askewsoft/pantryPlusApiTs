@@ -14,7 +14,7 @@ export abstract class ShoppersService {
     const result = extractDbResult(rows)?.[0];
     if (!result) {
       const err = new Error('user not found') as any;
-      err.code = ErrorCode.NOT_FOUND;
+      err.name = ErrorCode.NOT_FOUND;
       throw err;
     }
     return result;

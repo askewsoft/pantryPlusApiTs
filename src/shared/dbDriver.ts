@@ -47,8 +47,10 @@ const dbPost = async (template: string, params: Object): Promise<any> => {
     return results;
   } catch (err: any) {
     log.error(err);
-    // Do not expose the error details to the client
-    throw ErrorCode.DATABASE_ERR;
+    // DO NOT expose the error details to the client
+    const errObj = new Error('dbDriver POST error') as any;
+    errObj.name = ErrorCode.DATABASE_ERR;
+    throw errObj;
   }
 };
 
@@ -59,7 +61,7 @@ const extractDbResult = (rows: Array<any>): Array<any> => {
     return snakeToCamel(results);
   } else {
     const errObj = new Error('invalid database response') as any;
-    errObj.code = ErrorCode.DATABASE_ERR;
+    errObj.name = ErrorCode.DATABASE_ERR;
     throw errObj;
   }
 };

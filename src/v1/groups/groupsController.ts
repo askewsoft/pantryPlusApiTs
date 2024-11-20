@@ -41,7 +41,7 @@ export class GroupsController extends Controller {
 
     if (!groupId) {
       const err = new Error("Unable to create group ID") as any;
-      err.code = ErrorCode.DATABASE_ERR;
+      err.name = ErrorCode.DATABASE_ERR;
       throw err;
     }
     if (!members.length) return { id: groupId, members: [] };
