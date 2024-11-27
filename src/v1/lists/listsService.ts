@@ -11,15 +11,15 @@ const log: Logger = logger('List Service')
 export abstract class ListsService {
   // LIST ACTIONS
   public static async create(list: ListCreationParams): Promise<Pick<List, "id">> {
-    const { name, ownerId, groupId } = list;
+    const { id, name, ownerId } = list;
     const createTemplate = path.join(__dirname, '.sql/createList.sql');
-    const [rows, fields] = await dbPost(createTemplate, { name, ownerId, groupId });
+    const [rows, fields] = await dbPost(createTemplate, { id, name, ownerId });
     const results = extractDbResult(rows);
     const listId = results[0].id;
     return { id: listId };
   };
 
-  public static async update(listId: string, list: ListCreationParams): Promise<void> {
+  public static async update(listId: string, list: List): Promise<void> {
     const { name, ownerId, groupId } = list;
     const updateTemplate = path.join(__dirname, '.sql/updateList.sql');
     await dbPost(updateTemplate, { id: listId, name, ownerId, groupId });

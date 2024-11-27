@@ -12,4 +12,4 @@ export interface List {
     groupId?: string | undefined;
 }
 
-export type ListCreationParams = Omit<List, "id">;
+export type ListCreationParams = Omit<List, "groupId">;

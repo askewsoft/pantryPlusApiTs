@@ -2,11 +2,12 @@
 
 SET @email = :email;
 SET @name = :name;
+SET @idTxt = :id;
 
 SET @ownerId = (SELECT ID FROM SHOPPER WHERE EMAIL = @email);
 
-INSERT INTO LIST (NAME, OWNER_ID)
-VALUES (@name, @ownerId)
+INSERT IGNORE INTO LIST (ID, NAME, OWNER_ID)
+VALUES (uuid_to_bin(@idTxt), @name, @ownerId)
 ;
 
 SELECT ID_TXT as ID
