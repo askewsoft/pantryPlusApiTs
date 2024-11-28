@@ -16,9 +16,3 @@ export type Group = {
     /** The members of this group by shopper ID */
     members: GroupMembers
 }
-
-export type GroupCreationParams = Pick<Group, "name" | "members">;
-
-export type GroupCreationResponse = Pick<Group, "id" | "members">;
-
-export type GroupResponse = Pick<Group, "id" | "name" | "ownerId">;

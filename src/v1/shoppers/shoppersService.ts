@@ -1,6 +1,6 @@
 import path from "path";
-import { Shopper, ShopperCreationParams } from "./shopper";
-import { GroupResponse } from "../groups/group";
+import { Shopper } from "./shopper";
+import { Group } from "../groups/group";
 import { Item } from "../items/item";
 import { Location } from "../locations/location";
 import { List } from "../lists/list";
@@ -20,21 +20,21 @@ export abstract class ShoppersService {
     return result;
   };
 
-  public static async create(newShopper: ShopperCreationParams): Promise<Shopper> {
+  public static async create(newShopper: Shopper): Promise<Shopper> {
     const template = path.join(__dirname, './sql/createShopper.sql');
     const [rows, fields] = await dbPost(template, newShopper);
     const result = extractDbResult(rows)?.[0];
     return result;
   };
 
-  public static async update(shopperId: string, shopper: ShopperCreationParams): Promise<Pick<Shopper, "id">> {
+  public static async update(shopperId: string, shopper: Shopper): Promise<Pick<Shopper, "id">> {
     const template = path.join(__dirname, './sql/updateShopper.sql');
     const [rows, fields] = await dbPost(template, { shopperId, ...shopper });
     const result = extractDbResult(rows)?.[0];
     return { id: result?.id };
   };
 
-  public static async getGroups(shopperId: string): Promise<Array<GroupResponse>> {
+  public static async getGroups(shopperId: string): Promise<Array<Pick<Group, "id" | "name" | "ownerId">>> {
     const template = path.join(__dirname, './sql/getGroups.sql');
     const [rows, fields] = await dbPost(template, { shopperId });
     const results = extractDbResult(rows);

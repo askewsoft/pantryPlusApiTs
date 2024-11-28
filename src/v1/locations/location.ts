@@ -12,5 +12,3 @@ export interface Location {
     /** The longitude of the user's current location */
     longitude: number;
 }
-
-export type LocationCreationParams = Omit<Location, "id">;

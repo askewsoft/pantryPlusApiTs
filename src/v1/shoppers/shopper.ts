@@ -11,5 +11,3 @@ export interface Shopper {
     */
     email: string;
 }
-
-export type ShopperCreationParams = Shopper;

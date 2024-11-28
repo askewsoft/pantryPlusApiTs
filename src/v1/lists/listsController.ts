@@ -2,11 +2,11 @@
 import { Body, Controller, Delete, Example, Get, Header, Path, Post, Put, Route, SuccessResponse, Tags} from "tsoa";
 import path from "path";
 
-import { List, ListCreationParams } from "./list";
+import { List } from "./list";
 import { listIdExample } from "./listsExamples";
-import { Category, CategoryCreationParams, CategoryResponse } from "../categories/category";
+import { Category } from "../categories/category";
 import { categoriesExample, categoryIdExample } from "../categories/categoriesExamples";
-import { Item, ItemCreationParams } from "../items/item";
+import { Item } from "../items/item";
 import { itemIdExample } from "../items/itemsExamples";
 import { ListsService } from "./listsService";
 import { mayProceed } from "../../shared/mayProceed";
@@ -22,13 +22,13 @@ export class ListsController extends Controller {
    * @param email the email address of the user
    * @param newList the list to create
    * @example email "test@test.com"
-   * @example newList { "name": "Grocery List", "ownerId": "123E4567-E89B-12D3-A456-426614174000", "groupId": "123E4567-E89B-12D3-A456-426614174000" }
+   * @example newList { "id": "123E4567-E89B-12D3-A456-426614174000", "name": "Grocery List", "ownerId": "123E4567-E89B-12D3-A456-426614174000" }
    * @returns The ID of the created list
    */
   @Post()
   @SuccessResponse(201, "Created")
   @Example<Pick<List, "id">>(listIdExample)
-  public async createList(@Header("X-Auth-User") email: string, @Body() newList: ListCreationParams ): Promise<Pick<List, "id">> {
+  public async createList(@Header("X-Auth-User") email: string, @Body() newList: List ): Promise<Pick<List, "id">> {
     // any authenticated user can create a list
     return await ListsService.create(newList);
   };
@@ -40,13 +40,13 @@ export class ListsController extends Controller {
    * @param category the category to add
    * @example email "test@test.com"
    * @example listId "123E4567-E89B-12D3-A456-426614174000"
-   * @example category { "name": "Produce" }
+   * @example category { "id": "123E4567-E89B-12D3-A456-426614174000", "name": "Produce" }
    * @returns The ID of the created category
    */
   @Post("{listId}/categories")
   @SuccessResponse(201, "Created")
   @Example<Pick<Category, "id">>(categoryIdExample)
-  public async addCategory(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() category: CategoryCreationParams): Promise<Pick<Category, "id">> {
+  public async addCategory(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() category: Category): Promise<Pick<Category, "id">> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     return await ListsService.addCategory(listId, category);
   };
@@ -58,13 +58,13 @@ export class ListsController extends Controller {
    * @param item the item to add
    * @example email "test@test.com"
    * @example listId "123E4567-E89B-12D3-A456-426614174000"
-   * @example item { "name": "Tomato", "categoryId": "123E4567-E89B-12D3-A456-426614174000" }
+   * @example item { "id": "123E4567-E89B-12D3-A456-426614174000", "name": "Tomato", "categoryId": "123E4567-E89B-12D3-A456-426614174000" }
    * @returns The ID of the created item
    */
   @Post("{listId}/items")
   @SuccessResponse(201, "Created")
   @Example<Pick<Item, "id">>(itemIdExample)
-  public async addItem(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() item: Item | ItemCreationParams): Promise<Pick<Item, "id">> {
+  public async addItem(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() item: Item): Promise<Pick<Item, "id">> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     return await ListsService.addItem(listId, item);
   };
@@ -187,8 +187,8 @@ export class ListsController extends Controller {
    */
   @Get("{listId}/categories")
   @SuccessResponse(200, "OK")
-  @Example<Array<CategoryResponse>>(categoriesExample)
-  public async getCategories(@Header("X-Auth-User") email: string, @Path() listId: string): Promise<Array<CategoryResponse>> {
+  @Example<Array<Pick<Category, "id" | "name">>>(categoriesExample)
+  public async getCategories(@Header("X-Auth-User") email: string, @Path() listId: string): Promise<Array<Pick<Category, "id" | "name">>> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     return await ListsService.getCategories(listId);
   };

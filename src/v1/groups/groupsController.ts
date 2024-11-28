@@ -2,7 +2,7 @@
 import { Body, Controller, Delete, Example, Get, Header, Path, Post, Put, Route, SuccessResponse, Tags} from "tsoa";
 import path from "path";
 
-import { GroupCreationParams, GroupCreationResponse, GroupResponse } from "./group";
+import { Group } from "./group";
 import { groupExample, groupCreationExample } from "./groupsExamples";
 import { Shopper } from "../shoppers/shopper";
 import { shoppersExample } from "../shoppers/shoppersExamples";
@@ -33,8 +33,8 @@ export class GroupsController extends Controller {
    */
   @Post()
   @SuccessResponse(201, "Created")
-  @Example<GroupCreationResponse>(groupCreationExample)
-  public async createGroup(@Header("X-Auth-User") email: string, @Body() group: GroupCreationParams ): Promise<GroupCreationResponse> {
+  @Example<Pick<Group, "id" | "members">>(groupCreationExample)
+  public async createGroup(@Header("X-Auth-User") email: string, @Body() group: Group ): Promise<Pick<Group, "id" | "members">> {
     // any authenticated user can create a group
     const { name, members } = group;
     const groupId = await GroupsService.create(name, email);
@@ -68,7 +68,7 @@ export class GroupsController extends Controller {
    */
   @Put("{groupId}")
   @SuccessResponse(205, "Content Updated")
-  public async updateGroup(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() group: GroupCreationParams): Promise<void> {
+  public async updateGroup(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() group: Group): Promise<void> {
     await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
     const { name, members } = group;
     await GroupsService.removeAllShoppersFromGroup(groupId);
@@ -101,8 +101,8 @@ export class GroupsController extends Controller {
    */
   @Get("{groupId}")
   @SuccessResponse(200, "OK")
-  @Example<GroupResponse>(groupExample)
-  public async getGroup(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<GroupResponse> {
+  @Example<Pick<Group, "id" | "name" | "ownerId">>(groupExample)
+  public async getGroup(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<Pick<Group, "id" | "name" | "ownerId">> {
     await mayProceed({ email, id: groupId, accessTemplate: mayAccessGroupTemplate });
     return GroupsService.get(groupId);
   };

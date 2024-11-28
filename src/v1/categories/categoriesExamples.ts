@@ -1,6 +1,6 @@
-import { CategoryResponse } from "./category";
+import { Category } from "./category";
 
-export const categoriesExample: Array<CategoryResponse> = [
+export const categoriesExample: Array<Pick<Category, "id" | "name">> = [
     {
         id: "123E4567-E89B-12D3-A456-426614174000",
         name: "Produce"
@@ -11,6 +11,6 @@ export const categoriesExample: Array<CategoryResponse> = [
     }
 ];
 
-export const categoryIdExample: Pick<CategoryResponse, "id"> = {
+export const categoryIdExample: Pick<Category, "id"> = {
     id: "123E4567-E89B-12D3-A456-426614174000"
 };

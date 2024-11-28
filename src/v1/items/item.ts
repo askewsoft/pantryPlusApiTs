@@ -11,5 +11,3 @@ export interface Item {
     /** The ID of the category to which this item belongs */
     categoryId?: string;
 }
-
-export type ItemCreationParams = Omit<Item, "id">;

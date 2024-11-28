@@ -11,5 +11,3 @@ export interface List {
     /** The group of users with whom this list is shared */
     groupId?: string | undefined;
 }
-
-export type ListCreationParams = Omit<List, "groupId">;

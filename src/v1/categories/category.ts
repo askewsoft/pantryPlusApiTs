@@ -9,7 +9,3 @@ export interface Category {
     /** The list to which the category belongs */
     listId: string;
 }
-
-export type CategoryCreationParams = Omit<Category, "id">;
-
-export type CategoryResponse = Pick<Category, "id" | "name">;
