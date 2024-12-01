@@ -48,6 +48,13 @@ export abstract class ListsService {
     return results;
   };
 
+  public static async getCategoryItems(listId: string, categoryId: string): Promise<Array<Item>> {
+    const getItemsTemplate = path.join(__dirname, './sql/getItems.sql');
+    const [rows, fields] = await dbPost(getItemsTemplate, { listId, categoryId });
+    const results = extractDbResult(rows);
+    return results;
+  };
+
   public static async removeCategory(listId: string, categoryId: string): Promise<void> {
     const removeCategoryTemplate = path.join(__dirname, './sql/removeCategory.sql');
     await dbPost(removeCategoryTemplate, { id: listId, categoryId });

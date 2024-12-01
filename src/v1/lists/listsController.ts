@@ -10,6 +10,8 @@ import { Item } from "../items/item";
 import { itemIdExample } from "../items/itemsExamples";
 import { ListsService } from "./listsService";
 import { mayProceed } from "../../shared/mayProceed";
+import { CategoriesService } from "../categories/categoriesService";
+import { userInfo } from "os";
 
 const mayUpdateListTemplate = path.join(__dirname, './sql/mayUpdateList.sql');
 const mayContributeToListTemplate = path.join(__dirname, './sql/mayContributeToList.sql');
@@ -191,5 +193,21 @@ export class ListsController extends Controller {
   public async getCategories(@Header("X-Auth-User") email: string, @Path() listId: string): Promise<Array<Pick<Category, "id" | "name">>> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     return await ListsService.getCategories(listId);
+  };
+
+
+  /**
+   * @summary Retrieves the items for a category
+   * @param email the email address of the user
+   * @param categoryId the ID of the category
+   * @example email "test@test.com"
+   * @example categoryId "123E4567-E89B-12D3-A456-426614174000"
+   * @returns The list of items
+   */
+  @Get("{listId}/categories/{categoryId}/items")
+  @SuccessResponse(200, "OK")
+  public async getItems(@Header("X-Auth-User") email: string, @Path() listId: string, @Path() categoryId: string): Promise<Array<Item>> {
+    await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
+    return await ListsService.getCategoryItems(listId, categoryId);
   };
 };
