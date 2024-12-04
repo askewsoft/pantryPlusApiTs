@@ -22,5 +22,5 @@ SELECT IF (
                         AND u.GROUP_ID = s.GROUP_ID
                 )
         ), 1, 0))
-) AS allowed
+) AS ALLOWED
 ;

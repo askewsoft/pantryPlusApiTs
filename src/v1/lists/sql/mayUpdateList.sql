@@ -4,7 +4,7 @@
 SET @email = :email;
 SET @listIdTxt = :id;
 
-SELECT 1
+SELECT 1 AS ALLOWED
 FROM SHOPPER s
 LEFT JOIN LIST l ON l.OWNER_ID = s.ID
 WHERE s.EMAIL = @email

@@ -6,18 +6,16 @@ SET @listIdTxt = :id;
 
 SELECT ID INTO @shopperId FROM SHOPPER WHERE EMAIL = @userEmail
 ;
-SELECT ID INTO @listId FROM LIST WHERE ID_TXT = @listIdTxt
-;
 
-SELECT 1
+SELECT 1 AS ALLOWED
 FROM LIST
 WHERE OWNER_ID = @shopperId
-  and ID = @listId
+  and ID = uuid_to_bin(@listIdTxt)
 UNION
-SELECT 1
+SELECT 1 AS ALLOWED
 FROM LIST l
 JOIN GROUP_SHOPPER_RELATION gsr
     ON gsr.SHOPPER_ID = @shopperId
     AND gsr.GROUP_ID = l.GROUP_ID
-WHERE l.ID = @listId
+WHERE l.ID = uuid_to_bin(@listIdTxt)
 ;

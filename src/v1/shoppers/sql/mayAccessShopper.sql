@@ -4,7 +4,7 @@
 SET @userEmail = :email;
 SET @shopperIdTxt = :id;
 
-SELECT 1 as allowed
+SELECT 1 AS ALLOWED
 FROM PANTRY_PLUS.SHOPPER s
 WHERE s.EMAIL = @userEmail
   and s.ID_TXT = @shopperIdTxt
