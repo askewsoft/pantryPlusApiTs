@@ -10,4 +10,10 @@ export abstract class CategoriesService {
     await dbPost(removeTemplate, { itemId, categoryId });
     return;
   };
+
+  public static async updateCategory(categoryId: string, categoryName: string): Promise<void> {
+    const updateTemplate = path.join(__dirname, './sql/updateCategory.sql');
+    await dbPost(updateTemplate, { categoryId, categoryName });
+    return;
+  };
 };

@@ -1,5 +1,5 @@
 // CATEGORIES
-import { Controller, Delete, Header, Path, Route, SuccessResponse, Tags} from "tsoa";
+import { Body, Controller, Delete, Header, Path, Put, Route, SuccessResponse, Tags} from "tsoa";
 import path from "path";
 
 import { CategoriesService } from "./categoriesService";
@@ -22,6 +22,21 @@ export class CategoriesController extends Controller {
   public async removeItemFromCategory(@Header("X-Auth-User") email: string, @Path() categoryId: string, @Path() itemId: string): Promise<void> {
     await mayProceed({ email, id: categoryId, accessTemplate: mayModifyCategoryTemplate });
     await CategoriesService.removeItem(itemId, categoryId);
+    return;
+  };
+
+  /**
+   * @summary Updates a category
+   * @param email the email of the user
+   * @param categoryId the ID of the category
+   * @param body the body of the request
+   * @example name "Groceries"
+   */
+  @Put("{categoryId}")
+  @SuccessResponse(205, "Content Updated")
+  public async updateCategory(@Header("X-Auth-User") email: string, @Path() categoryId: string, @Body() body: { name: string }): Promise<void> {
+    await mayProceed({ email, id: categoryId, accessTemplate: mayModifyCategoryTemplate });
+    await CategoriesService.updateCategory(categoryId, body.name);
     return;
   };
 };

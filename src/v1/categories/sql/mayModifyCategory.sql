@@ -4,8 +4,6 @@
 SET @userEmail = :email;
 SET @categoryIdTxt = :id;
 
-SELECT ID INTO @categoryId FROM CATEGORY WHERE ID_TXT = @categoryIdTxt
-;
 SELECT ID INTO @shopperId FROM SHOPPER WHERE EMAIL = @userEmail
 ;
 
@@ -13,15 +11,15 @@ SELECT 1 AS ALLOWED
 FROM CATEGORY c
 JOIN LIST l
     ON l.ID = c.LIST_ID
-WHERE c.ID = @categoryId
-    AND EXISTS (
-        SELECT 1
-        FROM GROUP
-        WHERE OWNER_ID = @shopperId
-        AND ID = l.GROUP_ID
-        UNION
-        SELECT 1
-        FROM GROUP_SHOPPER_RELATION gsr
-        WHERE gsr.SHOPPER_ID = @shopperId
-        AND gsr.GROUP_ID = l.GROUP_ID
-    )
+    AND l.OWNER_ID = @shopperId
+WHERE c.ID = UUID_TO_BIN(@categoryIdTxt)
+UNION
+SELECT 1 AS ALLOWED
+FROM CATEGORY c
+JOIN LIST l ON l.ID = c.LIST_ID
+JOIN GROUP g ON g.ID = l.GROUP_ID
+JOIN GROUP_SHOPPER_RELATION gsr
+    ON gsr.GROUP_ID = g.ID
+    AND gsr.SHOPPER_ID = @shopperId
+WHERE c.ID = UUID_TO_BIN(@categoryIdTxt)
+;
