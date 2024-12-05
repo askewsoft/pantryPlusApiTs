@@ -34,8 +34,9 @@ export abstract class ListsService {
 
   // CATEGORY ACTIONS
   public static async addCategory(listId: string, category: Category): Promise<Pick<Category, "id">> {
+    const { id, name } = category;
     const addCategoryTemplate = path.join(__dirname, './sql/addCategory.sql');
-    const [rows, fields] = await dbPost(addCategoryTemplate, { id: listId, category });
+    const [rows, fields] = await dbPost(addCategoryTemplate, { listId, id, name });
     const results = extractDbResult(rows);
     const categoryId = results[0].id;
     return { id: categoryId };
@@ -43,7 +44,7 @@ export abstract class ListsService {
 
   public static async getCategories(listId: string): Promise<Array<Pick<Category, "id" | "name">>> {
     const getCategoriesTemplate = path.join(__dirname, './sql/getCategories.sql');
-    const [rows, fields] = await dbPost(getCategoriesTemplate, { id: listId });
+    const [rows, fields] = await dbPost(getCategoriesTemplate, { listId });
     const results = extractDbResult(rows);
     return results;
   };

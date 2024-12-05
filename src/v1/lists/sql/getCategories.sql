@@ -2,9 +2,7 @@
 
 SET @listIdTxt = :listId;
 
-SET @listId = (SELECT ID FROM LIST WHERE ID_TXT = @listIdTxt);
-
-SELECT ID_TXT as ID, NAME
+SELECT bin_to_uuid(ID) as ID, NAME
 FROM CATEGORY
-WHERE LIST_ID = @listId
+WHERE LIST_ID = uuid_to_bin(@listIdTxt)
 ;

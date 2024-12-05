@@ -2,15 +2,14 @@
 
 SET @listIdTxt = :listId;
 SET @name = :name;
+SET @categoryIdTxt = :id;
 
-SET @listId = (SELECT ID FROM LIST WHERE ID_TXT = @listIdTxt);
-
-INSERT INTO CATEGORY (NAME, LIST_ID)
-VALUES (@name, @listId)
+INSERT IGNORE INTO CATEGORY (ID, NAME, LIST_ID)
+VALUES (uuid_to_bin(@categoryIdTxt), @name, uuid_to_bin(@listIdTxt))
 ;
 
-SELECT ID_TXT as ID
+SELECT bin_to_uuid(ID) as ID
 FROM CATEGORY
-WHERE LIST_ID = @listId
+WHERE LIST_ID = uuid_to_bin(@listIdTxt)
   and NAME = @name
 ;
