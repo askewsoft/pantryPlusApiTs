@@ -13,4 +13,10 @@ export abstract class ItemsService {
     const itemId = results[0].id;
     return { id: itemId };
   };
+
+  public static async updateItem(itemId: string, itemName: string): Promise<void> {
+    const updateTemplate = path.join(__dirname, './sql/updateItem.sql');
+    await dbPost(updateTemplate, { itemId, itemName });
+    return;
+  };
 };
