@@ -4,7 +4,7 @@ import mysql, { PoolOptions } from 'mysql2/promise';
 import { readFile } from 'fs/promises';
 import { snakeToCamel } from './camelCaseKeys';
 import config from './config';
-
+import getFileName from './getFileName';
 const log: Logger = logger('dbDriver');
 
 const extractQuery = async (template: string): Promise<string> => {
@@ -38,12 +38,15 @@ const pool = mysql.createPool(sqlConnectOpts);
 
 // dbPost returns a promise
 const dbPost = async (template: string, params: Object): Promise<any> => {
-  log.info(`Executing query ${template}`);
+  const startQueryTime = Date.now();
+  log.info(`Executing query ${getFileName(template)}`);
   try {
     const sqlStr = await extractQuery(template);
     const dbConn = await pool.getConnection()
     const results = await dbConn.query(sqlStr, params);
     dbConn.release();
+    const endQueryTime = Date.now();
+    log.info(`Query ${getFileName(template)} completed in ${endQueryTime - startQueryTime}ms`);
     return results;
   } catch (err: any) {
     log.error(err);
