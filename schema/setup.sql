@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS PANTRY_PLUS.ITEM (
             24,0,'-')
     ) virtual,
     NAME varchar(100) NOT NULL,
-    UPC char(15),
+    UPC char(15)
 );
 
 CREATE TABLE IF NOT EXISTS PANTRY_PLUS.ITEM_CATEGORY_RELATION (
