@@ -5,12 +5,12 @@ SET @name = :name;
 
 SET @ownerId = (SELECT ID FROM SHOPPER WHERE EMAIL = @email);
 
-INSERT INTO GROUP (NAME, OWNER_ID)
+INSERT INTO COHORT (NAME, OWNER_ID)
 VALUES (@name, @ownerId)
 ;
 
 SELECT ID_TXT as ID
-FROM GROUP
+FROM COHORT
 WHERE OWNER_ID = @ownerId
   and NAME = @name
 ;

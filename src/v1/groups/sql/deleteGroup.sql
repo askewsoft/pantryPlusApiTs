@@ -1,17 +1,17 @@
--- deletes a group
-SET @groupIdTxt = :groupId;
+-- deletes a cohort
+SET @cohortIdTxt = :groupId;
 
-SET @groupId = (SELECT ID FROM GROUP WHERE ID_TXT = @groupIdTxt);
+SET @cohortId = (SELECT ID FROM COHORT WHERE ID_TXT = @cohortIdTxt);
 
-DELETE FROM GROUP_SHOPPER_RELATION
-WHERE GROUP_ID = @groupId
+DELETE FROM COHORT_SHOPPER_RELATION
+WHERE COHORT_ID = @cohortId
 ;
 
 UPDATE LIST
-SET GROUP_ID = NULL
-WHERE GROUP_ID = @groupId
+SET COHORT_ID = NULL
+WHERE COHORT_ID = @cohortId
 ;
 
-DELETE FROM GROUP
-WHERE GROUP_ID = @groupId
+DELETE FROM COHORT
+WHERE ID = @cohortId
 ;

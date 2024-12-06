@@ -1,21 +1,21 @@
--- confirm access to view group
--- groups may be viewed by any member or owner
+-- confirm access to view cohort
+-- cohorts may be viewed by any member or owner
 
 SET @userEmail = :email;
-SET @groupIdTxt = :id;
+SET @cohortIdTxt = :id;
 
-SELECT ID INTO @groupId FROM GROUP WHERE ID_TXT = @groupIdTxt
+SELECT ID INTO @cohortId FROM COHORT WHERE ID_TXT = @cohortIdTxt
 ;
 SELECT ID INTO @shopperId FROM SHOPPER WHERE EMAIL = @userEmail
 ;
 
 SELECT 1 AS ALLOWED
-FROM GROUP g
-WHERE g.OWNER_ID = @shopperId
-  AND g.ID = @groupId
+FROM COHORT c
+WHERE c.OWNER_ID = @shopperId
+  AND c.ID = @cohortId
 UNION
 SELECT 1 AS ALLOWED
-FROM GROUP_SHOPPER_RELATION gsr
-WHERE gsr.SHOPPER_ID = @shopperId
-  AND gsr.GROUP_ID = @groupId
+FROM COHORT_SHOPPER_RELATION csr
+WHERE csr.SHOPPER_ID = @shopperId
+  AND csr.COHORT_ID = @cohortId
 ;

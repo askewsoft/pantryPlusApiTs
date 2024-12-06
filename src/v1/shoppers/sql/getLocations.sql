@@ -5,16 +5,16 @@ SET @shopperId = :shopperId;
 SET @lookBackDays = 365;
 SET @lookBackDate = (SELECT ADDDATE(CURDATE(), -@lookBackDays));
 
-; WITH shopperGroups as (
-  SELECT gr.ID as GROUP_ID
-  FROM PANTRY_PLUS.GROUP_SHOPPER_RELATION gsr
-  JOIN PANTRY_PLUS.GROUP gr ON gr.ID = gsr.GROUP_ID
-  WHERE gsr.SHOPPER_ID = @shopperId
+; WITH shopperCohorts as (
+  SELECT c.ID as COHORT_ID
+  FROM PANTRY_PLUS.COHORT_SHOPPER_RELATION csr
+  JOIN PANTRY_PLUS.COHORT c ON c.ID = csr.COHORT_ID
+  WHERE csr.SHOPPER_ID = @shopperId
 ),
 shopperLists as (
   SELECT ls.ID as LIST_ID
   FROM PANTRY_PLUS.LIST ls
-  JOIN shopperGroups sg ON sg.GROUP_ID = ls.GROUP_ID
+  JOIN shopperCohorts sc ON sc.COHORT_ID = ls.COHORT_ID
 )
 
 SELECT DISTINCT

@@ -1,5 +1,5 @@
 -- confirm access to contribute to list
--- list owner and group members can contribute
+-- list owner and cohort members can contribute
 
 SET @userEmail = :email;
 SET @listIdTxt = :id;
@@ -14,8 +14,8 @@ WHERE OWNER_ID = @shopperId
 UNION
 SELECT 1 AS ALLOWED
 FROM LIST l
-JOIN GROUP_SHOPPER_RELATION gsr
-    ON gsr.SHOPPER_ID = @shopperId
-    AND gsr.GROUP_ID = l.GROUP_ID
+JOIN COHORT_SHOPPER_RELATION csr
+    ON csr.SHOPPER_ID = @shopperId
+    AND csr.COHORT_ID = l.COHORT_ID
 WHERE l.ID = uuid_to_bin(@listIdTxt)
 ;

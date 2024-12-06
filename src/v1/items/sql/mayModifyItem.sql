@@ -16,13 +16,13 @@ JOIN LIST l
 WHERE i.ID = UUID_TO_BIN(@itemIdTxt)
     AND EXISTS (
         SELECT 1
-        FROM GROUP
+        FROM COHORT
         WHERE OWNER_ID = @shopperId
-            AND ID = l.GROUP_ID
+            AND ID = l.COHORT_ID
         UNION
         SELECT 1
-        FROM GROUP_SHOPPER_RELATION gsr
-        WHERE gsr.SHOPPER_ID = @shopperId
-            AND gsr.GROUP_ID = l.GROUP_ID
+        FROM COHORT_SHOPPER_RELATION csr
+        WHERE csr.SHOPPER_ID = @shopperId
+            AND csr.COHORT_ID = l.COHORT_ID
     ) 
 ;

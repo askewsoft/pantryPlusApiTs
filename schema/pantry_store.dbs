@@ -35,7 +35,7 @@
 			</fk>
 			<options><![CDATA[engine=InnoDB]]></options>
 		</table>
-		<table name="group" prior="account" >
+		<table name="cohort" prior="group" >
 			<column name="id" type="binary" length="16" jt="-2" mandatory="y" />
 			<column name="id_txt" type="varchar" length="36" jt="12" mandatory="y" >
 				<comment><![CDATA[string version of ID]]></comment>
@@ -50,11 +50,11 @@
 			</fk>
 			<options><![CDATA[engine=InnoDB]]></options>
 		</table>
-		<table name="group_shopper_relation" prior="account_shopper_relation" >
-			<column name="group_id" prior="account_id" type="binary" length="16" jt="-2" mandatory="y" />
+		<table name="cohort_shopper_relation" prior="group_shopper_relation" >
+			<column name="cohort_id" prior="group_id" type="binary" length="16" jt="-2" mandatory="y" />
 			<column name="shopper_id" prior="member_id" type="binary" length="16" jt="-2" mandatory="y" />
-			<fk name="fk_account_shopper_relation_account" to_schema="pantry_store" to_table="group" >
-				<fk_column name="group_id" pk="id" />
+			<fk name="fk_account_shopper_relation_account" to_schema="pantry_store" to_table="cohort" >
+				<fk_column name="cohort_id" pk="id" />
 			</fk>
 			<fk name="fk_account_shopper_relation_shopper" to_schema="pantry_store" to_table="shopper" >
 				<fk_column name="shopper_id" pk="id" />
@@ -114,15 +114,15 @@
 			</column>
 			<column name="name" type="varchar" length="100" jt="12" mandatory="y" />
 			<column name="owner_id" type="binary" length="16" jt="-2" mandatory="y" />
-			<column name="group_id" prior="account_id" type="binary" length="16" jt="-2" />
+			<column name="cohort_id" prior="group_id" type="binary" length="16" jt="-2" />
 			<index name="pk_list_id" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
 			<fk name="fk_list_shopper" to_schema="pantry_store" to_table="shopper" >
 				<fk_column name="owner_id" pk="id" />
 			</fk>
-			<fk name="fk_list_group" to_schema="pantry_store" to_table="group" >
-				<fk_column name="group_id" pk="id" />
+			<fk name="fk_list_group" to_schema="pantry_store" to_table="cohort" >
+				<fk_column name="cohort_id" pk="id" />
 			</fk>
 			<options><![CDATA[engine=InnoDB]]></options>
 		</table>
@@ -204,8 +204,8 @@
 	<layout name="Default Layout" id="Layout_16e3" show_relation="columns" >
 		<entity schema="pantry_store" name="category" color="D3C1EE" x="544" y="448" />
 		<entity schema="pantry_store" name="category_order" color="C1D8EE" x="496" y="288" />
-		<entity schema="pantry_store" name="group" color="D3C1EE" x="112" y="64" />
-		<entity schema="pantry_store" name="group_shopper_relation" color="C1D8EE" x="320" y="48" />
+		<entity schema="pantry_store" name="cohort" color="D3C1EE" x="112" y="64" />
+		<entity schema="pantry_store" name="cohort_shopper_relation" color="C1D8EE" x="320" y="48" />
 		<entity schema="pantry_store" name="item" color="D3C1EE" x="48" y="592" />
 		<entity schema="pantry_store" name="item_category_relation" color="3986C1" x="640" y="640" />
 		<entity schema="pantry_store" name="item_history_relation" color="C1D8EE" x="64" y="416" />

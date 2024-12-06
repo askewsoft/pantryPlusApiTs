@@ -1,9 +1,9 @@
--- gets shoppers in a group
-SET @groupIdTxt = :groupId;
-SET @groupId = (SELECT ID FROM GROUP WHERE ID_TXT = @groupIdTxt);
+-- gets shoppers in a cohort
+SET @cohortIdTxt = :groupId;
+SET @cohortId = (SELECT ID FROM COHORT WHERE ID_TXT = @cohortIdTxt);
 
 SELECT s.ID_TXT AS ID, s.NICKNAME, s.EMAIL
-FROM GROUP_SHOPPER_RELATION gsr
-JOIN SHOPPER s ON gsr.SHOPPER_ID = s.ID
-WHERE gsr.GROUP_ID = @groupId
+FROM COHORT_SHOPPER_RELATION csr
+JOIN SHOPPER s ON csr.SHOPPER_ID = s.ID
+WHERE csr.COHORT_ID = @cohortId
 ;

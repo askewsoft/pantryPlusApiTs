@@ -1,9 +1,9 @@
 SET @name = :name;
-SET @groupIdTxt = :groupId;
+SET @cohortIdTxt = :cohortId;
 
-SET @groupId = (SELECT ID FROM GROUP WHERE ID_TXT = @groupIdTxt);
+SET @cohortId = (SELECT ID FROM COHORT WHERE ID_TXT = @cohortIdTxt);
 
-UPDATE GROUP
+UPDATE COHORT
 SET NAME = @name
-WHERE GROUP_ID = @groupId
+WHERE ID = @cohortId
 ;

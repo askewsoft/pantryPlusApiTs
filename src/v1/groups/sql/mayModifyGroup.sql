@@ -1,16 +1,16 @@
--- confirm access to alter group
--- groups may be changed or deleted by owner only
+-- confirm access to alter cohort
+-- cohorts may be changed or deleted by owner only
 
 SET @userEmail = :email;
-SET @groupIdTxt = :id;
+SET @cohortIdTxt = :id;
 
-SELECT ID INTO @groupId FROM GROUP WHERE ID_TXT = @groupIdTxt
+SELECT ID INTO @cohortId FROM COHORT WHERE ID_TXT = @cohortIdTxt
 ;
 SELECT ID INTO @shopperId FROM SHOPPER WHERE EMAIL = @userEmail
 ;
 
 SELECT 1 AS ALLOWED
-FROM GROUP g
-WHERE g.OWNER_ID = @shopperId
-  AND g.ID = @groupId
+FROM COHORT c
+WHERE c.OWNER_ID = @shopperId
+  AND c.ID = @cohortId
 ;

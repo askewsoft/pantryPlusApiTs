@@ -7,7 +7,7 @@ export type GroupMembers = Array<string>;
  * A Group is a user generated collection of Shoppers.
  */
 export type Group = {
-    /** UUID representation of the groups's ID */
+    /** UUID representation of the group's ID */
     id: string;
     /** The name of the group */
     name: string;

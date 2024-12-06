@@ -1,8 +1,8 @@
--- removes all shoppers from a group
-SET @groupIdTxt = :groupId;
+-- removes all shoppers from a cohort
+SET @cohortIdTxt = :groupId;
 
-SET @groupId = (SELECT ID FROM GROUP WHERE ID_TXT = @groupIdTxt);
+SET @cohortId = (SELECT ID FROM COHORT WHERE ID_TXT = @cohortIdTxt);
 
-DELETE FROM GROUP_SHOPPER_RELATION
-WHERE GROUP_ID = @groupId
+DELETE FROM COHORT_SHOPPER_RELATION
+WHERE COHORT_ID = @cohortId
 ;
