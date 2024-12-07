@@ -1,7 +1,7 @@
 -- purchases an item on a list
-SET @itemIdTxt = :item_id;
-SET @listIdTxt = :list_id;
-SET @locationIdTxt = :location_id;
+SET @itemIdTxt = :itemId;
+SET @listIdTxt = :listId;
+SET @locationIdTxt = :locationId;
 SET @now = NOW();
 
 SELECT ID INTO @itemId FROM ITEM WHERE ID_TXT = @itemIdTxt

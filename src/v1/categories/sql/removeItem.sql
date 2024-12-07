@@ -1,6 +1,6 @@
 -- removes an item from a category
-SET @itemIdTxt = :item_id;
-SET @categoryIdTxt = :category_id;
+SET @itemIdTxt = :itemId;
+SET @categoryIdTxt = :categoryId;
 
 SELECT ID INTO @itemId FROM ITEM WHERE ID_TXT = @itemIdTxt
 ;

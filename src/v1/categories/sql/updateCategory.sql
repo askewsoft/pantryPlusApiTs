@@ -1,5 +1,5 @@
-SET @categoryIdTxt = :category_id;
-SET @categoryNameTxt = :category_name;
+SET @categoryIdTxt = :categoryId;
+SET @categoryNameTxt = :categoryName;
 
 UPDATE CATEGORY
 SET NAME = @categoryNameTxt

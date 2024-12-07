@@ -1,4 +1,4 @@
-SET @itemIdTxt = :item_id;
+SET @itemIdTxt = :itemId;
 SET @itemName = :name;
 
 UPDATE ITEM

@@ -1,6 +1,6 @@
 -- removes an item from a list
-SET @itemIdTxt = :item_id;
-SET @listIdTxt = :list_id;
+SET @itemIdTxt = :itemId;
+SET @listIdTxt = :listId;
 
 SELECT ID INTO @itemId FROM ITEM WHERE ID_TXT = @itemIdTxt
 ;

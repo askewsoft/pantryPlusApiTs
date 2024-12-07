@@ -1,7 +1,7 @@
 -- adds a shopping item to a list
-SET @itemIdTxt = :item_id;
-SET @listIdTxt = :list_id;
-SET @categoryIdTxt = :category_id;
+SET @itemIdTxt = :itemId;
+SET @listIdTxt = :listId;
+SET @categoryIdTxt = :categoryId;
 
 SELECT ID INTO @listId FROM LIST WHERE ID_TXT = @listIdTxt;
 SELECT ID INTO @itemId FROM ITEM WHERE ID_TXT = @itemIdTxt;

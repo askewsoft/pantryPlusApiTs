@@ -1,8 +1,8 @@
 -- removes a purchase from the purchase history
-SET @itemIdTxt = :item_id;
-SET @listIdTxt = :list_id;
-SET @locationIdTxt = :location_id;
-SET @purchaseDateTxt = :purchase_date;
+SET @itemIdTxt = :itemId;
+SET @listIdTxt = :listId;
+SET @locationIdTxt = :locationId;
+SET @purchaseDateTxt = :purchaseDate;
 SET @purchaseDate = STR_TO_DATE(@purchaseDateTxt, '%Y-%m-%d');
 
 SELECT ID INTO @itemId FROM ITEM WHERE ID_TXT = @itemIdTxt
