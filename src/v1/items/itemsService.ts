@@ -14,9 +14,9 @@ export abstract class ItemsService {
     return { id: itemId };
   };
 
-  public static async updateItem(itemId: string, itemName: string): Promise<void> {
+  public static async updateItem(item: Item): Promise<void> {
     const updateTemplate = path.join(__dirname, './sql/updateItem.sql');
-    await dbPost(updateTemplate, { itemId, itemName });
+    await dbPost(updateTemplate, item);
     return;
   };
 };
