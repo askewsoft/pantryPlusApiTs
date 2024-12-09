@@ -1,27 +1,13 @@
--- adds a shopping item to a list
+-- adds a shopping item to a list without a category
 SET @itemIdTxt = :itemId;
 SET @listIdTxt = :listId;
-SET @categoryIdTxt = :categoryId;
-
-SELECT ID INTO @listId FROM LIST WHERE ID_TXT = @listIdTxt;
-SELECT ID INTO @itemId FROM ITEM WHERE ID_TXT = @itemIdTxt;
 
 -- add the item to the list
 INSERT INTO LIST_ITEM_RELATION (LIST_ID, ITEM_ID)
-VALUES (@listId, @itemId)
+VALUES (UUID_TO_BIN(@listIdTxt), UUID_TO_BIN(@itemIdTxt))
 ;
 
--- add the item to the category if it exists
-IF (@categoryIdTxt IS NOT NULL) THEN
-    SELECT ID INTO @categoryId
-    FROM CATEGORY
-    WHERE ID_TXT = @categoryIdTxt;
-
-    INSERT INTO ITEM_CATEGORY_RELATION (ITEM_ID, CATEGORY_ID)
-    VALUES (@itemId, @categoryId);
-END IF;
-
-SELECT ID_TXT as ID
+SELECT BIN_TO_UUID(ID) as ID
 FROM ITEM
-WHERE ID = @itemId
+WHERE ID = UUID_TO_BIN(@itemIdTxt)
 ;

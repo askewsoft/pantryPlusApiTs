@@ -7,11 +7,12 @@ import { listIdExample } from "./listsExamples";
 import { Category } from "../categories/category";
 import { categoriesExample, categoryIdExample } from "../categories/categoriesExamples";
 import { Item } from "../items/item";
-import { itemIdExample } from "../items/itemsExamples";
+import { itemIdExample, itemsExample } from "../items/itemsExamples";
 import { ListsService } from "./listsService";
 import { mayProceed } from "../../shared/mayProceed";
 import { CategoriesService } from "../categories/categoriesService";
 import { userInfo } from "os";
+import { ShoppersService } from "../shoppers/shoppersService";
 
 const mayUpdateListTemplate = path.join(__dirname, './sql/mayUpdateList.sql');
 const mayContributeToListTemplate = path.join(__dirname, './sql/mayContributeToList.sql');
@@ -31,7 +32,8 @@ export class ListsController extends Controller {
   @SuccessResponse(201, "Created")
   @Example<Pick<List, "id">>(listIdExample)
   public async createList(@Header("X-Auth-User") email: string, @Body() newList: List ): Promise<Pick<List, "id">> {
-    // any authenticated user can create a list
+    // any valid user can create a list
+    await ShoppersService.validateUser(email);
     return await ListsService.create(newList);
   };
 
@@ -108,7 +110,6 @@ export class ListsController extends Controller {
   @SuccessResponse(205, "Content Updated")
   public async unpurchaseItem(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() listId: string, @Path() itemId: string, @Body() purchaseDate: string): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
-    // TODO: validate user taking the action and submit their ID to the service
     await ListsService.unpurchaseItem(listId, itemId, locationId, purchaseDate);
     return;
   };
@@ -197,17 +198,18 @@ export class ListsController extends Controller {
 
 
   /**
-   * @summary Retrieves the items for a category
+   * @summary Retrieves the uncategorized items for a list
    * @param email the email address of the user
-   * @param categoryId the ID of the category
+   * @param listId the ID of the list
    * @example email "test@test.com"
-   * @example categoryId "123E4567-E89B-12D3-A456-426614174000"
+   * @example listId "123E4567-E89B-12D3-A456-426614174000"
    * @returns The list of items
    */
-  @Get("{listId}/categories/{categoryId}/items")
+  @Get("{listId}/items")
   @SuccessResponse(200, "OK")
-  public async getItems(@Header("X-Auth-User") email: string, @Path() listId: string, @Path() categoryId: string): Promise<Array<Item>> {
+  @Example<Array<Item>>(itemsExample)
+  public async getItems(@Header("X-Auth-User") email: string, @Path() listId: string): Promise<Array<Item>> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
-    return await ListsService.getCategoryItems(listId, categoryId);
+    return await ListsService.getItems(listId);
   };
 };
