@@ -1,5 +1,4 @@
--- gets a shopper by email
-
+-- gets a shopper by ID
 SET @shopperId = :shopperId;
 
 SELECT ID_TXT as ID, NICKNAME, EMAIL

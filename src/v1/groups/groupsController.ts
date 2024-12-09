@@ -10,6 +10,7 @@ import { GroupsService } from "./groupsService";
 import { addAllMembersToGroup } from "./groupHelper";
 import { ErrorCode } from "../../shared/errorHandler";
 import { mayProceed } from "../../shared/mayProceed";
+import { ShoppersService } from "../shoppers/shoppersService";
 
 const mayModifyGroupTemplate = path.join(__dirname, "./sql/mayModifyGroup.sql");
 const mayAccessGroupTemplate = path.join(__dirname, "./sql/mayAccessGroup.sql");
@@ -35,7 +36,8 @@ export class GroupsController extends Controller {
   @SuccessResponse(201, "Created")
   @Example<Pick<Group, "id" | "members">>(groupCreationExample)
   public async createGroup(@Header("X-Auth-User") email: string, @Body() group: Group ): Promise<Pick<Group, "id" | "members">> {
-    // any authenticated user can create a group
+    // any valid user can create a group
+    await ShoppersService.validateUser(email);
     const { name, members } = group;
     const groupId = await GroupsService.create(name, email);
 

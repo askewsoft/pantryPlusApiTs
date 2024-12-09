@@ -8,12 +8,24 @@ import { dbPost, extractDbResult } from "../../shared/dbDriver";
 import { ErrorCode } from "../../shared/errorHandler";
 
 export abstract class ShoppersService {
+  public static async validateUser(email: string): Promise<Pick<Shopper, "id">> {
+    const template = path.join(__dirname, './sql/validateUser.sql');
+    const [rows, fields] = await dbPost(template, { email });
+    const result = extractDbResult(rows)?.[0];
+    if (!result) {
+      const err = new Error('shopper not found') as any;
+      err.name = ErrorCode.NOT_FOUND;
+      throw err;
+    }
+    return { id: result?.id };
+  };
+
   public static async retrieve(shopperId: string): Promise<Shopper> {
     const template = path.join(__dirname, './sql/getShopper.sql');
     const [rows] = await dbPost(template, { shopperId });
     const result = extractDbResult(rows)?.[0];
     if (!result) {
-      const err = new Error('user not found') as any;
+      const err = new Error('shopper not found') as any;
       err.name = ErrorCode.NOT_FOUND;
       throw err;
     }
