@@ -3,7 +3,6 @@ import { dbPost, extractDbResult } from "../../shared/dbDriver";
 import { List } from "./list";
 import { Category } from "../categories/category";
 import { Item } from "../items/item";
-import { ItemsService } from "../items/itemsService";
 import { Logger, logger } from "../../shared/logger";
 
 const log: Logger = logger('List Service')
@@ -33,13 +32,11 @@ export abstract class ListsService {
   };
 
   // CATEGORY ACTIONS
-  public static async addCategory(listId: string, category: Category): Promise<Pick<Category, "id">> {
+  public static async createCategory(listId: string, category: Category): Promise<void> {
     const { id, name } = category;
-    const addCategoryTemplate = path.join(__dirname, './sql/addCategory.sql');
-    const [rows, fields] = await dbPost(addCategoryTemplate, { listId, id, name });
-    const results = extractDbResult(rows);
-    const categoryId = results[0].id;
-    return { id: categoryId };
+    const createCategoryTemplate = path.join(__dirname, './sql/createCategory.sql');
+    await dbPost(createCategoryTemplate, { listId, id, name });
+    return;
   };
 
   public static async getCategories(listId: string): Promise<Array<Pick<Category, "id" | "name">>> {
@@ -63,19 +60,10 @@ export abstract class ListsService {
   };
 
   // ITEM ACTIONS
-  public static async addItem(listId: string, item: string | Item): Promise<Pick<Item, "id">> {
-    let itemId: string;
-    let categoryId: string | undefined;
-    if (typeof item === 'string') {
-      itemId = item;
-    } else {
-      categoryId = item.categoryId;
-      const { id } = await ItemsService.create(item);
-      itemId = id;
-    }
+  public static async addItem(listId: string, itemId: string): Promise<void> {
     const addItemTemplate = path.join(__dirname, './sql/addItem.sql');
-    await dbPost(addItemTemplate, { listId, itemId, categoryId });
-    return { id: itemId };
+    await dbPost(addItemTemplate, { listId, itemId });
+    return;
   };
 
   public static async removeItem(listId: string, itemId: string): Promise<void> {

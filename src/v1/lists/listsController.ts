@@ -49,10 +49,10 @@ export class ListsController extends Controller {
    */
   @Post("{listId}/categories")
   @SuccessResponse(201, "Created")
-  @Example<Pick<Category, "id">>(categoryIdExample)
-  public async addCategory(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() category: Category): Promise<Pick<Category, "id">> {
+  public async createCategory(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() category: Category): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
-    return await ListsService.addCategory(listId, category);
+    await ListsService.createCategory(listId, category);
+    return;
   };
 
   /**
@@ -67,10 +67,10 @@ export class ListsController extends Controller {
    */
   @Post("{listId}/items")
   @SuccessResponse(201, "Created")
-  @Example<Pick<Item, "id">>(itemIdExample)
-  public async addItem(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() item: Item): Promise<Pick<Item, "id">> {
+  public async addItem(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() itemId: string): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
-    return await ListsService.addItem(listId, item);
+    await ListsService.addItem(listId, itemId);
+    return;
   };
 
   /**
