@@ -54,7 +54,7 @@ export abstract class ShoppersService {
   };
 
   public static async getItems(shopperId: string): Promise<Array<Item>> {
-    const template = path.join(__dirname, './sql/getItems.sql');
+    const template = path.join(__dirname, './sql/getPurchasedItems.sql');
     const [rows, fields] = await dbPost(template, { shopperId });
     const results = extractDbResult(rows);
     return results;

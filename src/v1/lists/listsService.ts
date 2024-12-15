@@ -47,7 +47,7 @@ export abstract class ListsService {
   };
 
   public static async getItems(listId: string): Promise<Array<Item>> {
-    const getItemsTemplate = path.join(__dirname, './sql/getItems.sql');
+    const getItemsTemplate = path.join(__dirname, './sql/getListItems.sql');
     const [rows, fields] = await dbPost(getItemsTemplate, { listId });
     const results = extractDbResult(rows);
     return results;
