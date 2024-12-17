@@ -12,11 +12,13 @@ const mayModifyCategoryTemplate = path.join(__dirname, "./sql/mayModifyCategory.
 @Tags("Categories")
 export class CategoriesController extends Controller {
   /**
-   * @summary Adds an item to a category
-   * @param itemId the ID of the item
+   * @summary Associates an item with a category
+   * @param email the email address of the user
    * @param categoryId the ID of the category
-   * @example itemId "123E4567-E89B-12D3-A456-426614174000"
+   * @param itemId the ID of the item
+   * @example email "test@test.com"
    * @example categoryId "123E4567-E89B-12D3-A456-426614174000"
+   * @example itemId "123E4567-E89B-12D3-A456-426614174000"
    */
   @Post("{categoryId}/items/{itemId}")
   @SuccessResponse(201, "Created")

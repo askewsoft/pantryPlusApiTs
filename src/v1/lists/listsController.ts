@@ -5,13 +5,11 @@ import path from "path";
 import { List } from "./list";
 import { listIdExample } from "./listsExamples";
 import { Category } from "../categories/category";
-import { categoriesExample, categoryIdExample } from "../categories/categoriesExamples";
+import { categoriesExample } from "../categories/categoriesExamples";
 import { Item } from "../items/item";
-import { itemIdExample, itemsExample } from "../items/itemsExamples";
+import { itemsExample } from "../items/itemsExamples";
 import { ListsService } from "./listsService";
 import { mayProceed } from "../../shared/mayProceed";
-import { CategoriesService } from "../categories/categoriesService";
-import { userInfo } from "os";
 import { ShoppersService } from "../shoppers/shoppersService";
 
 const mayUpdateListTemplate = path.join(__dirname, './sql/mayUpdateList.sql');
@@ -45,7 +43,6 @@ export class ListsController extends Controller {
    * @example email "test@test.com"
    * @example listId "123E4567-E89B-12D3-A456-426614174000"
    * @example category { "id": "123E4567-E89B-12D3-A456-426614174000", "name": "Produce" }
-   * @returns The ID of the created category
    */
   @Post("{listId}/categories")
   @SuccessResponse(201, "Created")
@@ -56,18 +53,17 @@ export class ListsController extends Controller {
   };
 
   /**
-   * @summary Adds an item to a list
+   * @summary Associates an item with a list
    * @param email the email address of the user
    * @param listId the ID of the list
-   * @param item the item to add
+   * @param itemId the ID of the item to associate with the list
    * @example email "test@test.com"
    * @example listId "123E4567-E89B-12D3-A456-426614174000"
-   * @example item { "id": "123E4567-E89B-12D3-A456-426614174000", "name": "Tomato", "categoryId": "123E4567-E89B-12D3-A456-426614174000" }
-   * @returns The ID of the created item
+   * @example itemId "123E4567-E89B-12D3-A456-426614174000"
    */
-  @Post("{listId}/items")
+  @Post("{listId}/items/{itemId}")
   @SuccessResponse(201, "Created")
-  public async addItem(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() itemId: string): Promise<void> {
+  public async addItem(@Header("X-Auth-User") email: string, @Path() listId: string, @Path() itemId: string): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     await ListsService.addItem(listId, itemId);
     return;
