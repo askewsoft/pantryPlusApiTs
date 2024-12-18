@@ -1,13 +1,17 @@
 import { Category } from "./category";
 
-export const categoriesExample: Array<Pick<Category, "id" | "name">> = [
+export const categoriesExample: Array<Category> = [
     {
         id: "123E4567-E89B-12D3-A456-426614174000",
-        name: "Produce"
+        name: "Produce",
+        listId: "123E4567-E89B-12D3-A456-426614174000",
+        ordinal: 1
     },
     {
         id: "123E4567-E89B-12D3-A456-426614174001",
-        name: "Dairy"
+        name: "Dairy",
+        listId: "123E4567-E89B-12D3-A456-426614174000",
+        ordinal: 2
     }
 ];
 

@@ -8,4 +8,6 @@ export interface Category {
     name: string;
     /** The list to which the category belongs */
     listId: string;
+    /** The ordinal of the category */
+    ordinal: number;
 }

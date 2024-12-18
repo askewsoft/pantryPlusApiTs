@@ -52,9 +52,9 @@ export class CategoriesController extends Controller {
    */
   @Put("{categoryId}")
   @SuccessResponse(205, "Content Updated")
-  public async updateCategory(@Header("X-Auth-User") email: string, @Path() categoryId: string, @Body() body: { name: string }): Promise<void> {
+  public async updateCategory(@Header("X-Auth-User") email: string, @Path() categoryId: string, @Body() body: { name: string, ordinal: number }): Promise<void> {
     await mayProceed({ email, id: categoryId, accessTemplate: mayModifyCategoryTemplate });
-    await CategoriesService.updateCategory(categoryId, body.name);
+    await CategoriesService.updateCategory(categoryId, body.name, body.ordinal);
     return;
   };
 

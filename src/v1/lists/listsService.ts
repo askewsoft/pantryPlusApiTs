@@ -33,13 +33,13 @@ export abstract class ListsService {
 
   // CATEGORY ACTIONS
   public static async createCategory(listId: string, category: Category): Promise<void> {
-    const { id, name } = category;
+    const { id, name, ordinal } = category;
     const createCategoryTemplate = path.join(__dirname, './sql/createCategory.sql');
-    await dbPost(createCategoryTemplate, { listId, id, name });
+    await dbPost(createCategoryTemplate, { listId, id, name, ordinal });
     return;
   };
 
-  public static async getCategories(listId: string): Promise<Array<Pick<Category, "id" | "name">>> {
+  public static async getCategories(listId: string): Promise<Array<Category>> {
     const getCategoriesTemplate = path.join(__dirname, './sql/getCategories.sql');
     const [rows, fields] = await dbPost(getCategoriesTemplate, { listId });
     const results = extractDbResult(rows);

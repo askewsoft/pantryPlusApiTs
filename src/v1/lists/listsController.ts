@@ -11,6 +11,9 @@ import { itemsExample } from "../items/itemsExamples";
 import { ListsService } from "./listsService";
 import { mayProceed } from "../../shared/mayProceed";
 import { ShoppersService } from "../shoppers/shoppersService";
+import { logger } from "../../shared/logger";
+
+const log = logger("Lists Controller");
 
 const mayUpdateListTemplate = path.join(__dirname, './sql/mayUpdateList.sql');
 const mayContributeToListTemplate = path.join(__dirname, './sql/mayContributeToList.sql');
@@ -64,6 +67,7 @@ export class ListsController extends Controller {
   @Post("{listId}/items/{itemId}")
   @SuccessResponse(201, "Created")
   public async addItem(@Header("X-Auth-User") email: string, @Path() listId: string, @Path() itemId: string): Promise<void> {
+    log.debug(`adding item ${itemId} to list ${listId} for user ${email}`);
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     await ListsService.addItem(listId, itemId);
     return;
@@ -186,8 +190,8 @@ export class ListsController extends Controller {
    */
   @Get("{listId}/categories")
   @SuccessResponse(200, "OK")
-  @Example<Array<Pick<Category, "id" | "name">>>(categoriesExample)
-  public async getCategories(@Header("X-Auth-User") email: string, @Path() listId: string): Promise<Array<Pick<Category, "id" | "name">>> {
+  @Example<Array<Category>>(categoriesExample)
+  public async getCategories(@Header("X-Auth-User") email: string, @Path() listId: string): Promise<Array<Category>> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     return await ListsService.getCategories(listId);
   };
