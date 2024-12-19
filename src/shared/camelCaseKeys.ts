@@ -106,7 +106,7 @@ function camelCase(input: string, options?: any) {
 export const snakeToCamel = (obj: any): any => {
   if (Array.isArray(obj)) return obj.map(snakeToCamel);
 
-  if (typeof obj !== 'object') return obj;
+  if (typeof obj !== 'object' || obj === null) return obj;
 
   let newObj: any = {};
   for (const key in obj) {
