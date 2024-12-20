@@ -7,9 +7,9 @@ const log: Logger = logger('Location Service')
 
 export abstract class LocationsService {
   public static async create(location: Location): Promise<Pick<Location, "id">> {
-    const { latitude, longitude, name } = location;
+    const { latitude, longitude, name, id } = location;
     const createTemplate = path.join(__dirname, './sql/createLocation.sql');
-    const [rows, fields] = await dbPost(createTemplate, { latitude, longitude, name });
+    const [rows, fields] = await dbPost(createTemplate, { latitude, longitude, name, locationId: id });
     const results = extractDbResult(rows);
     const locationId = results[0].id;
     return { id: locationId };
