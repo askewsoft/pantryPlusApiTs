@@ -27,6 +27,10 @@
 			<column name="ordinal" type="int" jt="4" mandatory="y" >
 				<defo><![CDATA[0]]></defo>
 			</column>
+			<index name="pk_category_order" unique="PRIMARY_KEY" >
+				<column name="category_id" />
+				<column name="location_id" />
+			</index>
 			<fk name="fk_category_order_category" to_schema="pantry_store" to_table="category" >
 				<fk_column name="category_id" pk="id" />
 			</fk>
@@ -53,6 +57,10 @@
 		<table name="cohort_shopper_relation" prior="group_shopper_relation" >
 			<column name="cohort_id" prior="group_id" type="binary" length="16" jt="-2" mandatory="y" />
 			<column name="shopper_id" prior="member_id" type="binary" length="16" jt="-2" mandatory="y" />
+			<index name="pk_cohort_shopper_relation" unique="PRIMARY_KEY" >
+				<column name="cohort_id" />
+				<column name="shopper_id" />
+			</index>
 			<fk name="fk_account_shopper_relation_account" to_schema="pantry_store" to_table="cohort" >
 				<fk_column name="cohort_id" pk="id" />
 			</fk>
@@ -79,6 +87,10 @@
 			<comment><![CDATA[log table, inserts only to capture events at completion of shopping session]]></comment>
 			<column name="item_id" type="binary" length="16" jt="-2" mandatory="y" />
 			<column name="category_id" prior="history_id" type="binary" length="16" jt="-2" mandatory="y" />
+			<index name="pk_item_category_relation" unique="PRIMARY_KEY" >
+				<column name="item_id" />
+				<column name="category_id" />
+			</index>
 			<fk name="fk_item_history_relation" to_schema="pantry_store" to_table="item" >
 				<fk_column name="item_id" pk="id" />
 			</fk>
@@ -93,7 +105,8 @@
 			<column name="purchased_by" prior="shopper_id" type="binary" length="16" jt="-2" mandatory="y" >
 				<comment><![CDATA[The shopper_id of the user that clicked the purchase button]]></comment>
 			</column>
-			<index name="pk_item_history_relation_history_id" unique="PRIMARY_KEY" >
+			<index name="pk_item_history_relation" unique="PRIMARY_KEY" >
+				<column name="item_id" />
 				<column name="history_id" />
 			</index>
 			<fk name="fk_item_history_relation_item" to_schema="pantry_store" to_table="item" >
@@ -102,7 +115,7 @@
 			<fk name="fk_item_history_relation_shopping_history" to_schema="pantry_store" to_table="purchase_history" >
 				<fk_column name="history_id" pk="id" />
 			</fk>
-			<fk name="fk_item_history_relation" to_schema="pantry_store" to_table="shopper" >
+			<fk name="fk_item_history_relation_shopper" to_schema="pantry_store" to_table="shopper" >
 				<fk_column name="purchased_by" pk="id" />
 			</fk>
 			<options><![CDATA[engine=InnoDB]]></options>
@@ -130,14 +143,32 @@
 			<comment><![CDATA[all of the items ever added to an account's shopping list]]></comment>
 			<column name="list_id" prior="account_id" type="binary" length="16" jt="-2" mandatory="y" />
 			<column name="item_id" type="binary" length="16" jt="-2" mandatory="y" />
-			<index name="pk_account_item_relation_account_id" unique="PRIMARY_KEY" >
+			<index name="pk_list_item_relation" unique="PRIMARY_KEY" >
 				<column name="list_id" />
+				<column name="item_id" />
 			</index>
 			<fk name="fk_account_item_relation_item" to_schema="pantry_store" to_table="item" >
 				<fk_column name="item_id" pk="id" />
 			</fk>
 			<fk name="fk_list_item_relation_list" to_schema="pantry_store" to_table="list" >
 				<fk_column name="list_id" pk="id" />
+			</fk>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="list_order" prior="tbl" >
+			<comment><![CDATA[Captures the prefered order of lists per shopper]]></comment>
+			<column name="list_id" type="binary" length="16" jt="-2" mandatory="y" />
+			<column name="shopper_id" type="binary" length="16" jt="-2" mandatory="y" />
+			<column name="ordinal" type="int" jt="4" mandatory="y" unsigned="y" />
+			<index name="pk_list_order" unique="PRIMARY_KEY" >
+				<column name="list_id" />
+				<column name="shopper_id" />
+			</index>
+			<fk name="fk_list_order_list" to_schema="pantry_store" to_table="list" >
+				<fk_column name="list_id" pk="id" />
+			</fk>
+			<fk name="fk_list_order_shopper" to_schema="pantry_store" to_table="shopper" >
+				<fk_column name="shopper_id" pk="id" />
 			</fk>
 			<options><![CDATA[engine=InnoDB]]></options>
 		</table>
@@ -196,17 +227,18 @@
 		</table>
 	</schema>
 	<layout name="Default Layout" id="Layout_16e3" show_relation="columns" >
-		<entity schema="pantry_store" name="category" color="D3C1EE" x="528" y="256" />
-		<entity schema="pantry_store" name="category_order" color="C1D8EE" x="496" y="464" />
-		<entity schema="pantry_store" name="cohort" color="D3C1EE" x="96" y="64" />
+		<entity schema="pantry_store" name="category" color="D3C1EE" x="240" y="384" />
+		<entity schema="pantry_store" name="category_order" color="C1D8EE" x="416" y="432" />
+		<entity schema="pantry_store" name="cohort" color="D3C1EE" x="80" y="80" />
 		<entity schema="pantry_store" name="cohort_shopper_relation" color="C1D8EE" x="304" y="48" />
-		<entity schema="pantry_store" name="item" color="D3C1EE" x="48" y="432" />
-		<entity schema="pantry_store" name="item_category_relation" color="3986C1" x="192" y="640" />
-		<entity schema="pantry_store" name="item_history_relation" color="C1D8EE" x="240" y="768" />
-		<entity schema="pantry_store" name="list" color="D3C1EE" x="320" y="208" />
+		<entity schema="pantry_store" name="item" color="D3C1EE" x="64" y="432" />
+		<entity schema="pantry_store" name="item_category_relation" color="3986C1" x="176" y="624" />
+		<entity schema="pantry_store" name="item_history_relation" color="C1D8EE" x="192" y="832" />
+		<entity schema="pantry_store" name="list" color="D3C1EE" x="320" y="192" />
 		<entity schema="pantry_store" name="list_item_relation" color="C1D8EE" x="48" y="240" />
-		<entity schema="pantry_store" name="location" color="D3C1EE" x="448" y="656" />
-		<entity schema="pantry_store" name="purchase_history" color="C1D8EE" x="256" y="400" />
-		<entity schema="pantry_store" name="shopper" color="D3C1EE" x="608" y="64" />
+		<entity schema="pantry_store" name="list_order" color="C1D8EE" x="496" y="112" />
+		<entity schema="pantry_store" name="location" color="D3C1EE" x="400" y="704" />
+		<entity schema="pantry_store" name="purchase_history" color="D3C1EE" x="592" y="400" />
+		<entity schema="pantry_store" name="shopper" color="D3C1EE" x="688" y="64" />
 	</layout>
 </project>
