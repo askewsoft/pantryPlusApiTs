@@ -39,14 +39,13 @@ const pool = mysql.createPool(sqlConnectOpts);
 // dbPost returns a promise
 const dbPost = async (template: string, params: Object): Promise<any> => {
   const startQueryTime = Date.now();
-  log.debug(`Executing query ${getFileName(template)}`);
   try {
     const sqlStr = await extractQuery(template);
     const dbConn = await pool.getConnection()
     const [rows] = await dbConn.query(sqlStr, params);
     dbConn.release();
-    const endQueryTime = Date.now();
     const results = extractDbResult(rows);
+    const endQueryTime = Date.now();
     log.info(`Query ${getFileName(template)} completed in ${endQueryTime - startQueryTime}ms`);
     return results;
   } catch (err: any) {
@@ -59,13 +58,20 @@ const dbPost = async (template: string, params: Object): Promise<any> => {
 };
 
 // returns the array of results w/o all the MySQL wrapping
-const extractDbResult = (rows: any): Array<any> => {
-  if (Array.isArray(rows) && rows.length > 0 && Array.isArray(rows[rows.length - 1])) {
+const extractDbResult = (rows: any): Array<any> | undefined => {
+  if (Array.isArray(rows) && rows.length > 0) {
     const results = rows.pop();
-    return snakeToCamel(results);
+    if (Array.isArray(results)) {
+      const normalizedResults = snakeToCamel(results);
+      return normalizedResults;
+    } else {
+      log.debug(`extractDbResult - there are no results`);
+      return;
+    }
   } else {
     const errObj = new Error('invalid database response') as any;
     errObj.name = ErrorCode.DATABASE_ERR;
+    log.error(errObj);
     throw errObj;
   }
 };
