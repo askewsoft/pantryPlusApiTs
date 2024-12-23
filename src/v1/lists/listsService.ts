@@ -65,7 +65,7 @@ export abstract class ListsService {
 
   public static async removeItem(listId: string, itemId: string): Promise<void> {
     const removeItemTemplate = path.join(__dirname, './sql/removeItem.sql');
-    await dbPost(removeItemTemplate, { id: listId, itemId });
+    await dbPost(removeItemTemplate, { listId, itemId });
     return;
   };
 
