@@ -4,7 +4,7 @@
 SET @shopperId = UUID_TO_BIN(:shopperId);
 
 SELECT
-  c.ID_TXT,
+  BIN_TO_UUID(c.ID) AS ID,
   c.NAME,
   CAST(c.OWNER_ID = sh.ID AS UNSIGNED) AS IS_OWNER
 FROM PANTRY_PLUS.SHOPPER sh

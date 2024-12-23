@@ -9,7 +9,7 @@ INSERT INTO COHORT (NAME, OWNER_ID)
 VALUES (@name, @ownerId)
 ;
 
-SELECT ID_TXT as ID
+SELECT BIN_TO_UUID(ID) as ID
 FROM COHORT
 WHERE OWNER_ID = @ownerId
   and NAME = @name

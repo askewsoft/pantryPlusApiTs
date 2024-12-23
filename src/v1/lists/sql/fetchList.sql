@@ -1,9 +1,9 @@
 -- gets a shopper by email
 
 SET @email = :email;
-SET @listId = :listId;
+SET @listId = UUID_TO_BIN(:listId);
 
-SELECT ID_TXT as ID, NAME
+SELECT BIN_TO_UUID(ID) as ID, NAME
 FROM LIST
-WHERE ID_TXT = @listId
+WHERE ID = @listId
 ;

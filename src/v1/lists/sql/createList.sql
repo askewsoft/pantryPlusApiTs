@@ -1,15 +1,15 @@
 -- creates a shopping list and returns the list_id
 
-SET @ownerId = :ownerId;
+SET @ownerId = UUID_TO_BIN(:ownerId);
 SET @name = :name;
-SET @idTxt = :id;
+SET @id = UUID_TO_BIN(:id);
 
 INSERT IGNORE INTO LIST (ID, NAME, OWNER_ID)
-VALUES (uuid_to_bin(@idTxt), @name, uuid_to_bin(@ownerId))
+VALUES (@id, @name, @ownerId)
 ;
 
-SELECT ID_TXT as ID
+SELECT BIN_TO_UUID(ID) as ID
 FROM LIST
-WHERE OWNER_ID = uuid_to_bin(@ownerId)
+WHERE OWNER_ID = @ownerId
   and NAME = @name
 ;

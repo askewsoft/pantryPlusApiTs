@@ -2,13 +2,13 @@
 
 SET @email = :email;
 SET @nickName = :nickName;
-SET @idTxt = :id;
+SET @id = UUID_TO_BIN(:id);
 
 INSERT IGNORE INTO PANTRY_PLUS.SHOPPER (ID, EMAIL, NICKNAME)
-VALUES (uuid_to_bin(@idTxt), @email, @nickName)
+VALUES (@id, @email, @nickName)
 ;
 
-SELECT bin_to_uuid(ID) as ID
+SELECT BIN_TO_UUID(ID) as ID
 FROM PANTRY_PLUS.SHOPPER
 WHERE EMAIL = @email
 ;
