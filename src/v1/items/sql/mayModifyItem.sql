@@ -2,7 +2,7 @@
 -- items may be modified by any shopper with access to the list to which the item belongs
 
 SET @userEmail = :email;
-SET @itemIdTxt = :id;
+SET @itemId = UUID_TO_BIN(:id);
 
 SELECT ID INTO @shopperId FROM SHOPPER WHERE EMAIL = @userEmail
 ;
@@ -13,7 +13,7 @@ JOIN LIST_ITEM_RELATION lir
     ON lir.ITEM_ID = i.ID
 JOIN LIST l
     ON l.ID = lir.LIST_ID
-WHERE i.ID = UUID_TO_BIN(@itemIdTxt)
+WHERE i.ID = @itemId
     AND EXISTS (
         SELECT 1
         FROM COHORT

@@ -1,6 +1,5 @@
 -- gets a cohort
-SET @cohortIdTxt = :groupId;
-SET @cohortId = (SELECT ID FROM COHORT WHERE ID_TXT = @cohortIdTxt);
+SET @cohortId = UUID_TO_BIN(:groupId);
 
 SELECT c.NAME, s.ID_TXT AS ID
 FROM COHORT c

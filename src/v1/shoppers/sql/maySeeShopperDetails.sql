@@ -2,11 +2,11 @@
 -- a user can see the details of shoppers in a cohort shared with the user
 
 SET @userEmail = :email;
-SET @shopperIdTxt = :id;
+SET @shopperId = UUID_TO_BIN(:id);
 
 SELECT ID into @userId FROM PANTRY_PLUS.SHOPPER WHERE EMAIL = @userEmail
 ;
-SELECT ID, EMAIL INTO @shopperId, @shopperEmail FROM PANTRY_PLUS.SHOPPER WHERE ID_TXT = @shopperIdTxt
+SELECT EMAIL INTO @shopperEmail FROM PANTRY_PLUS.SHOPPER WHERE ID = @shopperId
 ;
 
 SELECT IF (

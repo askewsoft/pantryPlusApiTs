@@ -2,10 +2,10 @@
 -- shoppers may change only their own record
 
 SET @userEmail = :email;
-SET @shopperIdTxt = :id;
+SET @shopperId = UUID_TO_BIN(:id);
 
 SELECT 1 AS ALLOWED
 FROM PANTRY_PLUS.SHOPPER s
 WHERE s.EMAIL = @userEmail
-  and s.ID = uuid_to_bin(@shopperIdTxt)
+  and s.ID = @shopperId
 ;

@@ -1,11 +1,9 @@
 -- gets all the items for the shopper ID
 -- associated with the user
 
-SET @shopperIdTxt = :shopperId;
+SET @shopperId = UUID_TO_BIN(:shopperId);
 SET @lookBackDays = 365;
 SET @lookBackDate = (SELECT ADDDATE(CURDATE(), -@lookBackDays));
-
-SET @shopperId = (SELECT ID FROM PANTRY_PLUS.SHOPPER WHERE ID_TXT = @shopperIdTxt);
 
 ; WITH shopperCohorts as (
   SELECT c.ID as COHORT_ID
@@ -26,7 +24,7 @@ shopperPurchaseHistory as (
 )
 
 SELECT DISTINCT
-  it.ID_TXT as ID,
+  BIN_TO_UUID(it.ID) as ID,
   it.NAME,
   it.UPC
 FROM shopperPurchaseHistory sph

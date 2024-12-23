@@ -1,8 +1,8 @@
 -- updates the name of a location
-SET @locationIdTxt = :locationId;
+SET @locationId = UUID_TO_BIN(:locationId);
 SET @name = :name;
 
 UPDATE LOCATION
 SET NAME = @name
-WHERE ID = UUID_TO_BIN(@locationIdTxt)
+WHERE ID = @locationId
 ;

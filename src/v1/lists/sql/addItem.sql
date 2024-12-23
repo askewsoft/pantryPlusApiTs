@@ -1,13 +1,13 @@
 -- adds a shopping item to a list without a category
-SET @itemIdTxt = :itemId;
-SET @listIdTxt = :listId;
+SET @itemId = UUID_TO_BIN(:itemId);
+SET @listId = UUID_TO_BIN(:listId);
 
 -- add the item to the list
 INSERT INTO LIST_ITEM_RELATION (LIST_ID, ITEM_ID)
-VALUES (UUID_TO_BIN(@listIdTxt), UUID_TO_BIN(@itemIdTxt))
+VALUES (@listId, @itemId)
 ;
 
 SELECT BIN_TO_UUID(ID) as ID
 FROM ITEM
-WHERE ID = UUID_TO_BIN(@itemIdTxt)
+WHERE ID = @itemId
 ;

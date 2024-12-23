@@ -1,7 +1,5 @@
 SET @name = :name;
-SET @cohortIdTxt = :cohortId;
-
-SET @cohortId = (SELECT ID FROM COHORT WHERE ID_TXT = @cohortIdTxt);
+SET @cohortId = UUID_TO_BIN(:cohortId);
 
 UPDATE COHORT
 SET NAME = @name

@@ -1,7 +1,7 @@
-SET @itemIdTxt = :itemId;
+SET @itemId = UUID_TO_BIN(:itemId);
 SET @itemName = :name;
 
 UPDATE ITEM
 SET NAME = @itemName
-WHERE ID_TXT = UUID_TO_BIN(@itemIdTxt)
+WHERE ID = @itemId
 ; 

@@ -1,14 +1,10 @@
 -- purchases an item on a list
-SET @itemIdTxt = :itemId;
-SET @listIdTxt = :listId;
-SET @locationIdTxt = :locationId;
+SET @itemId = UUID_TO_BIN(:itemId);
+SET @listId = UUID_TO_BIN(:listId);
+SET @locationId = UUID_TO_BIN(:locationId);
 SET @now = NOW();
 
-SELECT ID INTO @itemId FROM ITEM WHERE ID_TXT = @itemIdTxt
-;
-SELECT ID INTO @listId FROM LIST WHERE ID_TXT = @listIdTxt
-;
-SELECT ID, NAME INTO @locationId, @locationName FROM LOCATION WHERE ID_TXT = @locationIdTxt
+SELECT NAME INTO @locationName FROM LOCATION WHERE ID = @locationId
 ;
 SELECT c.NAME, c.ID INTO @categoryName, @categoryId
 FROM CATEGORY c

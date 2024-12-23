@@ -1,6 +1,5 @@
 -- gets shoppers in a cohort
-SET @cohortIdTxt = :groupId;
-SET @cohortId = (SELECT ID FROM COHORT WHERE ID_TXT = @cohortIdTxt);
+SET @cohortId = UUID_TO_BIN(:groupId);
 
 SELECT s.ID_TXT AS ID, s.NICKNAME, s.EMAIL
 FROM COHORT_SHOPPER_RELATION csr

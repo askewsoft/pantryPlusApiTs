@@ -1,14 +1,12 @@
 -- removes a category from a shopping list
 
-SET @listIdTxt = :listId;
-SET @categoryIdTxt = :categoryId;
-
-SET @listId = (SELECT ID FROM LIST WHERE ID_TXT = @listIdTxt);
+SET @listId = UUID_TO_BIN(:listId);
+SET @categoryId = UUID_TO_BIN(:categoryId);
 
 DELETE
 FROM CATEGORY
 WHERE LIST_ID = @listId
-  and ID_TXT = @categoryIdTxt
+  and ID = @categoryId
 ;
 
 SELECT ROW_COUNT() as ROW_COUNT;
