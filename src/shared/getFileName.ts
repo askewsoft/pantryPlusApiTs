@@ -1,5 +1,9 @@
 const getFileName = (filePath: string): string => {
-  return filePath.split('/').pop() || '';
+  const parts = filePath.split('/');
+  const fileName = parts.pop() || '';
+  const parentDir = parts.pop() || '';
+  const domain = parts.pop() || '';
+  return `${domain}/${fileName}`;
 };
 
 export default getFileName; 
