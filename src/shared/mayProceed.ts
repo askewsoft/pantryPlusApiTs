@@ -1,5 +1,5 @@
 import { logger } from "./logger";
-import { dbPost, extractDbResult } from "./dbDriver";
+import { dbPost } from "./dbDriver";
 import { ErrorCode } from "./errorHandler";
 import getFileName from "./getFileName";
 
@@ -15,14 +15,9 @@ export interface AccessParams {
 };
 
 export const hasAccess = async ({ accessTemplate, email, id }: AccessParams): Promise<boolean> => {
-  const [rows, fields] = await dbPost(accessTemplate, { email, id });
-  const results = extractDbResult(rows);
+  const results = await dbPost(accessTemplate, { email, id });
   if (!results) {
     log.error(`${getFileName(accessTemplate)}: results is undefined`);
-    return false;
-  }
-  if (results && !Array.isArray(results)) {
-    log.error(`${getFileName(accessTemplate)}: results is not an array`);
     return false;
   }
   if (results.length === 0) {

@@ -1,6 +1,6 @@
 import { logger, Logger } from './logger';
 import { ErrorCode } from './errorHandler';
-import mysql, { PoolOptions } from 'mysql2/promise';
+import mysql, { PoolOptions, RowDataPacket } from 'mysql2/promise';
 import { readFile } from 'fs/promises';
 import { snakeToCamel } from './camelCaseKeys';
 import config from './config';
@@ -39,13 +39,14 @@ const pool = mysql.createPool(sqlConnectOpts);
 // dbPost returns a promise
 const dbPost = async (template: string, params: Object): Promise<any> => {
   const startQueryTime = Date.now();
-  log.info(`Executing query ${getFileName(template)}`);
+  log.debug(`Executing query ${getFileName(template)}`);
   try {
     const sqlStr = await extractQuery(template);
     const dbConn = await pool.getConnection()
-    const results = await dbConn.query(sqlStr, params);
+    const [rows] = await dbConn.query(sqlStr, params);
     dbConn.release();
     const endQueryTime = Date.now();
+    const results = extractDbResult(rows);
     log.info(`Query ${getFileName(template)} completed in ${endQueryTime - startQueryTime}ms`);
     return results;
   } catch (err: any) {
@@ -58,8 +59,8 @@ const dbPost = async (template: string, params: Object): Promise<any> => {
 };
 
 // returns the array of results w/o all the MySQL wrapping
-const extractDbResult = (rows: Array<any>): Array<any> => {
-  if (Array.isArray(rows[rows.length - 1])) {
+const extractDbResult = (rows: any): Array<any> => {
+  if (Array.isArray(rows) && rows.length > 0 && Array.isArray(rows[rows.length - 1])) {
     const results = rows.pop();
     return snakeToCamel(results);
   } else {
@@ -69,4 +70,4 @@ const extractDbResult = (rows: Array<any>): Array<any> => {
   }
 };
 
-export { dbPost, extractDbResult };
+export { dbPost };

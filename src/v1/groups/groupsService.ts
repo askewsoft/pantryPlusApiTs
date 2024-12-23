@@ -1,5 +1,5 @@
 import path from "path";
-import { dbPost, extractDbResult } from "../../shared/dbDriver";
+import { dbPost } from "../../shared/dbDriver";
 import { Group } from "../groups/group";
 import { Shopper } from "../shoppers/shopper";
 import { Logger, logger } from "../../shared/logger";
@@ -9,8 +9,7 @@ const log: Logger = logger('Group Service')
 export abstract class GroupsService {
   public static async create(name: string, email: string): Promise<string> {
     const createTemplate = path.join(__dirname, './sql/createGroup.sql');
-    const [rows, fields] = await dbPost(createTemplate, { name, email });
-    const results = extractDbResult(rows);
+    const results = await dbPost(createTemplate, { name, email });
     const groupId = results[0].id;
     return groupId;
   };
@@ -48,7 +47,7 @@ export abstract class GroupsService {
 
   public static async getGroupShoppers(groupId: string): Promise<Array<Shopper>> {
     const getGroupShoppersTemplate = path.join(__dirname, './sql/getGroupShoppers.sql');
-    const [rows, fields] = await dbPost(getGroupShoppersTemplate, { groupId });
-    return extractDbResult(rows);
+    const results = await dbPost(getGroupShoppersTemplate, { groupId });
+    return results;
   };
 };

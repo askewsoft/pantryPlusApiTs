@@ -1,5 +1,5 @@
 import path from "path";
-import { dbPost, extractDbResult } from "../../shared/dbDriver";
+import { dbPost } from "../../shared/dbDriver";
 import { List } from "./list";
 import { Category } from "../categories/category";
 import { Item } from "../items/item";
@@ -12,8 +12,7 @@ export abstract class ListsService {
   public static async create(list: List): Promise<Pick<List, "id">> {
     const { id, name, ownerId } = list;
     const createTemplate = path.join(__dirname, './sql/createList.sql');
-    const [rows, fields] = await dbPost(createTemplate, { id, name, ownerId });
-    const results = extractDbResult(rows);
+    const results = await dbPost(createTemplate, { id, name, ownerId });
     const listId = results[0].id;
     return { id: listId };
   };
@@ -41,15 +40,13 @@ export abstract class ListsService {
 
   public static async getCategories(listId: string): Promise<Array<Category>> {
     const getCategoriesTemplate = path.join(__dirname, './sql/getCategories.sql');
-    const [rows, fields] = await dbPost(getCategoriesTemplate, { listId });
-    const results = extractDbResult(rows);
+    const results = await dbPost(getCategoriesTemplate, { listId });
     return results;
   };
 
   public static async getItems(listId: string): Promise<Array<Item>> {
     const getItemsTemplate = path.join(__dirname, './sql/getListItems.sql');
-    const [rows, fields] = await dbPost(getItemsTemplate, { listId });
-    const results = extractDbResult(rows);
+    const results = await dbPost(getItemsTemplate, { listId });
     return results;
   };
 
@@ -81,8 +78,7 @@ export abstract class ListsService {
 
   public static async unpurchaseItem(listId: string, itemId: string, locationId: string, purchaseDate: string): Promise<void> {
     const unpurchaseItemTemplate = path.join(__dirname, './sql/unpurchaseItem.sql');
-    const [rows, fields] = await dbPost(unpurchaseItemTemplate, { listId, itemId, locationId, purchaseDate });
-    const results = extractDbResult(rows);
+    const results = await dbPost(unpurchaseItemTemplate, { listId, itemId, locationId, purchaseDate });
     const categoryId = results[0].categoryId;
     await this.addItem(listId, itemId);
     return;

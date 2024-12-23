@@ -1,5 +1,5 @@
 import path from "path";
-import { dbPost, extractDbResult } from "../../shared/dbDriver";
+import { dbPost } from "../../shared/dbDriver";
 import { Location } from "./location";
 import { Logger, logger } from "../../shared/logger";
 
@@ -9,8 +9,7 @@ export abstract class LocationsService {
   public static async create(location: Location): Promise<Pick<Location, "id">> {
     const { latitude, longitude, name, id } = location;
     const createTemplate = path.join(__dirname, './sql/createLocation.sql');
-    const [rows, fields] = await dbPost(createTemplate, { latitude, longitude, name, locationId: id });
-    const results = extractDbResult(rows);
+    const results = await dbPost(createTemplate, { latitude, longitude, name, locationId: id });
     const locationId = results[0].id;
     return { id: locationId };
   };

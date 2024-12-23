@@ -1,5 +1,5 @@
 import path from "path";
-import { dbPost, extractDbResult } from "../../shared/dbDriver";
+import { dbPost } from "../../shared/dbDriver";
 import { Logger, logger } from "../../shared/logger";
 import { Item } from "../items/item";
 
@@ -26,8 +26,7 @@ export abstract class CategoriesService {
 
   public static async getCategoryItems(categoryId: string): Promise<Array<Item>> {
     const getItemsTemplate = path.join(__dirname, './sql/getCategoryItems.sql');
-    const [rows, fields] = await dbPost(getItemsTemplate, { categoryId });
-    const results = extractDbResult(rows);
+    const results = await dbPost(getItemsTemplate, { categoryId });
     return results;
   };
 };
