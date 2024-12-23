@@ -1,25 +1,16 @@
--- updates a shopping list and returns the list_id
-
-SET @listId = :listId;
-SET @cohortId = :groupId;
-SET @ownerId = :ownerId;
+SET @listId = UUID_TO_BIN(:listId);
+SET @cohortId = UUID_TO_BIN(:groupId);
+SET @shopperId = UUID_TO_BIN(:shopperId);
+SET @listOrdinal = :listOrdinal;
 SET @name = :name;
 
-SET @origName = (SELECT NAME FROM LIST WHERE ID_TXT = @listId);
-SET @name = (SELECT COALESCE(@name, @origName));
-
-SET @origCohortId = (SELECT COHORT_ID FROM LIST WHERE ID_TXT = @listId);
-SET @cohortId = (SELECT COALESCE(@cohortId, @origCohortId));
-
-SET @origOwnerId = (SELECT OWNER_ID FROM LIST WHERE ID_TXT = @listId);
-SET @ownerId = (SELECT COALESCE(@ownerId, @origOwnerId));
-
 UPDATE LIST
-SET NAME = @name, OWNER_ID = @ownerId, COHORT_ID = @cohortId
-WHERE ID_TXT = @listId
+SET NAME = @name, COHORT_ID = @cohortId
+WHERE ID = @listId
 ;
 
-SELECT ID_TXT as ID
-FROM LIST
-WHERE ID_TXT = @listId
+INSERT INTO LIST_ORDER (LIST_ID, SHOPPER_ID, ORDINAL)
+VALUES (@listId, @shopperId, CAST(@listOrdinal as UNSIGNED))
+ON DUPLICATE KEY UPDATE
+    ORDINAL = CAST(@listOrdinal as UNSIGNED)
 ;

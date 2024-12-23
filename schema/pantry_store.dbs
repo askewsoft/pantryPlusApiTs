@@ -3,9 +3,6 @@
 	<schema name="pantry_store" >
 		<table name="category" prior="tbl" >
 			<column name="id" type="binary" length="16" jt="-2" mandatory="y" />
-			<column name="id_txt" type="varchar" length="36" jt="12" mandatory="y" >
-				<comment><![CDATA[string version of ID]]></comment>
-			</column>
 			<column name="name" type="varchar" length="100" jt="12" mandatory="y" />
 			<column name="list_id" prior="listid" type="binary" length="16" jt="-2" mandatory="y" >
 				<comment><![CDATA[category names belong to lists which belong to Shopper owner of list, so an owner can customize the category name]]></comment>
@@ -41,9 +38,6 @@
 		</table>
 		<table name="cohort" prior="group" >
 			<column name="id" type="binary" length="16" jt="-2" mandatory="y" />
-			<column name="id_txt" type="varchar" length="36" jt="12" mandatory="y" >
-				<comment><![CDATA[string version of ID]]></comment>
-			</column>
 			<column name="name" type="varchar" length="100" jt="12" mandatory="y" />
 			<column name="owner_id" prior="owner" type="binary" length="16" jt="-2" mandatory="y" />
 			<index name="pk_account_id" unique="PRIMARY_KEY" >
@@ -72,9 +66,6 @@
 		<table name="item" prior="it" >
 			<column name="id" type="binary" length="16" jt="-2" mandatory="y" >
 				<comment><![CDATA[UUID in binary form (16 bit)]]></comment>
-			</column>
-			<column name="id_txt" type="varchar" length="36" jt="12" mandatory="y" >
-				<comment><![CDATA[string version of ID]]></comment>
 			</column>
 			<column name="name" type="varchar" length="100" jt="12" mandatory="y" />
 			<column name="upc" type="char" length="15" jt="1" />
@@ -122,9 +113,6 @@
 		</table>
 		<table name="list" prior="tbl" >
 			<column name="id" type="binary" length="16" jt="-2" mandatory="y" />
-			<column name="id_txt" type="varchar" length="36" jt="12" mandatory="y" >
-				<comment><![CDATA[string version of ID]]></comment>
-			</column>
 			<column name="name" type="varchar" length="100" jt="12" mandatory="y" />
 			<column name="owner_id" type="binary" length="16" jt="-2" mandatory="y" />
 			<column name="cohort_id" prior="group_id" type="binary" length="16" jt="-2" />
@@ -174,9 +162,6 @@
 		</table>
 		<table name="location" prior="locations" >
 			<column name="id" type="int" jt="4" mandatory="y" />
-			<column name="id_txt" type="varchar" length="36" jt="12" mandatory="y" >
-				<comment><![CDATA[string version of ID]]></comment>
-			</column>
 			<column name="name" type="varchar" length="100" jt="12" mandatory="y" />
 			<column name="geolocation" prior="geohash" type="point" length="10" jt="1111" mandatory="y" >
 				<comment><![CDATA[MySQL geo-spatial data type denoted by 'POINT(latitude longitude)']]></comment>
@@ -188,9 +173,6 @@
 		</table>
 		<table name="purchase_history" prior="shopping_history" >
 			<column name="id" type="binary" length="16" jt="-2" mandatory="y" />
-			<column name="id_txt" type="varchar" length="36" jt="12" mandatory="y" >
-				<comment><![CDATA[string version of ID]]></comment>
-			</column>
 			<column name="purchase_date" type="date" jt="91" mandatory="y" />
 			<column name="location_id" type="binary" length="16" jt="-2" mandatory="y" />
 			<column name="list_id" prior="group_id" type="binary" length="16" jt="-2" mandatory="y" />
@@ -213,9 +195,6 @@
 		</table>
 		<table name="shopper" prior="tbl" >
 			<column name="id" type="binary" length="16" jt="-2" mandatory="y" />
-			<column name="id_txt" type="varchar" length="36" jt="12" mandatory="y" >
-				<comment><![CDATA[string version of ID]]></comment>
-			</column>
 			<column name="email" type="varchar" length="256" jt="12" mandatory="y" />
 			<column name="nickname" type="varchar" length="100" jt="12" >
 				<comment><![CDATA[usually an alternate first name or informal title (e.g., Stef, Mom)]]></comment>

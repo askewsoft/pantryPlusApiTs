@@ -5,60 +5,24 @@ CREATE DATABASE IF NOT EXISTS PANTRY_PLUS;
 CREATE TABLE IF NOT EXISTS PANTRY_PLUS.SHOPPER
 (
     ID binary(16) default (uuid_to_bin(uuid())) not null primary key,
-    ID_TXT varchar(36) generated always as
-        (insert(
-            insert(
-                insert(
-                    insert(hex(ID),9,0,'-'),
-                    14,0,'-'),
-                19,0,'-'),
-            24,0,'-')
-        ) virtual,
     EMAIL varchar(256) UNIQUE,
     NICKNAME varchar(100) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS PANTRY_PLUS.LOCATION (
     ID binary(16) default (uuid_to_bin(uuid())) not null primary key,
-    ID_TXT varchar(36) generated always as
-        (insert(
-            insert(
-                insert(
-                    insert(hex(ID),9,0,'-'),
-                    14,0,'-'),
-                19,0,'-'),
-            24,0,'-')
-    ) virtual,
     NAME varchar(100) NOT NULL,
     GEO_LOCATION POINT NOT NULL SRID 4326
 );
 
 CREATE TABLE IF NOT EXISTS PANTRY_PLUS.CATEGORY (
     ID binary(16) default (uuid_to_bin(uuid())) not null primary key,
-    ID_TXT varchar(36) generated always as
-        (insert(
-            insert(
-                insert(
-                    insert(hex(ID),9,0,'-'),
-                    14,0,'-'),
-                19,0,'-'),
-            24,0,'-')
-    ) virtual,
     NAME varchar(100) NOT NULL,
     LIST_ID binary(16) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS PANTRY_PLUS.COHORT (
     ID binary(16) default (uuid_to_bin(uuid())) not null primary key,
-    ID_TXT varchar(36) generated always as
-        (insert(
-            insert(
-                insert(
-                    insert(hex(ID),9,0,'-'),
-                    14,0,'-'),
-                19,0,'-'),
-            24,0,'-')
-    ) virtual,
     NAME varchar(100) NOT NULL,
     OWNER_ID binary(16) NOT NULL,
     FOREIGN KEY (OWNER_ID)
@@ -68,15 +32,6 @@ CREATE TABLE IF NOT EXISTS PANTRY_PLUS.COHORT (
 
 CREATE TABLE IF NOT EXISTS PANTRY_PLUS.ITEM (
     ID binary(16) default (uuid_to_bin(uuid())) not null primary key,
-    ID_TXT varchar(36) generated always as
-        (insert(
-            insert(
-                insert(
-                    insert(hex(ID),9,0,'-'),
-                    14,0,'-'),
-                19,0,'-'),
-            24,0,'-')
-    ) virtual,
     NAME varchar(100) NOT NULL,
     UPC char(15)
 );
@@ -107,15 +62,6 @@ CREATE TABLE IF NOT EXISTS PANTRY_PLUS.COHORT_SHOPPER_RELATION (
 
 CREATE TABLE IF NOT EXISTS PANTRY_PLUS.LIST (
     ID binary(16) default (uuid_to_bin(uuid())) not null primary key,
-    ID_TXT varchar(36) generated always as
-        (insert(
-            insert(
-                insert(
-                    insert(hex(ID),9,0,'-'),
-                    14,0,'-'),
-                19,0,'-'),
-            24,0,'-')
-        ) virtual,
     NAME varchar(100) NOT NULL,
     OWNER_ID binary(16) NOT NULL,
     COHORT_ID binary(16),
