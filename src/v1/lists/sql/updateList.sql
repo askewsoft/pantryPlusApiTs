@@ -2,10 +2,10 @@ SET @listId = UUID_TO_BIN(:listId);
 SET @cohortId = UUID_TO_BIN(:groupId);
 SET @shopperId = UUID_TO_BIN(:shopperId);
 SET @listOrdinal = :listOrdinal;
-SET @name = :name;
+SET @listName = :listName;
 
 UPDATE LIST
-SET NAME = @name, COHORT_ID = @cohortId
+SET NAME = @listName, COHORT_ID = @cohortId
 WHERE ID = @listId
 ;
 

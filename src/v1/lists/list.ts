@@ -10,4 +10,6 @@ export interface List {
     ownerId: string;
     /** The group of users with whom this list is shared */
     groupId?: string | undefined;
+    /** The ordinal of the list */
+    ordinal: number;
 }

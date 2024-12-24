@@ -125,9 +125,9 @@ export class ListsController extends Controller {
    */
   @Put("{listId}")
   @SuccessResponse(205, "Content Updated")
-  public async updateList(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() updatedList: List): Promise<void> {
+  public async updateList(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() body: { name: string, groupId: string, shopperId: string, ordinal: number }): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayUpdateListTemplate });
-    await ListsService.update(listId, updatedList);
+    await ListsService.update(listId, body.name, body.groupId, body.shopperId, body.ordinal);
     return;
   };
 

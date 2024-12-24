@@ -17,10 +17,9 @@ export abstract class ListsService {
     return { id: listId };
   };
 
-  public static async update(listId: string, list: List): Promise<void> {
-    const { name, ownerId, groupId } = list;
+  public static async update(listId: string, listName: string, groupId: string, shopperId: string, listOrdinal: number): Promise<void> {
     const updateTemplate = path.join(__dirname, './sql/updateList.sql');
-    await dbPost(updateTemplate, { id: listId, name, ownerId, groupId });
+    await dbPost(updateTemplate, { listId, listName, groupId, shopperId, listOrdinal });
     return;
   };
 
