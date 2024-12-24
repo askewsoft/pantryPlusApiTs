@@ -10,9 +10,9 @@ const log: Logger = logger('List Service')
 export abstract class ListsService {
   // LIST ACTIONS
   public static async create(list: List): Promise<Pick<List, "id">> {
-    const { id, name, ownerId } = list;
+    const { id, name, ownerId, ordinal } = list;
     const createTemplate = path.join(__dirname, './sql/createList.sql');
-    const results = await dbPost(createTemplate, { id, name, ownerId });
+    const results = await dbPost(createTemplate, { id, name, ownerId, ordinal });
     const listId = results[0].id;
     return { id: listId };
   };
