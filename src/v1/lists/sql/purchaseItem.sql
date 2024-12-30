@@ -1,4 +1,5 @@
 -- purchases an item on a list
+SET @userEmail = :userEmail;
 SET @itemId = UUID_TO_BIN(:itemId);
 SET @listId = UUID_TO_BIN(:listId);
 SET @locationId = UUID_TO_BIN(:locationId);
@@ -6,6 +7,12 @@ SET @now = NOW();
 
 SELECT NAME INTO @locationName FROM LOCATION WHERE ID = @locationId
 ;
+
+SELECT ID INTO @userId
+FROM SHOPPER
+WHERE EMAIL = @userEmail
+;
+
 SELECT c.NAME, c.ID INTO @categoryName, @categoryId
 FROM CATEGORY c
 JOIN ITEM_CATEGORY_RELATION icr
@@ -33,6 +40,6 @@ IF (@historyId IS NULL) THEN
 END IF;
 
 -- update the item's purchased status
-INSERT INTO ITEM_HISTORY_RELATION (ITEM_ID, HISTORY_ID)
-VALUES (@itemId, @historyId)
+INSERT INTO ITEM_HISTORY_RELATION (ITEM_ID, HISTORY_ID, PURCHASED_BY)
+VALUES (@itemId, @historyId, @userId)
 ;

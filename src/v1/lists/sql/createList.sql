@@ -1,16 +1,20 @@
 -- creates a shopping list and returns the list_id
-
-SET @ownerId = UUID_TO_BIN(:ownerId);
+SET @userEmail = :userEmail;
 SET @name = :name;
-SET @id = UUID_TO_BIN(:id);
+SET @listId = UUID_TO_BIN(:listId);
 SET @ordinal = :ordinal;
 
+SELECT ID INTO @ownerId
+FROM SHOPPER
+WHERE EMAIL = @userEmail
+;
+
 INSERT IGNORE INTO LIST (ID, NAME, OWNER_ID)
-VALUES (@id, @name, @ownerId)
+VALUES (@listId, @name, @ownerId)
 ;
 
 INSERT INTO LIST_ORDER (LIST_ID, SHOPPER_ID, ORDINAL)
-VALUES (@id, @ownerId, @ordinal)
+VALUES (@listId, @ownerId, @ordinal)
 ON DUPLICATE KEY UPDATE ORDINAL = @ordinal
 ;
 

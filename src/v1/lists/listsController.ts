@@ -26,16 +26,17 @@ export class ListsController extends Controller {
    * @param email the email address of the user
    * @param newList the list to create
    * @example email "test@test.com"
-   * @example newList { "id": "123E4567-E89B-12D3-A456-426614174000", "name": "Grocery List", "ownerId": "123E4567-E89B-12D3-A456-426614174000" }
+   * @example newList { "id": "123E4567-E89B-12D3-A456-426614174000", "name": "Grocery List", "ownerId": "123E4567-E89B-12D3-A456-426614174000", "groupId": "123E4567-E89B-12D3-A456-426614174000", "ordinal": 1 }
    * @returns The ID of the created list
    */
   @Post()
   @SuccessResponse(201, "Created")
   @Example<Pick<List, "id">>(listIdExample)
-  public async createList(@Header("X-Auth-User") email: string, @Body() newList: List ): Promise<Pick<List, "id">> {
+  public async createList(@Header("X-Auth-User") email: string, @Body() newList: List ): Promise<void> {
     // any valid user can create a list
     await ShoppersService.validateUser(email);
-    return await ListsService.create(newList);
+    await ListsService.create(email, newList);
+    return;
   };
 
   /**
@@ -87,9 +88,8 @@ export class ListsController extends Controller {
   @Post("{listId}/items/{itemId}/purchase")
   @SuccessResponse(201, "Created")
   public async purchaseItem(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() listId: string, @Path() itemId: string): Promise<void> {
-    // TODO: validate user taking the action and submit their ID to the service
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
-    await ListsService.purchaseItem(listId, itemId, locationId);
+    await ListsService.purchaseItem(email, listId, itemId, locationId);
     return;
   };
 
@@ -125,9 +125,9 @@ export class ListsController extends Controller {
    */
   @Put("{listId}")
   @SuccessResponse(205, "Content Updated")
-  public async updateList(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() body: { name: string, groupId: string, shopperId: string, ordinal: number }): Promise<void> {
+  public async updateList(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() body: { name: string, groupId: string, ordinal: number }): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayUpdateListTemplate });
-    await ListsService.update(listId, body.name, body.groupId, body.shopperId, body.ordinal);
+    await ListsService.update(email, listId, body.name, body.groupId, body.ordinal);
     return;
   };
 
