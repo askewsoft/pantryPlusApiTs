@@ -17,14 +17,18 @@ WITH shopperCohorts as (
 SELECT
   bin_to_uuid(ls.ID) as ID,
   ls.NAME,
-  bin_to_uuid(ls.OWNER_ID) as OWNER_ID
+  bin_to_uuid(ls.OWNER_ID) as OWNER_ID,
+  lo.ORDINAL
 FROM shopperCohorts sc
 JOIN PANTRY_PLUS.LIST ls ON ls.COHORT_ID = sc.COHORT_ID
+LEFT JOIN PANTRY_PLUS.LIST_ORDINAL lo ON lo.LIST_ID = ls.ID
 UNION
 SELECT
-  bin_to_uuid(ID) as ID,
-  NAME,
-  bin_to_uuid(OWNER_ID) as OWNER_ID
-FROM PANTRY_PLUS.LIST
-WHERE OWNER_ID = @shopperId
+  bin_to_uuid(ls.ID) as ID,
+  ls.NAME,
+  bin_to_uuid(ls.OWNER_ID) as OWNER_ID,
+  lo.ORDINAL
+FROM PANTRY_PLUS.LIST ls
+LEFT JOIN PANTRY_PLUS.LIST_ORDINAL lo ON lo.LIST_ID = ls.ID
+WHERE ls.OWNER_ID = @shopperId
 ;
