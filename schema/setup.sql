@@ -150,3 +150,9 @@ CREATE TABLE IF NOT EXISTS PANTRY_PLUS.LIST_ORDER (
         REFERENCES PANTRY_PLUS.SHOPPER(ID)
         ON DELETE CASCADE
 );
+
+-- TODO: remove this once we have geo-location integrated into the app
+-- Default location so that we can get ordinals for categories
+INSERT INTO PANTRY_PLUS.LOCATION (NAME, GEO_LOCATION)
+VALUES ('Stop & Shop Nashua', POINT(42.7456, -71.491))
+;
