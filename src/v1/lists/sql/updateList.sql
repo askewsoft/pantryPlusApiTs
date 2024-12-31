@@ -1,8 +1,8 @@
 SET @listId = UUID_TO_BIN(:listId);
-SET @cohortId = UUID_TO_BIN(:groupId);
 SET @userEmail = :userEmail;
 SET @listOrdinal = :listOrdinal;
 SET @listName = :listName;
+SET @cohortId = NULLIF(:groupId, '');
 
 UPDATE LIST
 SET NAME = @listName, COHORT_ID = @cohortId
