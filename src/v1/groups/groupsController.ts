@@ -7,7 +7,6 @@ import { groupExample, groupCreationExample } from "./groupsExamples";
 import { Shopper } from "../shoppers/shopper";
 import { shoppersExample } from "../shoppers/shoppersExamples";
 import { GroupsService } from "./groupsService";
-import { addAllMembersToGroup } from "./groupHelper";
 import { ErrorCode } from "../../shared/errorHandler";
 import { mayProceed } from "../../shared/mayProceed";
 import { ShoppersService } from "../shoppers/shoppersService";
@@ -21,61 +20,64 @@ export class GroupsController extends Controller {
   /**
    * @summary Creates a new group of shoppers
    * @param email the email address of the user
-   * @param group the group to create 
+   * @param name the group to create 
    * @example email "user@example.com"
-   * @example group {
-   *  "name": "Family",
-   *  "members": [
-   *    "123E4567-E89B-12D3-A456-426614174000",
-   *    "234F5678-F9A0-23D4-B567-537725285000"
-   *  ]
-   * }
-   * @returns The created group and added members
+   * @example name "Family"
    */
   @Post()
   @SuccessResponse(201, "Created")
-  @Example<Pick<Group, "id" | "members">>(groupCreationExample)
-  public async createGroup(@Header("X-Auth-User") email: string, @Body() group: Group ): Promise<Pick<Group, "id" | "members">> {
+  public async createGroup(@Header("X-Auth-User") email: string, @Body() name: string): Promise<void> {
     // any valid user can create a group
     await ShoppersService.validateUser(email);
-    const { name, members } = group;
-    const groupId = await GroupsService.create(name, email);
-
-    if (!groupId) {
-      const err = new Error("Unable to create group ID") as any;
-      err.name = ErrorCode.DATABASE_ERR;
-      throw err;
-    }
-    if (!members.length) return { id: groupId, members: [] };
-
-    const membersUpdated = await addAllMembersToGroup(groupId, members);
-    return { id: groupId, members: membersUpdated };
+    return await GroupsService.create(name, email);
   };
 
   /**
-   * @summary Updates an existing group name and/or associated members
+   * @summary Updates an existing group name
    * @param email the email address of the user
    * @param groupId the ID of the group to be updated
-   * @param group the group to update
-   * @example group {
-   *  "name": "Family",
-   *  "members": [
-   *    "123E4567-E89B-12D3-A456-426614174000",
-   *    "234F5678-F9A0-23D4-B567-537725285000"
-   *  ]
-   * }
+   * @param name the name of the group to update
    * @example email "user@example.com"
    * @example groupId "123E4567-E89B-12D3-A456-426614174000"
-   * @returns Boolean indicating success of the update
+   * @example name "Family"
    */
   @Put("{groupId}")
   @SuccessResponse(205, "Content Updated")
-  public async updateGroup(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() group: Group): Promise<void> {
+  public async updateGroupName(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() name: string): Promise<void> {
     await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
-    const { name, members } = group;
-    await GroupsService.removeAllShoppersFromGroup(groupId);
-    await addAllMembersToGroup(groupId, members);
     return await GroupsService.update(groupId, name);
+  };
+
+  /**
+   * @summary Invites a shopper to join a group
+   * @param email the email address of the user
+   * @param groupId the ID of the group to be updated
+   * @param email the email address of the shopper to be invited
+   * @example email "user@example.com"
+   * @example groupId "123E4567-E89B-12D3-A456-426614174000"
+   * @example shopperEmail "shopper@example.com"
+   */
+  @Post("{groupId}/invite")
+  @SuccessResponse(201, "Created")
+  public async inviteShopper(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() shopperEmail: string): Promise<void> {
+    await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
+    return await GroupsService.inviteShopper(groupId, shopperEmail);
+  };
+
+  /**
+   * @summary Adds a shopper to a group
+   * @param email the email address of the user
+   * @param groupId the ID of the group to be updated
+   * @param shopperId the ID of the shopper to be added
+   * @example email "user@example.com"
+   * @example groupId "123E4567-E89B-12D3-A456-426614174000"
+   * @example shopperId "234F5678-F9A0-23D4-B567-537725285000"
+   */
+  @Post("{groupId}/shoppers")
+  @SuccessResponse(201, "Created")
+  public async addShopperToGroup(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() shopperId: string): Promise<void> {
+    await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
+    return await GroupsService.addShopperToGroup(shopperId, groupId);
   };
 
   /**

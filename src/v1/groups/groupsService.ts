@@ -7,22 +7,19 @@ import { Logger, logger } from "../../shared/logger";
 const log: Logger = logger('Group Service')
 
 export abstract class GroupsService {
-  public static async create(name: string, email: string): Promise<string> {
+  public static async create(name: string, email: string): Promise<void> {
     const createTemplate = path.join(__dirname, './sql/createGroup.sql');
-    const results = await dbPost(createTemplate, { name, email });
-    const groupId = results[0].id;
-    return groupId;
+    return await dbPost(createTemplate, { name, email });
   };
 
-  public static async addShopperToGroup(shopperId: string, groupId: string): Promise<boolean> {
+  public static async addShopperToGroup(shopperId: string, groupId: string): Promise<void> {
     const addToGroupTemplate = path.join(__dirname, './sql/addShopperToGroup.sql');
-    try {
-      await dbPost(addToGroupTemplate, {shopperId, groupId});
-    } catch (err: any) {
-      log.warn(`Unable to attach shopper ${shopperId} to group ${groupId}: ${err.message}`);
-      return false;
-    }
-    return true;
+    return await dbPost(addToGroupTemplate, {shopperId, groupId});
+  };
+
+  public static async inviteShopper(groupId: string, shopperEmail: string): Promise<void> {
+    const inviteShopperTemplate = path.join(__dirname, './sql/inviteShopper.sql');
+    return await dbPost(inviteShopperTemplate, {groupId, shopperEmail});
   };
 
   public static async removeAllShoppersFromGroup(groupId: string): Promise<void> {
