@@ -20,26 +20,27 @@ export class GroupsController extends Controller {
   /**
    * @summary Creates a new group of shoppers
    * @param email the email address of the user
-   * @param name the group to create 
+   * @param name the name of the group to create 
    * @example email "user@example.com"
    * @example name "Family"
    */
   @Post()
   @SuccessResponse(201, "Created")
-  public async createGroup(@Header("X-Auth-User") email: string, @Body() name: string): Promise<void> {
+  public async createGroup(@Header("X-Auth-User") email: string, @Body() group: Pick<Group, "name" | "id">): Promise<void> {
     // any valid user can create a group
+    const { name, id } = group;
     await ShoppersService.validateUser(email);
-    return await GroupsService.create(name, email);
+    return await GroupsService.create(name, email, id);
   };
 
   /**
    * @summary Updates an existing group name
    * @param email the email address of the user
    * @param groupId the ID of the group to be updated
-   * @param name the name of the group to update
+   * @param name the new name of the group
    * @example email "user@example.com"
    * @example groupId "123E4567-E89B-12D3-A456-426614174000"
-   * @example name "Family"
+   * @example name "Family & Friends"
    */
   @Put("{groupId}")
   @SuccessResponse(205, "Content Updated")

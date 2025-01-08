@@ -7,9 +7,9 @@ import { Logger, logger } from "../../shared/logger";
 const log: Logger = logger('Group Service')
 
 export abstract class GroupsService {
-  public static async create(name: string, email: string): Promise<void> {
+  public static async create(name: string, email: string, groupId: string): Promise<void> {
     const createTemplate = path.join(__dirname, './sql/createGroup.sql');
-    return await dbPost(createTemplate, { name, email });
+    return await dbPost(createTemplate, { name, email, groupId });
   };
 
   public static async addShopperToGroup(shopperId: string, groupId: string): Promise<void> {
