@@ -63,6 +63,19 @@
 			</fk>
 			<options><![CDATA[engine=InnoDB]]></options>
 		</table>
+		<table name="invitees" prior="tbl" >
+			<comment><![CDATA[temporary holding table for invited users who are removed once they create an account or after some expiration period]]></comment>
+			<column name="email" type="text" jt="-1" mandatory="y" />
+			<column name="cohort_id" type="binary" length="16" jt="-2" mandatory="y" />
+			<index name="pk_invitees_email_cohort_id" unique="PRIMARY_KEY" >
+				<column name="email" />
+				<column name="cohort_id" />
+			</index>
+			<fk name="fk_invitees_cohort" to_schema="pantry_store" to_table="cohort" delete_action="cascade" >
+				<fk_column name="cohort_id" pk="id" />
+			</fk>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
 		<table name="item" prior="it" >
 			<column name="id" type="binary" length="16" jt="-2" mandatory="y" >
 				<comment><![CDATA[UUID in binary form (16 bit)]]></comment>
@@ -206,18 +219,19 @@
 		</table>
 	</schema>
 	<layout name="Default Layout" id="Layout_16e3" show_relation="columns" >
-		<entity schema="pantry_store" name="category" color="D3C1EE" x="240" y="384" />
-		<entity schema="pantry_store" name="category_order" color="C1D8EE" x="416" y="432" />
-		<entity schema="pantry_store" name="cohort" color="D3C1EE" x="80" y="80" />
-		<entity schema="pantry_store" name="cohort_shopper_relation" color="C1D8EE" x="304" y="48" />
-		<entity schema="pantry_store" name="item" color="D3C1EE" x="64" y="432" />
-		<entity schema="pantry_store" name="item_category_relation" color="3986C1" x="176" y="624" />
-		<entity schema="pantry_store" name="item_history_relation" color="C1D8EE" x="192" y="832" />
-		<entity schema="pantry_store" name="list" color="D3C1EE" x="320" y="192" />
-		<entity schema="pantry_store" name="list_item_relation" color="C1D8EE" x="48" y="240" />
-		<entity schema="pantry_store" name="list_order" color="C1D8EE" x="496" y="112" />
-		<entity schema="pantry_store" name="location" color="D3C1EE" x="400" y="704" />
-		<entity schema="pantry_store" name="purchase_history" color="D3C1EE" x="592" y="400" />
-		<entity schema="pantry_store" name="shopper" color="D3C1EE" x="688" y="64" />
+		<entity schema="pantry_store" name="category" color="D3C1EE" x="400" y="384" />
+		<entity schema="pantry_store" name="category_order" color="C1D8EE" x="576" y="432" />
+		<entity schema="pantry_store" name="cohort" color="D3C1EE" x="240" y="80" />
+		<entity schema="pantry_store" name="cohort_shopper_relation" color="C1D8EE" x="464" y="48" />
+		<entity schema="pantry_store" name="invitees" color="C1D8EE" x="48" y="80" />
+		<entity schema="pantry_store" name="item" color="D3C1EE" x="224" y="432" />
+		<entity schema="pantry_store" name="item_category_relation" color="3986C1" x="352" y="624" />
+		<entity schema="pantry_store" name="item_history_relation" color="C1D8EE" x="352" y="832" />
+		<entity schema="pantry_store" name="list" color="D3C1EE" x="480" y="192" />
+		<entity schema="pantry_store" name="list_item_relation" color="C1D8EE" x="208" y="240" />
+		<entity schema="pantry_store" name="list_order" color="C1D8EE" x="656" y="112" />
+		<entity schema="pantry_store" name="location" color="D3C1EE" x="560" y="704" />
+		<entity schema="pantry_store" name="purchase_history" color="D3C1EE" x="752" y="416" />
+		<entity schema="pantry_store" name="shopper" color="D3C1EE" x="848" y="64" />
 	</layout>
 </project>
