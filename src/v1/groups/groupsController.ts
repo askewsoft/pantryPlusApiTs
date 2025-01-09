@@ -66,6 +66,22 @@ export class GroupsController extends Controller {
   };
 
   /**
+   * @summary Uninvites a shopper from a group
+   * @param email the email address of the user
+   * @param groupId the ID of the group to be updated
+   * @param shopperEmail the email address of the shopper to be uninvited
+   * @example email "user@example.com"
+   * @example groupId "123E4567-E89B-12D3-A456-426614174000"
+   * @example shopperEmail "shopper@example.com"
+   */
+  @Delete("{groupId}/invite")
+  @SuccessResponse(205, "Content Updated")
+  public async uninviteShopper(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() shopperEmail: string): Promise<void> {
+    await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
+    return await GroupsService.uninviteShopper(groupId, shopperEmail);
+  };
+
+  /**
    * @summary Adds a shopper to a group
    * @param email the email address of the user
    * @param groupId the ID of the group to be updated

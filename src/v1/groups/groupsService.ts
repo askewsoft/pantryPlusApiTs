@@ -22,6 +22,11 @@ export abstract class GroupsService {
     return await dbPost(inviteShopperTemplate, {groupId, shopperEmail});
   };
 
+  public static async uninviteShopper(groupId: string, shopperEmail: string): Promise<void> {
+    const uninviteShopperTemplate = path.join(__dirname, './sql/uninviteShopper.sql');
+    return await dbPost(uninviteShopperTemplate, {groupId, shopperEmail});
+  };
+
   public static async removeShopperFromGroup(groupId: string, shopperId: string): Promise<void> {
     const removeShopperFromGroupTemplate = path.join(__dirname, './sql/removeShopperFromGroup.sql');
     return await dbPost(removeShopperFromGroupTemplate, { groupId, shopperId });
