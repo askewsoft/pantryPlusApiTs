@@ -20,9 +20,9 @@ export class GroupsController extends Controller {
   /**
    * @summary Creates a new group of shoppers
    * @param email the email address of the user
-   * @param name the name of the group to create 
+   * @param group an object containing the name and ID of the group to create
    * @example email "user@example.com"
-   * @example name "Family"
+   * @example group {"name": "Family", "id": "123E4567-E89B-12D3-A456-426614174000"}
    */
   @Post()
   @SuccessResponse(201, "Created")
@@ -37,64 +37,64 @@ export class GroupsController extends Controller {
    * @summary Updates an existing group name
    * @param email the email address of the user
    * @param groupId the ID of the group to be updated
-   * @param name the new name of the group
+   * @param group an object containing the new name of the group
    * @example email "user@example.com"
    * @example groupId "123E4567-E89B-12D3-A456-426614174000"
-   * @example name "Family & Friends"
+   * @example group {"name": "Family & Friends"}
    */
   @Put("{groupId}")
   @SuccessResponse(205, "Content Updated")
-  public async updateGroupName(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() name: string): Promise<void> {
+  public async updateGroupName(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() group: Pick<Group, "name">): Promise<void> {
     await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
-    return await GroupsService.update(groupId, name);
+    return await GroupsService.update(groupId, group.name);
   };
 
   /**
    * @summary Invites a shopper to join a group
    * @param email the email address of the user
    * @param groupId the ID of the group to be updated
-   * @param shopperEmail the email address of the shopper to be invited
+   * @param shopper an object containing the email address of the shopper to be invited
    * @example email "user@example.com"
    * @example groupId "123E4567-E89B-12D3-A456-426614174000"
-   * @example shopperEmail "shopper@example.com"
+   * @example shopper {"email": "shopper@example.com"}
    */
   @Post("{groupId}/invite")
   @SuccessResponse(201, "Created")
-  public async inviteShopper(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() shopperEmail: string): Promise<void> {
+  public async inviteShopper(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() shopper: Pick<Shopper, "email">): Promise<void> {
     await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
-    return await GroupsService.inviteShopper(groupId, shopperEmail);
+    return await GroupsService.inviteShopper(groupId, shopper.email);
   };
 
   /**
    * @summary Uninvites a shopper from a group
    * @param email the email address of the user
    * @param groupId the ID of the group to be updated
-   * @param shopperEmail the email address of the shopper to be uninvited
+   * @param shopper an object containing the email address of the shopper to be uninvited
    * @example email "user@example.com"
    * @example groupId "123E4567-E89B-12D3-A456-426614174000"
-   * @example shopperEmail "shopper@example.com"
+   * @example shopper {"email": "shopper@example.com"}
    */
   @Delete("{groupId}/invite")
   @SuccessResponse(205, "Content Updated")
-  public async uninviteShopper(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() shopperEmail: string): Promise<void> {
+  public async uninviteShopper(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() shopper: Pick<Shopper, "email">): Promise<void> {
     await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
-    return await GroupsService.uninviteShopper(groupId, shopperEmail);
+    return await GroupsService.uninviteShopper(groupId, shopper.email);
   };
 
   /**
    * @summary Adds a shopper to a group
    * @param email the email address of the user
    * @param groupId the ID of the group to be updated
-   * @param shopperId the ID of the shopper to be added
+   * @param shopper an object containing the ID of the shopper to be added
    * @example email "user@example.com"
    * @example groupId "123E4567-E89B-12D3-A456-426614174000"
-   * @example shopperId "234F5678-F9A0-23D4-B567-537725285000"
+   * @example shopper {"id": "234F5678-F9A0-23D4-B567-537725285000"}
    */
   @Post("{groupId}/shoppers")
   @SuccessResponse(201, "Created")
-  public async addShopperToGroup(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() shopperId: string): Promise<void> {
+  public async addShopperToGroup(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() shopper: Pick<Shopper, "id">): Promise<void> {
     await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
-    return await GroupsService.addShopperToGroup(shopperId, groupId);
+    return await GroupsService.addShopperToGroup(shopper.id, groupId);
   };
 
   /**

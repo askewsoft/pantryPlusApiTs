@@ -99,18 +99,18 @@ export class ListsController extends Controller {
    * @param locationId the ID of the location
    * @param listId the ID of the list
    * @param itemId the ID of the item to remove
-   * @param purchaseDate the date of purchase
+   * @param purchase an object containing the date of purchase
    * @example email "test@test.com"
    * @example locationId "123E4567-E89B-12D3-A456-426614174000"
    * @example listId "123E4567-E89B-12D3-A456-426614174000"
    * @example itemId "123E4567-E89B-12D3-A456-426614174000"
-   * @example purchaseDate "2024-02-29"
+   * @example purchase {"purchaseDate": "2024-02-29"}
    */
   @Delete("{listId}/items/{itemId}/purchase")
   @SuccessResponse(205, "Content Updated")
-  public async unpurchaseItem(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() listId: string, @Path() itemId: string, @Body() purchaseDate: string): Promise<void> {
+  public async unpurchaseItem(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() listId: string, @Path() itemId: string, @Body() purchase: { purchaseDate: string }): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
-    await ListsService.unpurchaseItem(listId, itemId, locationId, purchaseDate);
+    await ListsService.unpurchaseItem(listId, itemId, locationId, purchase.purchaseDate);
     return;
   };
 
@@ -125,9 +125,9 @@ export class ListsController extends Controller {
    */
   @Put("{listId}")
   @SuccessResponse(205, "Content Updated")
-  public async updateList(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() body: { name: string, groupId: string, ordinal: number }): Promise<void> {
+  public async updateList(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() list: Pick<List, "name" | "groupId" | "ordinal">): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayUpdateListTemplate });
-    await ListsService.update(email, listId, body.name, body.groupId, body.ordinal);
+    await ListsService.update(email, listId, list.name, list.groupId ?? "", list.ordinal);
     return;
   };
 

@@ -36,7 +36,7 @@ export class LocationsController extends Controller {
    */
   @Put("{locationId}")
   @SuccessResponse(205, "Content Updated")
-  public async updateLocation(@Header("X-Auth-User") email: string, @Path() locationId: string, @Body() name: string): Promise<void> {
-    return await LocationsService.update(locationId, name, email);
+  public async updateLocation(@Header("X-Auth-User") email: string, @Path() locationId: string, @Body() location: Pick<Location, "name">): Promise<void> {
+    return await LocationsService.update(locationId, location.name, email);
   };
 };
