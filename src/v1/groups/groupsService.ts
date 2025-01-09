@@ -22,9 +22,9 @@ export abstract class GroupsService {
     return await dbPost(inviteShopperTemplate, {groupId, shopperEmail});
   };
 
-  public static async removeAllShoppersFromGroup(groupId: string): Promise<void> {
-    const removeAllFromGroupTemplate = path.join(__dirname, './sql/removeAllShoppersFromGroup.sql');
-    return await dbPost(removeAllFromGroupTemplate, { groupId });
+  public static async removeShopperFromGroup(groupId: string, shopperId: string): Promise<void> {
+    const removeShopperFromGroupTemplate = path.join(__dirname, './sql/removeShopperFromGroup.sql');
+    return await dbPost(removeShopperFromGroupTemplate, { groupId, shopperId });
   };
 
   public static async delete(groupId: string): Promise<void> {

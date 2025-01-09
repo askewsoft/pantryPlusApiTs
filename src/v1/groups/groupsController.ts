@@ -53,7 +53,7 @@ export class GroupsController extends Controller {
    * @summary Invites a shopper to join a group
    * @param email the email address of the user
    * @param groupId the ID of the group to be updated
-   * @param email the email address of the shopper to be invited
+   * @param shopperEmail the email address of the shopper to be invited
    * @example email "user@example.com"
    * @example groupId "123E4567-E89B-12D3-A456-426614174000"
    * @example shopperEmail "shopper@example.com"
@@ -79,6 +79,22 @@ export class GroupsController extends Controller {
   public async addShopperToGroup(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() shopperId: string): Promise<void> {
     await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
     return await GroupsService.addShopperToGroup(shopperId, groupId);
+  };
+
+  /**
+   * @summary Removes a shopper from a group
+   * @param email the email address of the user
+   * @param groupId the ID of the group to be updated
+   * @param shopperId the ID of the shopper to be removed
+   * @example email "user@example.com"
+   * @example groupId "123E4567-E89B-12D3-A456-426614174000"
+   * @example shopperId "234F5678-F9A0-23D4-B567-537725285000"
+   */
+  @Delete("{groupId}/shoppers/{shopperId}")
+  @SuccessResponse(205, "Content Updated")
+  public async removeShopperFromGroup(@Header("X-Auth-User") email: string, @Path() groupId: string, @Path() shopperId: string): Promise<void> {
+    await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
+    return await GroupsService.removeShopperFromGroup(shopperId, groupId);
   };
 
   /**

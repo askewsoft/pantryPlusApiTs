@@ -49,6 +49,7 @@ export abstract class ShoppersService {
   public static async getGroups(shopperId: string): Promise<Array<Pick<Group, "id" | "name" | "ownerId">>> {
     const template = path.join(__dirname, './sql/getGroups.sql');
     const results = await dbPost(template, { shopperId });
+    console.log(`getGroups results: ${JSON.stringify(results)}`);
     return results;
   };
 
