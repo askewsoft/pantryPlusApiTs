@@ -52,4 +52,10 @@ export abstract class GroupsService {
     const results = await dbPost(getGroupShoppersTemplate, { groupId });
     return results;
   };
+
+  public static async getInvitees(groupId: string): Promise<Array<Pick<Shopper, "email">>> {
+    const getInviteesTemplate = path.join(__dirname, './sql/getInvitees.sql');
+    const results = await dbPost(getInviteesTemplate, { groupId });
+    return results;
+  };
 };

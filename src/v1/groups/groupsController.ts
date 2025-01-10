@@ -58,11 +58,26 @@ export class GroupsController extends Controller {
    * @example groupId "123E4567-E89B-12D3-A456-426614174000"
    * @example shopper {"email": "shopper@example.com"}
    */
-  @Post("{groupId}/invite")
+  @Post("{groupId}/invitees")
   @SuccessResponse(201, "Created")
   public async inviteShopper(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() shopper: Pick<Shopper, "email">): Promise<void> {
     await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
     return await GroupsService.inviteShopper(groupId, shopper.email);
+  };
+
+  /**
+   * @summary Gets all invitees for a group
+   * @param email the email address of the user
+   * @param groupId the ID of the group to be updated
+   * @example email "user@example.com"
+   * @example groupId "123E4567-E89B-12D3-A456-426614174000"
+   */
+  @Get("{groupId}/invitees")
+  @SuccessResponse(200, "OK")
+  @Example<Array<Pick<Shopper, "email">>>(shoppersExample)
+  public async getInvitees(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<Array<Pick<Shopper, "email">>> {
+    await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
+    return await GroupsService.getInvitees(groupId);
   };
 
   /**
@@ -74,7 +89,7 @@ export class GroupsController extends Controller {
    * @example groupId "123E4567-E89B-12D3-A456-426614174000"
    * @example shopper {"email": "shopper@example.com"}
    */
-  @Delete("{groupId}/invite")
+  @Delete("{groupId}/invitees")
   @SuccessResponse(205, "Content Updated")
   public async uninviteShopper(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() shopper: Pick<Shopper, "email">): Promise<void> {
     await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
