@@ -39,6 +39,7 @@ const pool = mysql.createPool(sqlConnectOpts);
 // dbPost returns a promise
 const dbPost = async (template: string, params: Object): Promise<any> => {
   const startQueryTime = Date.now();
+  log.debug(`params = ${JSON.stringify(params)}`);
   try {
     const sqlStr = await extractQuery(template);
     const dbConn = await pool.getConnection()
