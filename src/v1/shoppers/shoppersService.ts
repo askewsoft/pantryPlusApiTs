@@ -54,9 +54,9 @@ export abstract class ShoppersService {
       id: group.id,
       name: group.name,
       owner: {
-        id: group.owner_id,
-        nickName: group.owner_nickname,
-        email: group.owner_email
+        id: group.ownerId,
+        nickName: group.ownerNickname,
+        email: group.ownerEmail
       }
     }));
     return groups;
