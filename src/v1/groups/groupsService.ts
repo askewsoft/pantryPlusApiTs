@@ -37,9 +37,19 @@ export abstract class GroupsService {
     return await dbPost(deleteGroupTemplate, groupId);
   };
 
-  public static async get(groupId: string): Promise<Pick<Group, "id" | "name" | "ownerId">> {
+  public static async get(groupId: string): Promise<Pick<Group, "id" | "name" | "owner">> {
     const getGroupTemplate = path.join(__dirname, './sql/getGroup.sql');
-    return dbPost(getGroupTemplate, groupId);
+    const results = await dbPost(getGroupTemplate, groupId);
+    const group = results[0];
+    return {
+      id: group.id,
+      name: group.name,
+      owner: {
+        id: group.owner_id,
+        nickName: group.owner_nickname,
+        email: group.owner_email
+      }
+    };
   };
 
   public static async update(groupId: string, name: string): Promise<void> {
@@ -56,6 +66,7 @@ export abstract class GroupsService {
   public static async getInvitees(groupId: string): Promise<Array<Pick<Shopper, "email">>> {
     const getInviteesTemplate = path.join(__dirname, './sql/getInvitees.sql');
     const results = await dbPost(getInviteesTemplate, { groupId });
+    log.debug(`retrieved invitees = ${JSON.stringify(results)}`);
     return results;
   };
 };

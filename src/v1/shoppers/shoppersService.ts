@@ -46,11 +46,20 @@ export abstract class ShoppersService {
     return { id: result?.id };
   };
 
-  public static async getGroups(shopperId: string): Promise<Array<Pick<Group, "id" | "name" | "ownerId">>> {
+  public static async getGroups(shopperId: string): Promise<Array<Pick<Group, "id" | "name" | "owner">>> {
     const template = path.join(__dirname, './sql/getGroups.sql');
     const results = await dbPost(template, { shopperId });
     console.log(`getGroups results: ${JSON.stringify(results)}`);
-    return results;
+    const groups = results.map((group: any) => ({
+      id: group.id,
+      name: group.name,
+      owner: {
+        id: group.owner_id,
+        nickName: group.owner_nickname,
+        email: group.owner_email
+      }
+    }));
+    return groups;
   };
 
   public static async getItems(shopperId: string): Promise<Array<Item>> {

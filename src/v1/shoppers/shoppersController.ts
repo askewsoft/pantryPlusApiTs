@@ -96,8 +96,8 @@ export class ShoppersController extends Controller {
    */
   @Get("{shopperId}/groups")
   @SuccessResponse(200, "OK")
-  @Example<Array<Pick<Group, "id" | "name" | "ownerId">>>(groupsExample)
-  public async getGroups(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Pick<Group, "id" | "name" | "ownerId">>> {
+  @Example<Array<Pick<Group, "id" | "name" | "owner">>>(groupsExample)
+  public async getGroups(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Pick<Group, "id" | "name" | "owner">>> {
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.getGroups(shopperId);
   }

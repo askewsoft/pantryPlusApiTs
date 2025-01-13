@@ -1,6 +1,7 @@
 /**
  * An array of group member Shopper IDs
  */
+import { Shopper } from "../shoppers/shopper";
 export type GroupMembers = Array<string>;
 
 /**
@@ -12,7 +13,5 @@ export type Group = {
     /** The name of the group */
     name: string;
     /** The shopper that originally created the group */
-    ownerId: string;
-    /** The members of this group by shopper ID */
-    members: GroupMembers
+    owner: Shopper;
 }

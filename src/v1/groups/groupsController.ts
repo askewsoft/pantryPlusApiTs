@@ -3,7 +3,7 @@ import { Body, Controller, Delete, Example, Get, Header, Path, Post, Put, Route,
 import path from "path";
 
 import { Group } from "./group";
-import { groupExample, groupCreationExample } from "./groupsExamples";
+import { groupExample } from "./groupsExamples";
 import { Shopper } from "../shoppers/shopper";
 import { shoppersExample } from "../shoppers/shoppersExamples";
 import { GroupsService } from "./groupsService";
@@ -153,8 +153,8 @@ export class GroupsController extends Controller {
    */
   @Get("{groupId}")
   @SuccessResponse(200, "OK")
-  @Example<Pick<Group, "id" | "name" | "ownerId">>(groupExample)
-  public async getGroup(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<Pick<Group, "id" | "name" | "ownerId">> {
+  @Example<Pick<Group, "id" | "name" | "owner">>(groupExample)
+  public async getGroup(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<Pick<Group, "id" | "name" | "owner">> {
     await mayProceed({ email, id: groupId, accessTemplate: mayAccessGroupTemplate });
     return GroupsService.get(groupId);
   };
