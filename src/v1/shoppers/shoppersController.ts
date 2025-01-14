@@ -103,6 +103,20 @@ export class ShoppersController extends Controller {
   }
 
   /**
+   * @summary Retrieves all groups that a Shopper has been invited to 
+   * @param email the email address of the user
+   * @param shopperId the ID of the shopper for whom invites will be returned
+   * @returns The invites for the supplied shopper
+   */
+  @Get("{shopperId}/invites")
+  @SuccessResponse(200, "OK")
+  @Example<Array<Group>>(groupsExample)
+  public async getInvites(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Group>> {
+    await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
+    return ShoppersService.getInvites(shopperId);
+  }
+
+  /**
    * @summary Retrieves all previously purchased items associated with a Shopper 
    * @param email the email address of the user
    * @param shopperId the ID of the shopper for whom items will be returned

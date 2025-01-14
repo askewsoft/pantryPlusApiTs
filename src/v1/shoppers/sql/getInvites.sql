@@ -1,0 +1,15 @@
+-- gets all the cohorts to which this shopper is invited
+SET @shopperId = UUID_TO_BIN(:shopperId);
+
+SELECT
+  BIN_TO_UUID(c.ID) AS ID,
+  c.NAME,
+  BIN_TO_UUID(c.OWNER_ID) AS OWNER_ID,
+  own.NICKNAME AS OWNER_NICKNAME,
+  own.EMAIL AS OWNER_EMAIL
+FROM PANTRY_PLUS.SHOPPER sh
+JOIN PANTRY_PLUS.INVITEES i ON i.EMAIL = sh.EMAIL
+JOIN PANTRY_PLUS.COHORT c ON c.ID = i.COHORT_ID
+JOIN PANTRY_PLUS.SHOPPER own ON c.OWNER_ID = own.ID
+WHERE sh.ID = @shopperId
+;

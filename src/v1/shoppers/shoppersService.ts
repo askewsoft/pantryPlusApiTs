@@ -46,10 +46,9 @@ export abstract class ShoppersService {
     return { id: result?.id };
   };
 
-  public static async getGroups(shopperId: string): Promise<Array<Pick<Group, "id" | "name" | "owner">>> {
+  public static async getGroups(shopperId: string): Promise<Array<Group>> {
     const template = path.join(__dirname, './sql/getGroups.sql');
     const results = await dbPost(template, { shopperId });
-    console.log(`getGroups results: ${JSON.stringify(results)}`);
     const groups = results.map((group: any) => ({
       id: group.id,
       name: group.name,
@@ -60,6 +59,21 @@ export abstract class ShoppersService {
       }
     }));
     return groups;
+  };
+
+  public static async getInvites(shopperId: string): Promise<Array<Group>> {
+    const template = path.join(__dirname, './sql/getInvites.sql');
+    const results = await dbPost(template, { shopperId });
+    const invites = results.map((invite: any) => ({
+      id: invite.id,
+      name: invite.name,
+      owner: {
+        id: invite.ownerId,
+        nickName: invite.ownerNickname,
+        email: invite.ownerEmail
+      }
+    }));
+    return invites;
   };
 
   public static async getItems(shopperId: string): Promise<Array<Item>> {
