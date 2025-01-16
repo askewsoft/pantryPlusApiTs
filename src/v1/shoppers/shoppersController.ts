@@ -2,6 +2,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Example,
   Get,
   Header,
@@ -114,6 +115,32 @@ export class ShoppersController extends Controller {
   public async getInvites(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Group>> {
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.getInvites(shopperId);
+  }
+
+ /**
+  * @summary Declines an invite to a group
+  * @param email the email address of the user
+  * @param shopperId the ID of the shopper for whom the invite will be declined
+  * @param inviteId the ID of the invite to be declined
+  */ 
+  @Delete("{shopperId}/invites/{inviteId}")
+  @SuccessResponse(204, "No Content")
+  public async declineInvite(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Path() inviteId: string): Promise<void> {
+    await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
+    return ShoppersService.declineInvite(shopperId, inviteId);
+  }
+
+  /**
+   * @summary Accepts an invite to a group
+   * @param email the email address of the user
+   * @param shopperId the ID of the shopper for whom the invite will be accepted
+   * @param inviteId the ID of the invite to be accepted
+   */
+  @Put("{shopperId}/invites/{inviteId}")
+  @SuccessResponse(205, "Content Updated")
+  public async acceptInvite(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Path() inviteId: string): Promise<void> {
+    await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
+    return ShoppersService.acceptInvite(shopperId, inviteId);
   }
 
   /**

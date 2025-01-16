@@ -76,6 +76,16 @@ export abstract class ShoppersService {
     return invites;
   };
 
+  public static async declineInvite(shopperId: string, inviteId: string): Promise<void> {
+    const template = path.join(__dirname, './sql/declineInvite.sql');
+    await dbPost(template, { shopperId, inviteId });
+  };
+
+  public static async acceptInvite(shopperId: string, inviteId: string): Promise<void> {
+    const template = path.join(__dirname, './sql/acceptInvite.sql');
+    await dbPost(template, { shopperId, inviteId });
+  };
+
   public static async getItems(shopperId: string): Promise<Array<Item>> {
     const template = path.join(__dirname, './sql/getPurchasedItems.sql');
     const results = await dbPost(template, { shopperId });
