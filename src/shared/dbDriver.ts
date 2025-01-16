@@ -39,7 +39,11 @@ const pool = mysql.createPool(sqlConnectOpts);
 // dbPost returns a promise
 const dbPost = async (template: string, params: Object): Promise<any> => {
   const startQueryTime = Date.now();
-  log.debug(`params = ${JSON.stringify(params)}`);
+  const logMsg = {
+    msg: 'DB Query',
+    sql: getFileName(template),
+    ...params,
+  };
   try {
     const sqlStr = await extractQuery(template);
     const dbConn = await pool.getConnection()
@@ -47,7 +51,8 @@ const dbPost = async (template: string, params: Object): Promise<any> => {
     dbConn.release();
     const results = extractDbResult(rows);
     const endQueryTime = Date.now();
-    log.info(`Query ${getFileName(template)} completed in ${endQueryTime - startQueryTime}ms`);
+    const duration = `${endQueryTime - startQueryTime}ms`;
+    log.info({ ...logMsg, duration });
     return results;
   } catch (err: any) {
     log.error(err);

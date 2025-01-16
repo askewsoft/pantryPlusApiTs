@@ -33,7 +33,6 @@ export const hasAccess = async ({ accessTemplate, email, id }: AccessParams): Pr
 };
 
 export const mayProceed = async ({ accessTemplate, email, id }: AccessParams): Promise<void> => {
-  log.debug(`mayProceed for ${email} with id ${id} and accessTemplate ${getFileName(accessTemplate)}`);
   if (!email) {
     const err = new Error('missing user identity');
     err.name = ErrorCode.MISSING_IDENTITY;
