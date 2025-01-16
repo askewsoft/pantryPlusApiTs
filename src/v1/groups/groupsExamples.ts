@@ -5,7 +5,7 @@ export const groupExample: Pick<Group, "id" | "name" | "owner"> = {
     name: "Family",
     owner: {
         id: "123E4567-E89B-12D3-A456-426614174000",
-        nickName: "John",
+        nickname: "John",
         email: "john@example.com"
     }
 };
@@ -21,7 +21,7 @@ export const groupsExample: Array<Pick<Group, "id" | "name" | "owner">> = [
         name: "Friends",
         owner: {
             id: "234F5678-F9A0-23D4-B567-537725285000",
-            nickName: "Jane",
+            nickname: "Jane",
             email: "jane@example.com"
         }
     }

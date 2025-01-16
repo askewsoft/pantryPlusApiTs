@@ -2,10 +2,10 @@
 
 SET @shopperId = UUID_TO_BIN(:shopperId);
 SET @email = :email;
-SET @nickName = :nickName;
+SET @nickname = :nickname;
 
 UPDATE PANTRY_PLUS.SHOPPER
-SET EMAIL = @email, NICKNAME = @nickName
+SET EMAIL = @email, NICKNAME = @nickname
 WHERE ID = @shopperId
 ;
 

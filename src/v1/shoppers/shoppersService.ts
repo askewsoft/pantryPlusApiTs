@@ -54,7 +54,7 @@ export abstract class ShoppersService {
       name: group.name,
       owner: {
         id: group.ownerId,
-        nickName: group.ownerNickname,
+        nickname: group.ownerNickname,
         email: group.ownerEmail
       }
     }));
@@ -69,7 +69,7 @@ export abstract class ShoppersService {
       name: invite.name,
       owner: {
         id: invite.ownerId,
-        nickName: invite.ownerNickname,
+        nickname: invite.ownerNickname,
         email: invite.ownerEmail
       }
     }));

@@ -46,7 +46,7 @@ export abstract class GroupsService {
       name: group.name,
       owner: {
         id: group.owner_id,
-        nickName: group.owner_nickname,
+        nickname: group.owner_nickname,
         email: group.owner_email
       }
     };

@@ -39,7 +39,7 @@ export class ShoppersController extends Controller {
    * @param person the shopper to be created
    * @example person {
    *   "id": "123e4567-e89b-12d3-a456-426614174000",
-   *   "nickName": "Johnny",
+   *   "nickname": "Johnny",
    *   "email": "john.doe@example.com"
    * }
    * @returns The created shopper
@@ -62,7 +62,7 @@ export class ShoppersController extends Controller {
    * @param shopperId the ID of the shopper to be updated
    * @param shopper the updated shopper properties
    * @example shopper {
-   *   "nickName": "Johnny",
+   *   "nickname": "Johnny",
    *   "email": "john.doe@example.com"
    * }
    * @returns The updated shopper ID
