@@ -107,7 +107,7 @@ export class ListsController extends Controller {
    * @example purchase {"purchaseDate": "2024-02-29"}
    */
   @Delete("{listId}/items/{itemId}/purchase")
-  @SuccessResponse(205, "Content Updated")
+  @SuccessResponse(204, "No Content")
   public async unpurchaseItem(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() listId: string, @Path() itemId: string, @Body() purchase: { purchaseDate: string }): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     await ListsService.unpurchaseItem(listId, itemId, locationId, purchase.purchaseDate);
@@ -139,7 +139,7 @@ export class ListsController extends Controller {
    * @example listId "123E4567-E89B-12D3-A456-426614174000"
    */
   @Delete("{listId}")
-  @SuccessResponse(205, "Content Updated")
+  @SuccessResponse(204, "No Content")
   public async deleteList(@Header("X-Auth-User") email: string, @Path() listId: string): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayUpdateListTemplate });
     await ListsService.delete(listId);
@@ -156,7 +156,7 @@ export class ListsController extends Controller {
    * @example categoryId "123E4567-E89B-12D3-A456-426614174000"
    */
   @Delete("{listId}/categories/{categoryId}")
-  @SuccessResponse(205, "Content Updated")
+  @SuccessResponse(204, "No Content")
   public async removeCategory(@Header("X-Auth-User") email: string, @Path() listId: string, @Path() categoryId: string): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     await ListsService.removeCategory(listId, categoryId);
@@ -173,7 +173,7 @@ export class ListsController extends Controller {
    * @example itemId "123E4567-E89B-12D3-A456-426614174000"
    */
   @Delete("{listId}/items/{itemId}")
-  @SuccessResponse(205, "Content Updated")
+  @SuccessResponse(204, "No Content")
   public async removeItem(@Header("X-Auth-User") email: string, @Path() listId: string, @Path() itemId: string): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     await ListsService.removeItem(listId, itemId);

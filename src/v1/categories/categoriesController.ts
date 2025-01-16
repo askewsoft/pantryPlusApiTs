@@ -37,7 +37,7 @@ export class CategoriesController extends Controller {
    * @example categoryId "123E4567-E89B-12D3-A456-426614174000"
    */
   @Delete("{categoryId}/items/{itemId}")
-  @SuccessResponse(205, "Content Updated")
+  @SuccessResponse(204, "No Content")
   public async removeItemFromCategory(@Header("X-Auth-User") email: string, @Path() categoryId: string, @Path() itemId: string): Promise<void> {
     await mayProceed({ email, id: categoryId, accessTemplate: mayModifyCategoryTemplate });
     await CategoriesService.removeItem(itemId, categoryId);
