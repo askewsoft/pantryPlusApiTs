@@ -76,7 +76,7 @@ export class GroupsController extends Controller {
   @SuccessResponse(200, "OK")
   @Example<Array<Pick<Shopper, "email">>>(shoppersExample)
   public async getInvitees(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<Array<Pick<Shopper, "email">>> {
-    await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
+    await mayProceed({ email, id: groupId, accessTemplate: mayAccessGroupTemplate });
     return await GroupsService.getInvitees(groupId);
   };
 
