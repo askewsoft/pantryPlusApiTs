@@ -33,13 +33,14 @@ export abstract class GroupsService {
   };
 
   public static async delete(groupId: string): Promise<void> {
+    console.log(`deleting group '${groupId}'`);
     const deleteGroupTemplate = path.join(__dirname, './sql/deleteGroup.sql');
-    return await dbPost(deleteGroupTemplate, groupId);
+    return await dbPost(deleteGroupTemplate, {groupId});
   };
 
   public static async get(groupId: string): Promise<Pick<Group, "id" | "name" | "owner">> {
     const getGroupTemplate = path.join(__dirname, './sql/getGroup.sql');
-    const results = await dbPost(getGroupTemplate, groupId);
+    const results = await dbPost(getGroupTemplate, {groupId});
     const group = results[0];
     return {
       id: group.id,
