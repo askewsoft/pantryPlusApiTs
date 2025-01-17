@@ -125,7 +125,7 @@ export class GroupsController extends Controller {
   @SuccessResponse(204, "No Content")
   public async removeShopperFromGroup(@Header("X-Auth-User") email: string, @Path() groupId: string, @Path() shopperId: string): Promise<void> {
     await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
-    return await GroupsService.removeShopperFromGroup(shopperId, groupId);
+    return await GroupsService.removeShopperFromGroup(groupId, shopperId);
   };
 
   /**
