@@ -18,6 +18,7 @@ SELECT
   bin_to_uuid(ls.ID) as ID,
   ls.NAME,
   bin_to_uuid(ls.OWNER_ID) as OWNER_ID,
+  bin_to_uuid(ls.COHORT_ID) as GROUP_ID,
   lo.ORDINAL
 FROM shopperCohorts sc
 JOIN PANTRY_PLUS.LIST ls ON ls.COHORT_ID = sc.COHORT_ID
@@ -27,6 +28,7 @@ SELECT
   bin_to_uuid(ls.ID) as ID,
   ls.NAME,
   bin_to_uuid(ls.OWNER_ID) as OWNER_ID,
+  bin_to_uuid(ls.COHORT_ID) as GROUP_ID,
   lo.ORDINAL
 FROM PANTRY_PLUS.LIST ls
 LEFT JOIN PANTRY_PLUS.LIST_ORDER lo ON lo.LIST_ID = ls.ID
