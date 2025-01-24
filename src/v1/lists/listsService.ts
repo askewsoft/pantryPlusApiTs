@@ -50,7 +50,7 @@ export abstract class ListsService {
 
   public static async removeCategory(listId: string, categoryId: string): Promise<void> {
     const removeCategoryTemplate = path.join(__dirname, './sql/removeCategory.sql');
-    await dbPost(removeCategoryTemplate, { id: listId, categoryId });
+    await dbPost(removeCategoryTemplate, { listId, categoryId });
     return;
   };
 
