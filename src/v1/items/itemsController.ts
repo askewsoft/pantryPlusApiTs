@@ -30,7 +30,7 @@ export class ItemsController extends Controller {
    * @example item {"id": "123E4567-E89B-12D3-A456-426614174000", "name": "Milk", "upc": "049000000000"}
    */
   @Post()
-  public async createItem(@Header("X-Auth-User") email: string, @Body() item: Pick<Item, "id" | "name" | "upc">): Promise<void> {
+  public async createItem(@Header("X-Auth-User") email: string, @Body() item: Item): Promise<void> {
     // any valid user can create an item
     await ShoppersService.validateUser(email);
     await ItemsService.create(item); 
