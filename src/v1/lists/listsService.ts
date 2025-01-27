@@ -24,7 +24,7 @@ export abstract class ListsService {
 
   public static async delete(listId: string): Promise<void> {
     const deleteTemplate = path.join(__dirname, './sql/deleteList.sql');
-    await dbPost(deleteTemplate, { id: listId });
+    await dbPost(deleteTemplate, { listId });
     return;
   };
 
