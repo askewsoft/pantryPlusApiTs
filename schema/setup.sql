@@ -9,24 +9,43 @@ CREATE TABLE IF NOT EXISTS PANTRY_PLUS.SHOPPER
     NICKNAME varchar(100) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS PANTRY_PLUS.LOCATION (
-    ID binary(16) default (uuid_to_bin(uuid())) not null primary key,
-    NAME varchar(100) NOT NULL,
-    GEO_LOCATION POINT NOT NULL SRID 4326
-);
-
-CREATE TABLE IF NOT EXISTS PANTRY_PLUS.CATEGORY (
-    ID binary(16) default (uuid_to_bin(uuid())) not null primary key,
-    NAME varchar(100) NOT NULL,
-    LIST_ID binary(16) NOT NULL
-);
-
 CREATE TABLE IF NOT EXISTS PANTRY_PLUS.COHORT (
     ID binary(16) default (uuid_to_bin(uuid())) not null primary key,
     NAME varchar(100) NOT NULL,
     OWNER_ID binary(16) NOT NULL,
     FOREIGN KEY (OWNER_ID)
         REFERENCES PANTRY_PLUS.SHOPPER(ID)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS PANTRY_PLUS.LOCATION (
+    ID binary(16) default (uuid_to_bin(uuid())) not null primary key,
+    NAME varchar(100) NOT NULL,
+    GEO_LOCATION POINT NOT NULL SRID 4326
+);
+
+CREATE TABLE IF NOT EXISTS PANTRY_PLUS.LIST (
+    ID binary(16) default (uuid_to_bin(uuid())) not null primary key,
+    NAME varchar(100) NOT NULL,
+    OWNER_ID binary(16) NOT NULL,
+    COHORT_ID binary(16),
+    INDEX (ID, OWNER_ID),
+    INDEX (NAME, OWNER_ID),
+    INDEX (ID, COHORT_ID),
+    FOREIGN KEY (COHORT_ID)
+        REFERENCES PANTRY_PLUS.COHORT(ID)
+        ON DELETE NO ACTION,
+    FOREIGN KEY (OWNER_ID)
+        REFERENCES PANTRY_PLUS.SHOPPER(ID)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS PANTRY_PLUS.CATEGORY (
+    ID binary(16) default (uuid_to_bin(uuid())) not null primary key,
+    NAME varchar(100) NOT NULL,
+    LIST_ID binary(16) NOT NULL,
+    FOREIGN KEY (LIST_ID)
+        REFERENCES PANTRY_PLUS.LIST(ID)
         ON DELETE CASCADE
 );
 
@@ -69,29 +88,13 @@ CREATE TABLE IF NOT EXISTS PANTRY_PLUS.COHORT_SHOPPER_RELATION (
         ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS PANTRY_PLUS.LIST (
-    ID binary(16) default (uuid_to_bin(uuid())) not null primary key,
-    NAME varchar(100) NOT NULL,
-    OWNER_ID binary(16) NOT NULL,
-    COHORT_ID binary(16),
-    INDEX (ID, OWNER_ID),
-    INDEX (NAME, OWNER_ID),
-    INDEX (ID, COHORT_ID),
-    FOREIGN KEY (COHORT_ID)
-        REFERENCES PANTRY_PLUS.COHORT(ID)
-        ON DELETE NO ACTION,
-    FOREIGN KEY (OWNER_ID)
-        REFERENCES PANTRY_PLUS.SHOPPER(ID)
-        ON DELETE CASCADE
-);
-
 CREATE TABLE IF NOT EXISTS PANTRY_PLUS.LIST_ITEM_RELATION (
     LIST_ID binary(16) NOT NULL,
     ITEM_ID binary(16) NOT NULL,
     PRIMARY KEY (LIST_ID, ITEM_ID),
     FOREIGN KEY (LIST_ID)
         REFERENCES PANTRY_PLUS.LIST(ID)
-        ON DELETE NO ACTION,
+        ON DELETE CASCADE,
     FOREIGN KEY (ITEM_ID)
         REFERENCES PANTRY_PLUS.ITEM(ID)
         ON DELETE CASCADE
