@@ -51,7 +51,7 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
       break;
     case ErrorCode.TYPE_ERROR:
       errMessage = getErrorMsg(err);
-      log.error(`${ErrorCode.UNEXPECTED_ERR} (${err.name}) for ${req.method} ${req.url} with fields ${JSON.stringify(err.fields)}; ${errMessage}`);
+      log.error(`${ErrorCode.UNEXPECTED_ERR} (${err.name}) for ${req.method} ${req.url} with fields ${JSON.stringify(err.fields ?? {})}; ${errMessage}`);
       res.status(422).send(`${ErrorCode.TYPE_ERROR}: ${errMessage}`);
       break;
     case ErrorCode.DATABASE_ERR:
@@ -60,12 +60,12 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
       break;
     default:
       errMessage = getErrorMsg(err);
-      log.error(`${ErrorCode.UNEXPECTED_ERR} (${err.name}) for ${req.method} ${req.url} with fields ${JSON.stringify(err.fields)}; ${errMessage}`);
+      log.error(`${ErrorCode.UNEXPECTED_ERR} (${err.name}) for ${req.method} ${req.url} with fields ${JSON.stringify(err.fields ?? {})}; ${errMessage}`);
       res.status(500).send(errMessage);
     }
   } else {
     const errMessage = getErrorMsg(err);
-    log.error(`${ErrorCode.UNEXPECTED_ERR} for ${req.method} ${req.url} with fields ${JSON.stringify(err.fields)}; ${errMessage}`);
+    log.error(`${ErrorCode.UNEXPECTED_ERR} for ${req.method} ${req.url} with fields ${JSON.stringify(err.fields ?? {})}; ${errMessage}`);
     res.status(500).send(errMessage);
   }
   return next();

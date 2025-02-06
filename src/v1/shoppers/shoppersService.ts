@@ -101,6 +101,12 @@ export abstract class ShoppersService {
   public static async getLocations(shopperId: string): Promise<Array<Location>> {
     const template = path.join(__dirname, './sql/getLocations.sql');
     const results = await dbPost(template, { shopperId });
-    return results;
+    const locations = results.map((location: any) => ({
+      id: location.id,
+      name: location.name,
+      latitude: location.latitude,
+      longitude: location.longitude
+    }));
+    return locations;
   };
 };

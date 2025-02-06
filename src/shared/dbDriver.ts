@@ -46,7 +46,7 @@ const dbPost = async (template: string, params: Object): Promise<any> => {
   };
   try {
     const sqlStr = await extractQuery(template);
-    const dbConn = await pool.getConnection()
+    const dbConn = await pool.getConnection();
     const [rows] = await dbConn.query(sqlStr, params);
     dbConn.release();
     const results = extractDbResult(rows);
@@ -67,13 +67,8 @@ const dbPost = async (template: string, params: Object): Promise<any> => {
 const extractDbResult = (rows: any): Array<any> | undefined => {
   if (Array.isArray(rows) && rows.length > 0) {
     const results = rows.pop();
-    if (Array.isArray(results)) {
-      const normalizedResults = snakeToCamel(results);
-      return normalizedResults;
-    } else {
-      log.debug(`extractDbResult - there are no results`);
-      return;
-    }
+    const normalizedResults = snakeToCamel(results);
+    return Array.isArray(normalizedResults) ? normalizedResults : [normalizedResults];
   } else {
     const errObj = new Error('invalid database response') as any;
     errObj.name = ErrorCode.DATABASE_ERR;
