@@ -14,3 +14,22 @@ export interface Location {
     /** The longitude of the user's current location */
     longitude: number;
 }
+
+export interface NearbyLocation extends Location {
+    /** The distance from the user's current location to the location */
+    distance: number;
+}
+
+export interface RecentLocation extends Location {
+    /** The date of the purchase */
+    lastPurchaseDate: string;
+}
+
+export interface LocationArea {
+    /** The latitude of the user's current location */
+    latitude: number;
+    /** The longitude of the user's current location */
+    longitude: number;
+    /** The radius of the search */
+    radius: number;
+}

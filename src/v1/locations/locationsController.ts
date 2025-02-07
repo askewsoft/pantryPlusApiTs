@@ -1,9 +1,9 @@
 // LOCATIONS
-import { Body, Controller, Example, Header, Path, Post, Put, Route, SuccessResponse, Tags } from "tsoa";
+import { Body, Controller, Example, Get, Header, Path, Post, Put, Query, Route, SuccessResponse, Tags } from "tsoa";
 
-import { Location } from "./location";
+import { Location, NearbyLocation, LocationArea } from "./location";
 import { LocationsService } from "./locationsService";
-import { locationIdExample } from "./locationsExamples";
+import { locationIdExample, nearbyLocationsExample } from "./locationsExamples";
 
 @Route("locations")
 @Tags("Locations")
@@ -38,5 +38,24 @@ export class LocationsController extends Controller {
   @SuccessResponse(205, "Content Updated")
   public async updateLocation(@Header("X-Auth-User") email: string, @Path() locationId: string, @Body() location: Pick<Location, "name">): Promise<void> {
     return await LocationsService.update(locationId, location.name, email);
+  };
+
+  /**
+   * @summary Retrieves all locations within a radius of the current location
+   * @param email the email address of the user
+   * @param longitude the longitude of the current location
+   * @param latitude the latitude of the current location
+   * @param radius the radius of the search
+   * @example locationArea {
+   *  "longitude": -71.4910,
+   *  "latitude": 42.7456,
+   *  "radius": 100
+   * }
+   */
+  @Post("nearby")
+  @SuccessResponse(200, "OK")
+  @Example<Array<NearbyLocation>>(nearbyLocationsExample)
+  public async getNearbyLocations(@Header("X-Auth-User") email: string, @Body() locationArea: LocationArea): Promise<Array<NearbyLocation>> {
+    return await LocationsService.getNearbyLocations(locationArea);
   };
 };
