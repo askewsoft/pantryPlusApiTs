@@ -176,7 +176,7 @@
 		<table name="location" prior="locations" >
 			<column name="id" type="int" jt="4" mandatory="y" />
 			<column name="name" type="varchar" length="100" jt="12" mandatory="y" />
-			<column name="geolocation" prior="geohash" type="point" length="10" jt="1111" mandatory="y" >
+			<column name="geo_location" prior="geolocation" type="point" length="10" jt="1111" mandatory="y" >
 				<comment><![CDATA[MySQL geo-spatial data type denoted by 'POINT(latitude longitude)']]></comment>
 			</column>
 			<index name="pk_locations_id" unique="PRIMARY_KEY" >

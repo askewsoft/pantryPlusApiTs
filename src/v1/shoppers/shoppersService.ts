@@ -2,7 +2,7 @@ import path from "path";
 import { Shopper } from "./shopper";
 import { Group } from "../groups/group";
 import { Item } from "../items/item";
-import { Location } from "../locations/location";
+import { RecentLocation } from "../locations/location";
 import { List } from "../lists/list";
 import { dbPost } from "../../shared/dbDriver";
 import { ErrorCode } from "../../shared/errorHandler";
@@ -98,15 +98,8 @@ export abstract class ShoppersService {
     return results;
   };
 
-  public static async getLocations(shopperId: string): Promise<Array<Location>> {
-    const template = path.join(__dirname, './sql/getLocations.sql');
-    const results = await dbPost(template, { shopperId });
-    const locations = results.map((location: any) => ({
-      id: location.id,
-      name: location.name,
-      latitude: location.latitude,
-      longitude: location.longitude
-    }));
-    return locations;
+  public static async getLocations(shopperId: string, lookBackDays: number): Promise<Array<RecentLocation>> {
+    const template = path.join(__dirname, './sql/getRecentLocations.sql');
+    return await dbPost(template, { shopperId, lookBackDays });
   };
 };

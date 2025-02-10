@@ -9,6 +9,7 @@ import {
   Path,
   Post,
   Put,
+  Query,
   Route,
   SuccessResponse,
   Tags
@@ -23,8 +24,8 @@ import { Item } from "../items/item";
 import { itemsExample } from "../items/itemsExamples";
 import { List } from "../lists/list";
 import { listsExample } from "../lists/listsExamples";
-import { Location } from "../locations/location";
-import { locationsExample } from "../locations/locationsExamples";
+import { Location, RecentLocation } from "../locations/location";
+import { recentLocationsExample } from "../locations/locationsExamples";
 import { ShoppersService } from "./shoppersService";
 import { mayProceed } from "../../shared/mayProceed";
 
@@ -175,13 +176,13 @@ export class ShoppersController extends Controller {
    * @summary Retrieves all locations associated with a Shopper 
    * @param email the email address of the user
    * @param shopperId the ID of the shopper for whom locations will be returned
+   * @param lookBackDays the number of days to look back for purchases
    * @returns The locations at which items were purchased by a shopper
    */
   @Get("{shopperId}/locations")
   @SuccessResponse(200, "OK")
-  @Example<Array<Location>>(locationsExample)
-  public async getLocations(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Location>> {
-    await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
-    return ShoppersService.getLocations(shopperId);
+  @Example<Array<RecentLocation>>(recentLocationsExample)
+  public async getLocations(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Query() lookBackDays: number): Promise<Array<RecentLocation>> {
+    return ShoppersService.getLocations(shopperId, lookBackDays);
   }
 };
