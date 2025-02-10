@@ -67,7 +67,6 @@ export abstract class GroupsService {
   public static async getInvitees(groupId: string): Promise<Array<Pick<Shopper, "email">>> {
     const getInviteesTemplate = path.join(__dirname, './sql/getInvitees.sql');
     const results = await dbPost(getInviteesTemplate, { groupId });
-    log.debug(`retrieved invitees = ${JSON.stringify(results)}`);
     return results;
   };
 };

@@ -37,7 +37,7 @@ const sqlConnectOpts: PoolOptions = {
 const pool = mysql.createPool(sqlConnectOpts);
 
 // dbPost returns a promise
-const dbPost = async (template: string, params: Object): Promise<any> => {
+const dbPost = async (template: string, params: Object, debug: boolean = false): Promise<any> => {
   const startQueryTime = Date.now();
   const logMsg = {
     msg: 'DB Query',
@@ -49,7 +49,7 @@ const dbPost = async (template: string, params: Object): Promise<any> => {
     const dbConn = await pool.getConnection();
     const [rows] = await dbConn.query(sqlStr, params);
     dbConn.release();
-    const results = extractDbResult(rows);
+    const results = extractDbResult(rows, debug);
     const endQueryTime = Date.now();
     const duration = `${endQueryTime - startQueryTime}ms`;
     log.info({ ...logMsg, duration });
@@ -64,9 +64,12 @@ const dbPost = async (template: string, params: Object): Promise<any> => {
 };
 
 // returns the array of results w/o all the MySQL wrapping
-const extractDbResult = (rows: any): Array<any> | undefined => {
+const extractDbResult = (rows: any, debug: boolean = false): Array<any> | undefined => {
   if (Array.isArray(rows) && rows.length > 0) {
     const results = rows.pop();
+    if (debug) {
+      console.log('results:', JSON.stringify(results));
+    }
     const normalizedResults = snakeToCamel(results);
     return Array.isArray(normalizedResults) ? normalizedResults : [normalizedResults];
   } else {

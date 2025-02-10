@@ -6,7 +6,7 @@ SET @shopperId = UUID_TO_BIN(:shopperId);
 SET @lookBackDays = :lookBackDays;
 SET @lookBackDate = (SELECT ADDDATE(CURDATE(), -@lookBackDays));
 
-; WITH shopperCohorts as (
+WITH shopperCohorts as (
   SELECT c.ID as COHORT_ID
   FROM PANTRY_PLUS.COHORT_SHOPPER_RELATION csr
   JOIN PANTRY_PLUS.COHORT c ON c.ID = csr.COHORT_ID
@@ -26,10 +26,11 @@ SELECT
   lo.NAME as name,
   ST_Latitude(lo.GEO_LOCATION) as latitude,
   ST_Longitude(lo.GEO_LOCATION) as longitude,
-  MAX(ph.PURCHASE_DATE) as lastPurchaseDate
+  MAX(ph.PURCHASE_DATE) as last_purchase_date
 FROM shopperLists sl
 JOIN PANTRY_PLUS.PURCHASE_HISTORY ph ON ph.LIST_ID = sl.LIST_ID
 JOIN PANTRY_PLUS.LOCATION lo ON lo.ID = ph.LOCATION_ID
 WHERE ph.PURCHASE_DATE >= @lookBackDate
 GROUP BY lo.ID, lo.NAME, lo.GEO_LOCATION
+ORDER BY last_purchase_date DESC
 ;

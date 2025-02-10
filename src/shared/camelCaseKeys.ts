@@ -108,6 +108,8 @@ export const snakeToCamel = (obj: any): any => {
 
   if (typeof obj !== 'object' || obj === null) return obj;
 
+  if (obj instanceof Date) return obj;
+
   let newObj: any = {};
   for (const key in obj) {
     const newKey = camelCase(key);
