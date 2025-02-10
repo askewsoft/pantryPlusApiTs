@@ -100,6 +100,6 @@ export abstract class ShoppersService {
 
   public static async getLocations(shopperId: string, lookBackDays: number): Promise<Array<RecentLocation>> {
     const template = path.join(__dirname, './sql/getRecentLocations.sql');
-    return await dbPost(template, { shopperId, lookBackDays }, true);
+    return await dbPost(template, { shopperId, lookBackDays });
   };
 };
