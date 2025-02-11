@@ -184,18 +184,19 @@ export class ListsController extends Controller {
    * @summary Retrieves the categories for a list
    * @param email the email address of the user
    * @param listId the ID of the list
+   * @param locationId the ID of the location
    * @example email "test@test.com"
    * @example listId "123E4567-E89B-12D3-A456-426614174000"
+   * @example locationId "123E4567-E89B-12D3-A456-426614174000"
    * @returns The list of categories
    */
   @Get("{listId}/categories")
   @SuccessResponse(200, "OK")
   @Example<Array<Category>>(categoriesExample)
-  public async getCategories(@Header("X-Auth-User") email: string, @Path() listId: string): Promise<Array<Category>> {
+  public async getCategories(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() listId: string): Promise<Array<Category>> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
-    return await ListsService.getCategories(listId);
+    return await ListsService.getCategories(listId, locationId);
   };
-
 
   /**
    * @summary Retrieves the uncategorized items for a list
