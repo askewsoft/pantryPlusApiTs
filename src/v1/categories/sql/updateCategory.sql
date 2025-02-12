@@ -1,7 +1,7 @@
 SET @categoryId = UUID_TO_BIN(:categoryId);
 SET @categoryName = :categoryName;
 SET @categoryOrdinal = :categoryOrdinal;
-SET @locationId = IF(:locationId IS NOT NULL, UUID_TO_BIN(:locationId), UUID_TO_BIN('123e4567-e89b-12d3-a456-426614174000'));
+SET @locationId = UUID_TO_BIN(:locationId);
 
 UPDATE CATEGORY
 SET NAME = @categoryName

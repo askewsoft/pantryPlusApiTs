@@ -31,10 +31,12 @@ export class CategoriesController extends Controller {
 
   /**
    * @summary Removes an item from a category
-   * @param itemId the ID of the item
+   * @param email the email address of the user
    * @param categoryId the ID of the category
-   * @example itemId "123E4567-E89B-12D3-A456-426614174000"
+   * @param itemId the ID of the item
+   * @example email "test@test.com"
    * @example categoryId "123E4567-E89B-12D3-A456-426614174000"
+   * @example itemId "123E4567-E89B-12D3-A456-426614174000"
    */
   @Delete("{categoryId}/items/{itemId}")
   @SuccessResponse(204, "No Content")
@@ -47,21 +49,27 @@ export class CategoriesController extends Controller {
   /**
    * @summary Updates a category
    * @param email the email of the user
+   * @param locationId the ID of the user's nearest store location
    * @param categoryId the ID of the category
    * @param category an object containing the new name and ordinal of the category
+   * @example email "test@test.com"
+   * @example locationId "123E4567-E89B-12D3-A456-426614174000"
+   * @example categoryId "123E4567-E89B-12D3-A456-426614174000"
    * @example category {"name": "Groceries", "ordinal": 1}
    */
   @Put("{categoryId}")
   @SuccessResponse(205, "Content Updated")
-  public async updateCategory(@Header("X-Auth-User") email: string, @Path() categoryId: string, @Body() category: Pick<Category, "name" | "ordinal">): Promise<void> {
+  public async updateCategory(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() categoryId: string, @Body() category: Pick<Category, "name" | "ordinal">): Promise<void> {
     await mayProceed({ email, id: categoryId, accessTemplate: mayModifyCategoryTemplate });
-    await CategoriesService.updateCategory(categoryId, category.name, category.ordinal);
+    await CategoriesService.updateCategory(categoryId, category.name, category.ordinal, locationId);
     return;
   };
 
   /**
    * @summary Gets the items in a category
+   * @param email the email address of the user
    * @param categoryId the ID of the category
+   * @example email "test@test.com"
    * @example categoryId "123E4567-E89B-12D3-A456-426614174000"
    */
   @Get("{categoryId}/items")

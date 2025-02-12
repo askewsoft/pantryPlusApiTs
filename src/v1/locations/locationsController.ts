@@ -12,6 +12,7 @@ export class LocationsController extends Controller {
    * @summary Creates a new location
    * @param email the email address of the user
    * @param location the location to create
+   * @example email "test@test.com"
    * @example location {
    *  "id": "123E4567-E89B-12D3-A456-426614174000",
    *  "name": "Stop & Shop Nashua",
@@ -31,6 +32,7 @@ export class LocationsController extends Controller {
    * @param email the email address of the user
    * @param locationId the ID of the location to be updated
    * @param name the new name of the location
+   * @example email "test@test.com"
    * @example locationId "123E4567-E89B-12D3-A456-426614174000"
    * @example name "Stop & Shop Nashua"
    */
@@ -46,6 +48,7 @@ export class LocationsController extends Controller {
    * @param longitude the longitude of the current location
    * @param latitude the latitude of the current location
    * @param radius the radius of the search
+   * @example email "test@test.com"
    * @example locationArea {
    *  "longitude": -71.4910,
    *  "latitude": 42.7456,

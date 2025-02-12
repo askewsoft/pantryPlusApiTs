@@ -18,9 +18,9 @@ export abstract class CategoriesService {
     return;
   };
 
-  public static async updateCategory(categoryId: string, categoryName: string, categoryOrdinal: number): Promise<void> {
+  public static async updateCategory(categoryId: string, categoryName: string, categoryOrdinal: number, locationId: string): Promise<void> {
     const updateTemplate = path.join(__dirname, './sql/updateCategory.sql');
-    await dbPost(updateTemplate, { categoryId, categoryName, categoryOrdinal });
+    await dbPost(updateTemplate, { categoryId, categoryName, categoryOrdinal, locationId });
     return;
   };
 

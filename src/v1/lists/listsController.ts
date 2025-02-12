@@ -42,17 +42,19 @@ export class ListsController extends Controller {
   /**
    * @summary Adds a category to a list
    * @param email the email address of the user
+   * @param locationId the ID of the user's nearest store location
    * @param listId the ID of the list
    * @param category the category to add
    * @example email "test@test.com"
+   * @example locationId "123E4567-E89B-12D3-A456-426614174000"
    * @example listId "123E4567-E89B-12D3-A456-426614174000"
    * @example category { "id": "123E4567-E89B-12D3-A456-426614174000", "name": "Produce" }
    */
   @Post("{listId}/categories")
   @SuccessResponse(201, "Created")
-  public async createCategory(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() category: Category): Promise<void> {
+  public async createCategory(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() listId: string, @Body() category: Category): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
-    await ListsService.createCategory(listId, category);
+    await ListsService.createCategory(listId, category, locationId);
     return;
   };
 

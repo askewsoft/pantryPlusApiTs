@@ -29,16 +29,17 @@ export abstract class ListsService {
   };
 
   // CATEGORY ACTIONS
-  public static async createCategory(listId: string, category: Category): Promise<void> {
+  public static async createCategory(listId: string, category: Category, locationId: string): Promise<void> {
     const { id, name, ordinal } = category;
     const createCategoryTemplate = path.join(__dirname, './sql/createCategory.sql');
-    await dbPost(createCategoryTemplate, { listId, id, name, ordinal });
+    await dbPost(createCategoryTemplate, { listId, id, name, ordinal, locationId });
     return;
   };
 
   public static async getCategories(listId: string, locationId: string): Promise<Array<Category>> {
     const getCategoriesTemplate = path.join(__dirname, './sql/getCategories.sql');
     const results = await dbPost(getCategoriesTemplate, { listId, locationId });
+    log.debug(`retrieved categories = ${JSON.stringify(results)}`);
     return results;
   };
 
