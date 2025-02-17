@@ -22,9 +22,9 @@ export abstract class ListsService {
     return;
   };
 
-  public static async delete(listId: string): Promise<void> {
+  public static async delete(listId: string, email: string): Promise<void> {
     const deleteTemplate = path.join(__dirname, './sql/deleteList.sql');
-    await dbPost(deleteTemplate, { listId });
+    await dbPost(deleteTemplate, { listId, email });
     return;
   };
 

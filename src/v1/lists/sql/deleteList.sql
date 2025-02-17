@@ -13,5 +13,3 @@ FROM LIST
 WHERE ID = @listId
   AND OWNER_ID = @shopperId
 ;
-
-SELECT ROW_COUNT() as ROW_COUNT;

@@ -144,7 +144,7 @@ export class ListsController extends Controller {
   @SuccessResponse(204, "No Content")
   public async deleteList(@Header("X-Auth-User") email: string, @Path() listId: string): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayUpdateListTemplate });
-    await ListsService.delete(listId);
+    await ListsService.delete(listId, email);
     return;
   };
 
