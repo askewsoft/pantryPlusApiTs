@@ -5,7 +5,7 @@ The pantryPlus server side code in Typescript _and_ the OpenAPI swagger document
 
 This service is built on node.js/express and MySQL
 
-# Run
+## Run
 Ensure you have the correct version of [node.js](https://nodejs.org/) installed.
 We also recommend that you use [nvm](https://nvm.sh) to manage different versions.
 
@@ -41,3 +41,10 @@ We also recommend that you use [nvm](https://nvm.sh) to manage different version
 **Validation**
 * To ensure that the generated OpenAPI v3 `swagger.json`
 * `curl -X POST -d @build/swagger.json -H 'Content-Type:application/json' https://validator.swagger.io/validator/debug`
+
+## Code Generation
+An API client can be generated from the OpenAPI specification using the `openapi-generator` tool.
+1. install the openapi-generator cli
+  - e.g., `brew install openapi-generator`
+1. `npm run codegen`
+  - This will generate a new client into a `../pantryPlusApiClient` peer directory
