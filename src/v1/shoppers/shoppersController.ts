@@ -153,9 +153,9 @@ export class ShoppersController extends Controller {
   @Get("{shopperId}/items")
   @SuccessResponse(200, "OK")
   @Example<Array<Item>>(itemsExample)
-  public async getItems(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Item>> {
+  public async getPurchasedItems(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Item>> {
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
-    return ShoppersService.getItems(shopperId);
+    return ShoppersService.getPurchasedItems(shopperId);
   }
 
   /**

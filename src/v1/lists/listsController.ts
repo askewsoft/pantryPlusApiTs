@@ -211,8 +211,8 @@ export class ListsController extends Controller {
   @Get("{listId}/items")
   @SuccessResponse(200, "OK")
   @Example<Array<Item>>(itemsExample)
-  public async getItems(@Header("X-Auth-User") email: string, @Path() listId: string): Promise<Array<Item>> {
+  public async getListItems(@Header("X-Auth-User") email: string, @Path() listId: string): Promise<Array<Item>> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
-    return await ListsService.getItems(listId);
+    return await ListsService.getListItems(listId);
   };
 };
