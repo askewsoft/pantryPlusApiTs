@@ -21,11 +21,9 @@ export const hasAccess = async ({ accessTemplate, email, id }: AccessParams): Pr
     return false;
   }
   if (results.length === 0) {
-    log.debug(`${getFileName(accessTemplate)}: no results`);
     return false;
   }
   if (results[0].allowed === undefined) {
-    log.debug(`${getFileName(accessTemplate)}: allowed is undefined`);
     return false;
   }
   const allowed = Boolean(results[0].allowed);

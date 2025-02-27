@@ -39,7 +39,6 @@ export abstract class ListsService {
   public static async getCategories(listId: string, locationId: string): Promise<Array<Category>> {
     const getCategoriesTemplate = path.join(__dirname, './sql/getCategories.sql');
     const results = await dbPost(getCategoriesTemplate, { listId, locationId });
-    log.debug(`retrieved categories = ${JSON.stringify(results)}`);
     return results;
   };
 

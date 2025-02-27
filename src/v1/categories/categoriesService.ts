@@ -27,7 +27,6 @@ export abstract class CategoriesService {
   public static async getCategoryItems(categoryId: string): Promise<Array<Item>> {
     const getItemsTemplate = path.join(__dirname, './sql/getCategoryItems.sql');
     const results = await dbPost(getItemsTemplate, { categoryId });
-    log.debug(`getCategoryItems - ID: ${categoryId} - number of results: ${results.length}`);
     return results;
   };
 };

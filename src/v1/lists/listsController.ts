@@ -70,7 +70,6 @@ export class ListsController extends Controller {
   @Post("{listId}/items/{itemId}")
   @SuccessResponse(201, "Created")
   public async addItem(@Header("X-Auth-User") email: string, @Path() listId: string, @Path() itemId: string): Promise<void> {
-    log.debug(`adding item ${itemId} to list ${listId} for user ${email}`);
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     await ListsService.addItem(listId, itemId);
     return;
