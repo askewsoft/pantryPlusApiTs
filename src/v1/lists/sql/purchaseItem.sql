@@ -3,7 +3,7 @@ SET @userEmail = :userEmail;
 SET @itemId = UUID_TO_BIN(:itemId);
 SET @listId = UUID_TO_BIN(:listId);
 SET @locationId = UUID_TO_BIN(:locationId);
-SET @now = NOW();
+SET @now = DATE(NOW());
 
 SELECT NAME INTO @locationName FROM LOCATION WHERE ID = @locationId
 ;
@@ -13,33 +13,29 @@ FROM SHOPPER
 WHERE EMAIL = @userEmail
 ;
 
-SELECT c.NAME, c.ID INTO @categoryName, @categoryId
-FROM CATEGORY c
-JOIN ITEM_CATEGORY_RELATION icr
-    ON icr.ITEM_ID = @itemId
-JOIN LIST_ITEM_RELATION lir
-    ON lir.ITEM_ID = @itemId
-    AND lir.LIST_ID = c.listId
-WHERE icr.CATEGORY_ID = c.ID
+SELECT c.NAME INTO @categoryName
+FROM ITEM i
+LEFT JOIN ITEM_CATEGORY_RELATION icr
+    ON icr.ITEM_ID = i.ID
+LEFT JOIN CATEGORY c
+    ON c.ID = icr.CATEGORY_ID
     AND c.LIST_ID = @listId
-;
-
-SELECT ID INTO @historyId
-FROM PURCHASE_HISTORY
-WHERE LOCATION_ID = @locationId
-    AND LIST_ID = @listId
-    AND CATEGORY_ID = @categoryId
-    AND CAST(PURCHASE_DATE AS DATE) = CAST(@now AS DATE) 
+WHERE i.ID = @itemId
 ;
 
 -- insert into purchase history if it doesn't exist
-IF (@historyId IS NULL) THEN
-    INSERT INTO PURCHASE_HISTORY (LOCATION_ID, LIST_ID, PURCHASE_DATE, LOCATION_NAME, CATEGORY_ID, CATEGORY_NAME)
-    VALUES (@locationId, @listId, @now, @locationName, @categoryId, @categoryName);
-    SET @historyId = LAST_INSERT_ID();
-END IF;
+INSERT IGNORE INTO PURCHASE_HISTORY (LOCATION_ID, LIST_ID, PURCHASE_DATE, LOCATION_NAME)
+VALUES (@locationId, @listId, @now, @locationName);
+
+-- get the history ID whether it was just inserted or already existed
+SELECT ID INTO @historyId 
+FROM PURCHASE_HISTORY 
+WHERE LIST_ID = @listId 
+    AND PURCHASE_DATE = @now
+    AND LOCATION_ID = @locationId
+;
 
 -- update the item's purchased status
-INSERT INTO ITEM_HISTORY_RELATION (ITEM_ID, HISTORY_ID, PURCHASED_BY)
-VALUES (@itemId, @historyId, @userId)
+INSERT INTO ITEM_HISTORY_RELATION (ITEM_ID, PURCHASE_HISTORY_ID, PURCHASED_BY, CATEGORY_NAME)
+VALUES (@itemId, @historyId, @userId, @categoryName)
 ;
