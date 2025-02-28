@@ -20,6 +20,10 @@ shopperLists as (
   SELECT ls.ID as LIST_ID
   FROM PANTRY_PLUS.LIST ls
   JOIN shopperCohorts sc ON sc.COHORT_ID = ls.COHORT_ID
+  UNION
+  SELECT ID as LIST_ID
+  FROM PANTRY_PLUS.LIST
+  WHERE OWNER_ID = @shopperId
 )
 SELECT
   BIN_TO_UUID(lo.ID) as id,
