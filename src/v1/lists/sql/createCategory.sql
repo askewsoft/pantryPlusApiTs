@@ -4,7 +4,7 @@ SET @listId = UUID_TO_BIN(:listId);
 SET @name = :name;
 SET @categoryId = UUID_TO_BIN(:id);
 SET @ordinal = :ordinal;
-SET @locationId = UUID_TO_BIN(:locationId);
+SET @locationId = UUID_TO_BIN(NULLIF(:locationId, ''));
 
 INSERT IGNORE INTO CATEGORY (ID, NAME, LIST_ID)
 VALUES (@categoryId, @name, @listId)

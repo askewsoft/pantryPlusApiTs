@@ -1,5 +1,5 @@
 -- gets all categories for a shopping list
-SET @locationId = UUID_TO_BIN(:locationId);
+SET @locationId = UUID_TO_BIN(NULLIF(:locationId, ''));
 SET @listId = UUID_TO_BIN(:listId);
 
 SELECT
