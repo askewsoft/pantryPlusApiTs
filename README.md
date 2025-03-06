@@ -23,22 +23,39 @@ We also recommend that you use [nvm](https://nvm.sh) to manage different version
 
 ## Develop
 
-**Folder Structure**
+### Folder Structure
 * All source code is in the `src` directory
 * Under `src` is a directory for each supported version (e.g., `./src/v1/`)
-* The version directories contain Express route handlers _and_ SQL code (e.g., `/.src/v1/sql`)
+* The version directories contain Express route handlers (i.e., controllers) _and_ SQL code. For example:
+  * `./src/v1/**/*Controllers.ts`
+  * `./src/v1/**/sql/`
 
-**Documentation**
+#### Adding New Versions
+* Make a new version directory for source code: `cp ./src/v1 ./src/v2`
+* Copy then modify the tsoa config: `cp ./tsoa.v1.json ./tsoa.v2.json` 
+* Edit the server file `./src/server.ts` to create a new set of routes
+  * e.g., `import { RegisterRoutes as RegisterV2Routes } from "./routes.v2";`
+* Edit `package.json` scripts:
+  ```json
+    "buildv1": "tsoa spec-and-routes && tsc",
+    "buildv2": "tsoa spec-and-routes -c tsoa.v2.json && tsc",
+    "build": "npm run buildv1 && npm run buildv2",
+    "codegenv1": "openapi-generator generate -g typescript-axios -i build/swagger.json -o ../pantryPlusApiClient",
+    "codegenv2": "openapi-generator generate -g typescript-axios -i build/swagger.v2.json -o ../pantryPlusApiClientV2",
+    "codegen": "npm run codegenv1 && npm run codegenv2",
+  ```
+
+### Documentation
 * See details about the database design [here](https://github.com/askewsoft/pantryPlusApiTs/tree/main/schema)
-* A swagger specification (`swagger-doc.js`) is automatically generated when you access the documentation URL (e.g., http://localhost:3000/api/v1/docs)
+* A swagger specification (`swagger-doc.js`) is automatically generated when you access the documentation URL (e.g., http://localhost:3000/v1/docs)
 * A separate specification per API verison is generated from JSDoc comments in the source code
 
-**Coding**
+### Coding
 * For hot reload while developing use `npm run dev`
 * This project utilizes [prettier](https://www.npmjs.com/package/prettier) and [eslint](https://www.npmjs.com/package/eslint) to maintain consistent formatting
 * All changes by non-Admin contributors must be done through github PR
 
-**Validation**
+### Validation
 * To ensure that the generated OpenAPI v3 `swagger.json`
 * `curl -X POST -d @build/swagger.json -H 'Content-Type:application/json' https://validator.swagger.io/validator/debug`
 

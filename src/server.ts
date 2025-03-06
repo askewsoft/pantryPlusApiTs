@@ -1,5 +1,5 @@
 import express, {json, urlencoded, Request, Response} from "express";
-import { RegisterRoutes } from "./routes";
+import { RegisterRoutes as RegisterV1Routes } from "./routes.v1";
 import config from './shared/config';
 import { errorHandler } from './shared/errorHandler';
 import { logger, Logger } from './shared/logger';
@@ -20,14 +20,18 @@ app.use(
 
 app.use(json());
 
-RegisterRoutes(app);
-
-app.get('/healthcheck', (req, res) => {
-  res.status(200).send('OK');
+// Register routes for v1 API
+app.use("/v1", async (_req: Request, res: Response, next: Function) => {
+  try {
+    RegisterV1Routes(app);
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
-// Reload and serve the latest swagger.json
-app.use("/docs", swaggerUi.serve, async (_req: Request, res: Response) => {
+// Serve OpenAPI documentation for v1
+app.use("/v1/docs", swaggerUi.serve, async (_req: Request, res: Response) => {
   return res.send(
     // Must use `require` here because `import` tries to immediately load the file
     // at build time and the file is not generated yet.
@@ -35,7 +39,7 @@ app.use("/docs", swaggerUi.serve, async (_req: Request, res: Response) => {
   );
 });
 
-app.use("/swagger.json", (req, res) => {
+app.use("/v1/swagger.json", (req, res) => {
   res.send(require("../build/swagger.json"));
 });
 
@@ -43,6 +47,10 @@ app.use(function notFoundHandler(_req: Request, res: Response) {
   res.status(404).send({
     message: "Not Found",
   });
+});
+
+app.get('/healthcheck', (req, res) => {
+  res.status(200).send('OK');
 });
 
 app.use(errorHandler);
