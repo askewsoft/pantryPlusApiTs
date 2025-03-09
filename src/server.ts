@@ -26,10 +26,15 @@ app.use(json());
 
 // Enhanced request logging middleware
 app.use((req: Request, _res: Response, next: Function) => {
-  log.info(`Request: ${req.method} ${req.url}`);
-  log.info(`Headers: ${JSON.stringify(req.headers)}`);
+  const logMsg = {
+    msg: 'API Request',
+    method: req.method,
+    url: req.url,
+  };
+  log.info(logMsg);
+  log.debug({...logMsg, headers: req.headers });
   if (req.body) {
-    log.info(`Body: ${JSON.stringify(req.body)}`);
+    log.debug({...logMsg, body: req.body });
   }
   next();
 });
