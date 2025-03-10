@@ -57,14 +57,14 @@ app.use("/v1/swagger.json", (req, res) => {
   res.send(require("../build/swagger.json"));
 });
 
+app.get('/healthcheck', (req, res) => {
+  res.status(200).send('OK');
+});
+
 app.use(function notFoundHandler(_req: Request, res: Response) {
   res.status(404).send({
     message: "Not Found",
   });
-});
-
-app.get('/healthcheck', (req, res) => {
-  res.status(200).send('OK');
 });
 
 app.use(errorHandler);
