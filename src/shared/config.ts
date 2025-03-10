@@ -2,7 +2,6 @@ import { logger, Logger } from './logger';
 
 const log: Logger = logger('config');
 
-// TODO: use AWS secrets to set env vars for DB connection
 type Config = {
   apiport: number | undefined;
   dbport: number | undefined;
