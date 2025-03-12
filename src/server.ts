@@ -46,7 +46,7 @@ RegisterV1Routes(app);
 log.info("v1 routes registered successfully");
 
 // Serve OpenAPI documentation for v1
-app.use(["/v1/docs", "/v1/docs/"], swaggerUi.serve, async (_req: Request, res: Response) => {
+app.use(["/v1/docs", "/v1/docs/", "/v1/docs/swagger-ui.html"], swaggerUi.serve, async (_req: Request, res: Response) => {
   return res.send(
     // Must use `require` here because `import` tries to immediately load the file
     // at build time and the file is not generated yet.
@@ -54,7 +54,7 @@ app.use(["/v1/docs", "/v1/docs/"], swaggerUi.serve, async (_req: Request, res: R
   );
 });
 
-app.use("/v1/swagger.json", (req, res) => {
+app.get("/v1/swagger.json", (req, res) => {
   res.send(require("../build/swagger.json"));
 });
 
