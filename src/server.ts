@@ -4,8 +4,7 @@ import { RegisterRoutes as RegisterV1Routes } from "./routes.v1";
 import config from './shared/config';
 import { errorHandler } from './shared/errorHandler';
 import { logger, Logger } from './shared/logger';
-import swaggerUi from 'swagger-ui-express';
-// TODO: validate env vars?
+import swaggerUi, { SwaggerUiOptions } from 'swagger-ui-express';
 
 // import cluster from 'cluster';
 
@@ -47,10 +46,16 @@ log.info("v1 routes registered successfully");
 
 // Serve OpenAPI documentation for v1
 app.use(["/v1/docs", "/v1/docs/", "/v1/docs/swagger-ui.html"], swaggerUi.serve, async (_req: Request, res: Response) => {
+  const options: SwaggerUiOptions = config?.node_env !== 'development' ? {
+    swaggerOptions: {
+      supportedSubmitMethods: [], // This disables all HTTP methods for all endpoints' form submissions
+      tryItOutEnabled: false // This disables the "Try it out" feature for all endpoints
+    }
+  } : {};
+  // Must use `require` here because `import` tries to immediately load the file
+  // at build time and the file is not generated yet.
   return res.send(
-    // Must use `require` here because `import` tries to immediately load the file
-    // at build time and the file is not generated yet.
-    swaggerUi.generateHTML(require("../build/swagger.json"))
+    swaggerUi.generateHTML(require("../build/swagger.json"), options)
   );
 });
 

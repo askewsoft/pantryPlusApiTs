@@ -11,9 +11,10 @@ type Config = {
   database: string | undefined;
   dbssl: string | undefined;
   dbrejectunauthorized: boolean | undefined;
+  node_env: string | undefined;
 };
 
-const { APIPORT, DBPORT, DBHOST, DBUSER, DBPASSWORD, DATABASE, DBSSL, DBREJECTUNAUTHORIZED } = process.env;
+const { APIPORT, DBPORT, DBHOST, DBUSER, DBPASSWORD, DATABASE, DBSSL, DBREJECTUNAUTHORIZED, NODE_ENV } = process.env;
 
 const config: Config = {
   apiport: Number(APIPORT),
@@ -23,17 +24,25 @@ const config: Config = {
   dbpassword: DBPASSWORD,
   database: DATABASE,
   dbssl: DBSSL,
-  dbrejectunauthorized: DBREJECTUNAUTHORIZED === "true"
+  dbrejectunauthorized: DBREJECTUNAUTHORIZED === "true",
+  node_env: NODE_ENV
 };
 
 const verifyConfig = (conf: Config) => {
   for (const key in conf) {
-    if (!(key.toUpperCase() in process.env)) {
-      log.error(`Missing Env Var ${key}`);
+    log.debug(`Checking ${key.toUpperCase()} in process.env`);
+    if (!(key.toUpperCase() in process.env) && key.toUpperCase() !== 'NODE_ENV') {
+      log.error(`Missing Env Var ${key.toUpperCase()}`);
       process.kill(process.pid, 'SIGTERM');
     }
   }
 };
+
+if (config?.node_env === 'development') {
+  log.warn('Running in development mode');
+} else {
+  log.info('Running in production mode');
+}
 
 verifyConfig(config);
 
