@@ -11,6 +11,7 @@ import swaggerUi from 'swagger-ui-express';
 
 const log: Logger = logger('server');
 const app = express();
+app.set('strict routing', true);
 
 // Enable CORS
 app.use(cors());
@@ -45,7 +46,7 @@ RegisterV1Routes(app);
 log.info("v1 routes registered successfully");
 
 // Serve OpenAPI documentation for v1
-app.use("/v1/docs", swaggerUi.serve, async (_req: Request, res: Response) => {
+app.use(["/v1/docs", "/v1/docs/"], swaggerUi.serve, async (_req: Request, res: Response) => {
   return res.send(
     // Must use `require` here because `import` tries to immediately load the file
     // at build time and the file is not generated yet.
