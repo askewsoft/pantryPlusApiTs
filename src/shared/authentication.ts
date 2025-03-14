@@ -19,7 +19,6 @@ export function expressAuthentication(
       log.debug("No token provided");
       return Promise.reject({ status: 401, message: "No token provided" });
     }
-    log.debug(`Token provided: ${token}`);
     return Promise.resolve({});
   }
   return Promise.reject({ status: 401, message: "Unknown security definition" });
