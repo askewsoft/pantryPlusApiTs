@@ -1,5 +1,5 @@
 // ITEMS
-import { Body, Controller, Delete, Header, Path, Post, Put, Route, SuccessResponse, Tags} from "tsoa";
+import { Body, Controller, Header, Path, Post, Put, Route, Security, Tags} from "tsoa";
 import { mayProceed } from "../../shared/mayProceed";
 import { ItemsService } from "./itemsService";
 import path from "path";
@@ -18,6 +18,7 @@ export class ItemsController extends Controller {
    * @example item {"name": "Milk", "upc": "049000000000"}
    */
   @Put("{itemId}")
+  @Security("bearerAuth")
   public async updateItem(@Header("X-Auth-User") email: string, @Path() itemId: string, @Body() item: Pick<Item, "name" | "upc">): Promise<void> {
     await mayProceed({ email, id: itemId, accessTemplate: mayModifyItemTemplate });
     await ItemsService.updateItem({ id: itemId, name: item.name, upc: item.upc }); 
@@ -30,6 +31,7 @@ export class ItemsController extends Controller {
    * @example item {"id": "123E4567-E89B-12D3-A456-426614174000", "name": "Milk", "upc": "049000000000"}
    */
   @Post()
+  @Security("bearerAuth")
   public async createItem(@Header("X-Auth-User") email: string, @Body() item: Item): Promise<void> {
     // any valid user can create an item
     await ShoppersService.validateUser(email);

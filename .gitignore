@@ -5,4 +5,4 @@ node_modules
 pantry_store.dbs.bak
 build
 client
-src/routes.ts
+src/routes*.ts

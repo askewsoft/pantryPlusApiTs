@@ -1,5 +1,5 @@
 // LISTS
-import { Body, Controller, Delete, Example, Get, Header, Path, Post, Put, Route, SuccessResponse, Tags} from "tsoa";
+import { Body, Controller, Delete, Example, Get, Header, Path, Post, Put, Route, Security, SuccessResponse, Tags} from "tsoa";
 import path from "path";
 
 import { List } from "./list";
@@ -32,6 +32,7 @@ export class ListsController extends Controller {
   @Post()
   @SuccessResponse(201, "Created")
   @Example<Pick<List, "id">>(listIdExample)
+  @Security("bearerAuth")
   public async createList(@Header("X-Auth-User") email: string, @Body() newList: List ): Promise<void> {
     // any valid user can create a list
     await ShoppersService.validateUser(email);
@@ -52,6 +53,7 @@ export class ListsController extends Controller {
    */
   @Post("{listId}/categories")
   @SuccessResponse(201, "Created")
+  @Security("bearerAuth")
   public async createCategory(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() listId: string, @Body() category: Category): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     await ListsService.createCategory(listId, category, locationId);
@@ -69,6 +71,7 @@ export class ListsController extends Controller {
    */
   @Post("{listId}/items/{itemId}")
   @SuccessResponse(201, "Created")
+  @Security("bearerAuth")
   public async addItem(@Header("X-Auth-User") email: string, @Path() listId: string, @Path() itemId: string): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     await ListsService.addItem(listId, itemId);
@@ -88,6 +91,7 @@ export class ListsController extends Controller {
    */
   @Post("{listId}/items/{itemId}/purchase")
   @SuccessResponse(201, "Created")
+  @Security("bearerAuth")
   public async purchaseItem(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() listId: string, @Path() itemId: string): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     await ListsService.purchaseItem(email, listId, itemId, locationId);
@@ -109,6 +113,7 @@ export class ListsController extends Controller {
    */
   @Delete("{listId}/items/{itemId}/purchase")
   @SuccessResponse(204, "No Content")
+  @Security("bearerAuth")
   public async unpurchaseItem(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() listId: string, @Path() itemId: string, @Body() purchase: { purchaseDate: string }): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     await ListsService.unpurchaseItem(listId, itemId, locationId, purchase.purchaseDate);
@@ -126,6 +131,7 @@ export class ListsController extends Controller {
    */
   @Put("{listId}")
   @SuccessResponse(205, "Content Updated")
+  @Security("bearerAuth")
   public async updateList(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() list: Pick<List, "name" | "groupId" | "ordinal">): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayUpdateListTemplate });
     await ListsService.update(email, listId, list.name, list.groupId ?? "", list.ordinal);
@@ -141,6 +147,7 @@ export class ListsController extends Controller {
    */
   @Delete("{listId}")
   @SuccessResponse(204, "No Content")
+  @Security("bearerAuth")
   public async deleteList(@Header("X-Auth-User") email: string, @Path() listId: string): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayUpdateListTemplate });
     await ListsService.delete(listId, email);
@@ -158,6 +165,7 @@ export class ListsController extends Controller {
    */
   @Delete("{listId}/categories/{categoryId}")
   @SuccessResponse(204, "No Content")
+  @Security("bearerAuth")
   public async removeCategory(@Header("X-Auth-User") email: string, @Path() listId: string, @Path() categoryId: string): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     await ListsService.removeCategory(listId, categoryId);
@@ -175,6 +183,7 @@ export class ListsController extends Controller {
    */
   @Delete("{listId}/items/{itemId}")
   @SuccessResponse(204, "No Content")
+  @Security("bearerAuth")
   public async removeItem(@Header("X-Auth-User") email: string, @Path() listId: string, @Path() itemId: string): Promise<void> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     await ListsService.removeItem(listId, itemId);
@@ -194,6 +203,7 @@ export class ListsController extends Controller {
   @Get("{listId}/categories")
   @SuccessResponse(200, "OK")
   @Example<Array<Category>>(categoriesExample)
+  @Security("bearerAuth")
   public async getCategories(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() listId: string): Promise<Array<Category>> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     return await ListsService.getCategories(listId, locationId);
@@ -210,6 +220,7 @@ export class ListsController extends Controller {
   @Get("{listId}/items")
   @SuccessResponse(200, "OK")
   @Example<Array<Item>>(itemsExample)
+  @Security("bearerAuth")
   public async getListItems(@Header("X-Auth-User") email: string, @Path() listId: string): Promise<Array<Item>> {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     return await ListsService.getListItems(listId);

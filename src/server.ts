@@ -30,6 +30,7 @@ app.use((req: Request, _res: Response, next: Function) => {
     msg: 'API Request',
     method: req.method,
     url: req.url,
+    headers: req.headers,
   };
   log.info(logMsg);
   log.debug({...logMsg, headers: req.headers });

@@ -1,5 +1,5 @@
 // CATEGORIES
-import { Body, Controller, Delete, Get, Header, Path, Post, Put, Route, SuccessResponse, Tags} from "tsoa";
+import { Body, Controller, Delete, Get, Header, Path, Post, Put, Route, Security, SuccessResponse, Tags} from "tsoa";
 import path from "path";
 
 import { CategoriesService } from "./categoriesService";
@@ -23,6 +23,7 @@ export class CategoriesController extends Controller {
    */
   @Post("{categoryId}/items/{itemId}")
   @SuccessResponse(201, "Created")
+  @Security("bearerAuth")
   public async addItemToCategory(@Header("X-Auth-User") email: string, @Path() categoryId: string, @Path() itemId: string): Promise<void> {
     await mayProceed({ email, id: categoryId, accessTemplate: mayModifyCategoryTemplate });
     await CategoriesService.addItem(itemId, categoryId);
@@ -40,6 +41,7 @@ export class CategoriesController extends Controller {
    */
   @Delete("{categoryId}/items/{itemId}")
   @SuccessResponse(204, "No Content")
+  @Security("bearerAuth")
   public async removeItemFromCategory(@Header("X-Auth-User") email: string, @Path() categoryId: string, @Path() itemId: string): Promise<void> {
     await mayProceed({ email, id: categoryId, accessTemplate: mayModifyCategoryTemplate });
     await CategoriesService.removeItem(itemId, categoryId);
@@ -59,6 +61,7 @@ export class CategoriesController extends Controller {
    */
   @Put("{categoryId}")
   @SuccessResponse(205, "Content Updated")
+  @Security("bearerAuth")
   public async updateCategory(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() categoryId: string, @Body() category: Pick<Category, "name" | "ordinal">): Promise<void> {
     await mayProceed({ email, id: categoryId, accessTemplate: mayModifyCategoryTemplate });
     await CategoriesService.updateCategory(categoryId, category.name, category.ordinal, locationId);
@@ -73,6 +76,7 @@ export class CategoriesController extends Controller {
    * @example categoryId "123E4567-E89B-12D3-A456-426614174000"
    */
   @Get("{categoryId}/items")
+  @Security("bearerAuth")
   public async getCategoryItems(@Header("X-Auth-User") email: string, @Path() categoryId: string): Promise<Array<Item>> {
     await mayProceed({ email, id: categoryId, accessTemplate: mayModifyCategoryTemplate });
     return await CategoriesService.getCategoryItems(categoryId);
