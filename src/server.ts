@@ -1,10 +1,12 @@
 import express, {json, urlencoded, Request, Response} from "express";
 import cors from 'cors';
+import swaggerUi, { SwaggerUiOptions } from 'swagger-ui-express';
+
 import { RegisterRoutes as RegisterV1Routes } from "./routes.v1";
 import config from './shared/config';
 import { errorHandler } from './shared/errorHandler';
 import { logger, Logger } from './shared/logger';
-import swaggerUi, { SwaggerUiOptions } from 'swagger-ui-express';
+import { loggableHeaders, debugOnlyPaths, apiPaths } from './shared/loggingWhitelists';
 
 // import cluster from 'cluster';
 
@@ -26,16 +28,38 @@ app.use(json());
 
 // Enhanced request logging middleware
 app.use((req: Request, _res: Response, next: Function) => {
+  const debugLoggingOnly = debugOnlyPaths.some(path => req.url.startsWith(path));
+  const apiLoggingOnly = apiPaths.some(path => req.url.startsWith(path));
+  const sillyLoggingOnly = !debugLoggingOnly && !apiLoggingOnly;
+
   const logMsg = {
-    msg: 'API Request',
+    type: debugLoggingOnly ? 'diagnostic' : apiLoggingOnly ? 'api' : 'suspicious',
     method: req.method,
     url: req.url,
-    headers: req.headers,
   };
-  log.info(logMsg);
-  log.debug({...logMsg, headers: req.headers });
-  if (req.body) {
-    log.debug({...logMsg, body: req.body });
+
+  if (debugLoggingOnly) {
+    log.debug(logMsg);
+  } else if (sillyLoggingOnly) {
+    log.silly(logMsg);
+  } else {
+    // Logging for API routes
+    log.info(logMsg);
+
+    if (['verbose', 'debug', 'silly'].includes(config.log_level)) {
+      const verboseLoggingHeaders = Object.fromEntries(
+        Object.entries(req.headers || {})
+          .filter(([key]) => loggableHeaders.includes(key))
+      );
+      const verboseLoggingParams = req.params ?? undefined;
+      const verboseLoggingBody = req.body ?? undefined;
+      const extendedLogMsg = {
+        headers: verboseLoggingHeaders,
+        params: verboseLoggingParams,
+        body: verboseLoggingBody
+      };
+      log.verbose({headers: extendedLogMsg.headers, params: extendedLogMsg.params, body: extendedLogMsg.body});
+    }
   }
   next();
 });
