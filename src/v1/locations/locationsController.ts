@@ -1,5 +1,5 @@
 // LOCATIONS
-import { Body, Controller, Example, Get, Header, Path, Post, Put, Query, Route, SuccessResponse, Tags } from "tsoa";
+import { Body, Controller, Example, Header, Path, Post, Put, Route, Security, SuccessResponse, Tags } from "tsoa";
 
 import { Location, NearbyLocation, LocationArea } from "./location";
 import { LocationsService } from "./locationsService";
@@ -23,6 +23,7 @@ export class LocationsController extends Controller {
   @Post()
   @SuccessResponse(201, "Created")
   @Example<Pick<Location, "id">>(locationIdExample)
+  @Security("bearerAuth")
   public async createLocation(@Header("X-Auth-User") email: string, @Body() location: Location ): Promise<Pick<Location, "id">> {
     return await LocationsService.create(location);
   };
@@ -38,6 +39,7 @@ export class LocationsController extends Controller {
    */
   @Put("{locationId}")
   @SuccessResponse(205, "Content Updated")
+  @Security("bearerAuth")
   public async updateLocation(@Header("X-Auth-User") email: string, @Path() locationId: string, @Body() location: Pick<Location, "name">): Promise<void> {
     return await LocationsService.update(locationId, location.name, email);
   };
@@ -58,6 +60,7 @@ export class LocationsController extends Controller {
   @Post("nearby")
   @SuccessResponse(200, "OK")
   @Example<Array<NearbyLocation>>(nearbyLocationsExample)
+  @Security("bearerAuth")
   public async getNearbyLocations(@Header("X-Auth-User") email: string, @Body() locationArea: LocationArea): Promise<Array<NearbyLocation>> {
     return await LocationsService.getNearbyLocations(locationArea);
   };

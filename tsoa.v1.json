@@ -7,12 +7,26 @@
       "specVersion": 3,
       "basePath": "/v1",
       "specFileName": "swagger.v1.json",
-      "version": "1.0.0"
+      "version": "1.0.0",
+      "securityDefinitions": {
+        "bearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
+        }
+      }
     },
     "routes": {
       "routesDir": "./src",
       "middleware": "express",
       "basePath": "/v1",
-      "routesFileName": "routes.v1.ts"
+      "routesFileName": "routes.v1.ts",
+      "authenticationModule": "src/shared/authentication.ts"
+    },
+    "authentication": {
+      "jwtBearer": {
+        "name": "bearerAuth",
+        "in": "header"
+      }
     }
 }

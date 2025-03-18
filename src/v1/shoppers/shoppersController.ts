@@ -11,6 +11,7 @@ import {
   Put,
   Query,
   Route,
+  Security,
   SuccessResponse,
   Tags
 } from "tsoa";
@@ -48,6 +49,7 @@ export class ShoppersController extends Controller {
   @Post()
   @SuccessResponse(201, "Created")
   @Example<Shopper>(shopperExample)
+  @Security("bearerAuth")
   public async createShopper(@Body() person: Shopper ): Promise<Shopper> {
     /* TODO:
      * how do we confirm that a user has created a username/password?
@@ -71,6 +73,7 @@ export class ShoppersController extends Controller {
   @Put("{shopperId}")
   @SuccessResponse(205, "Content Updated")
   @Example<Pick<Shopper, "id">>(shopperIdExample)
+  @Security("bearerAuth")
   public async updateShopper(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Body() shopper: Shopper): Promise<Pick<Shopper, "id">> {
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.update(shopperId, shopper);
@@ -85,6 +88,7 @@ export class ShoppersController extends Controller {
   @Get("{shopperId}")
   @SuccessResponse(200, "OK")
   @Example<Shopper>(shopperExample)
+  @Security("bearerAuth")
   public async retrieveShopper(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Shopper> {
     await mayProceed({ email, id: shopperId, accessTemplate: maySeeShopperDetailsTemplate });
     return ShoppersService.retrieve(shopperId);
@@ -99,6 +103,7 @@ export class ShoppersController extends Controller {
   @Get("{shopperId}/groups")
   @SuccessResponse(200, "OK")
   @Example<Array<Pick<Group, "id" | "name" | "owner">>>(groupsExample)
+  @Security("bearerAuth")
   public async getGroups(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Pick<Group, "id" | "name" | "owner">>> {
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.getGroups(shopperId);
@@ -113,6 +118,7 @@ export class ShoppersController extends Controller {
   @Get("{shopperId}/invites")
   @SuccessResponse(200, "OK")
   @Example<Array<Group>>(groupsExample)
+  @Security("bearerAuth")
   public async getInvites(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Group>> {
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.getInvites(shopperId);
@@ -126,6 +132,7 @@ export class ShoppersController extends Controller {
   */ 
   @Delete("{shopperId}/invites/{inviteId}")
   @SuccessResponse(204, "No Content")
+  @Security("bearerAuth")
   public async declineInvite(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Path() inviteId: string): Promise<void> {
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.declineInvite(shopperId, inviteId);
@@ -139,6 +146,7 @@ export class ShoppersController extends Controller {
    */
   @Put("{shopperId}/invites/{inviteId}")
   @SuccessResponse(205, "Content Updated")
+  @Security("bearerAuth")
   public async acceptInvite(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Path() inviteId: string): Promise<void> {
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.acceptInvite(shopperId, inviteId);
@@ -153,6 +161,7 @@ export class ShoppersController extends Controller {
   @Get("{shopperId}/items")
   @SuccessResponse(200, "OK")
   @Example<Array<Item>>(itemsExample)
+  @Security("bearerAuth")
   public async getPurchasedItems(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Item>> {
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.getPurchasedItems(shopperId);
@@ -167,6 +176,7 @@ export class ShoppersController extends Controller {
   @Get("{shopperId}/lists")
   @SuccessResponse(200, "OK")
   @Example<Array<List>>(listsExample)
+  @Security("bearerAuth")
   public async getLists(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<List>> {
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.getLists(shopperId);
@@ -182,6 +192,7 @@ export class ShoppersController extends Controller {
   @Get("{shopperId}/locations")
   @SuccessResponse(200, "OK")
   @Example<Array<RecentLocation>>(recentLocationsExample)
+  @Security("bearerAuth")
   public async getLocations(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Query() lookBackDays: number): Promise<Array<RecentLocation>> {
     return ShoppersService.getLocations(shopperId, lookBackDays);
   }
