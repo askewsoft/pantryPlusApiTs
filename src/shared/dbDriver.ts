@@ -5,16 +5,39 @@ import { readFile } from 'fs/promises';
 import { snakeToCamel } from './camelCaseKeys';
 import config from './config';
 import getFileName from './getFileName';
+import path from 'path';
 const log: Logger = logger('dbDriver');
 
 const extractQuery = async (template: string): Promise<string> => {
-  const sqlFile = await readFile(template, 'utf8');
-  const sqlStr = sqlFile
+  try {
+    // Try the build directory first
+    const buildPath = path.join(process.cwd(), 'build', template);
+    try {
+      const sqlFile = await readFile(buildPath, 'utf8');
+      return processSqlFile(sqlFile);
+    } catch (error: any) {
+      // If not found in build, try the src directory
+      const srcPath = path.join(process.cwd(), 'src', template);
+      const sqlFile = await readFile(srcPath, 'utf8');
+      return processSqlFile(sqlFile);
+    }
+  } catch (error: any) {
+    log.error({
+      error: 'Failed to read SQL file',
+      template,
+      message: error.message,
+      stack: error.stack
+    });
+    throw error;
+  }
+};
+
+const processSqlFile = (sqlFile: string): string => {
+  return sqlFile
     .replace(/\/\*[\s\S]*?\*\/|\-\-.*/g, '')
     .replace(/\s{1,}/g, ' ')
     .trim()
     .replace(/\s,/g, ',');
-  return sqlStr;
 };
 
 const sqlConnectOpts: PoolOptions = {
