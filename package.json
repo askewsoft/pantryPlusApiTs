@@ -6,7 +6,7 @@
   "scripts": {
     "prestart": "npm install && npm run build",
     "buildv1": "tsoa spec-and-routes -c tsoa.v1.json && tsc && npm run copysqlv1",
-    "copysqlv1": "find src/v1 -name '*.sql' -exec sh -c 'mkdir -p build/$(dirname {}| sed \"s,^src/,,\") && cp {} build/$(dirname {}| sed \"s,^src/,,\")/$(basename {})' \\;",
+    "copysqlv1": "node scripts/copy-sql.js",
     "build": "npm run buildv1",
     "codegenv1": "openapi-generator generate -g typescript-axios -i build/swagger.json -o ../pantryPlusApiClient/v1",
     "codegen": "npm run codegenv1",
