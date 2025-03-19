@@ -6,18 +6,44 @@ import { snakeToCamel } from './camelCaseKeys';
 import config from './config';
 import getFileName from './getFileName';
 import path from 'path';
+import process from 'process';
 const log: Logger = logger('dbDriver');
 
 const extractQuery = async (template: string): Promise<string> => {
   try {
+    // Add debug logging for path information
+    log.debug({
+      message: 'Attempting to read SQL file',
+      template,
+      __dirname: __dirname,
+      cwd: process.cwd(),
+      absolutePath: path.resolve(template),
+      exists: require('fs').existsSync(template)
+    });
+
     const sqlFile = await readFile(template, 'utf8');
+    
+    // Log successful read
+    log.debug({
+      message: 'Successfully read SQL file',
+      template,
+      contentLength: sqlFile.length
+    });
+
     return processSqlFile(sqlFile);
   } catch (error: any) {
+    // Enhanced error logging
     log.error({
       error: 'Failed to read SQL file',
       template,
       message: error.message,
-      stack: error.stack
+      stack: error.stack,
+      __dirname: __dirname,
+      cwd: process.cwd(),
+      absolutePath: path.resolve(template),
+      dirExists: require('fs').existsSync(path.dirname(template)),
+      dirContents: require('fs').existsSync(path.dirname(template)) ? 
+        require('fs').readdirSync(path.dirname(template)) : 'directory not found'
     });
     throw error;
   }
