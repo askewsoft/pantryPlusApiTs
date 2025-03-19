@@ -34,7 +34,33 @@ const sqlConnectOpts: PoolOptions = {
   charset: 'utf8'
 };
 
+// Log database connection configuration (excluding sensitive data)
+log.info({
+  message: 'Initializing database connection pool',
+  host: config.dbhost,
+  database: config.database,
+  ssl: config.dbssl,
+  rejectUnauthorized: config.dbrejectunauthorized
+});
+
 const pool = mysql.createPool(sqlConnectOpts);
+
+// Add error handler for the pool
+pool.on('acquire', () => {
+  log.info('Connection acquired from pool');
+});
+
+pool.on('connection', () => {
+  log.info('New database connection established');
+});
+
+pool.on('enqueue', () => {
+  log.warn('Waiting for available connection slot');
+});
+
+pool.on('release', () => {
+  log.debug('Connection released back to pool');
+});
 
 // dbPost returns a promise
 const dbPost = async (template: string, params: Object, debug: boolean = false): Promise<any> => {
@@ -55,7 +81,20 @@ const dbPost = async (template: string, params: Object, debug: boolean = false):
     log.info({ ...logMsg, duration });
     return results;
   } catch (err: any) {
-    log.error(err);
+    // Enhanced error logging
+    log.error({
+      error: 'Database Operation Failed',
+      errorName: err.name,
+      errorMessage: err.message,
+      errorCode: err.code,
+      errorNumber: err.errno,
+      sqlState: err.sqlState,
+      sqlMessage: err.sqlMessage,
+      sql: err.sql,
+      template: getFileName(template),
+      params: JSON.stringify(params),
+      stack: err.stack
+    });
     // DO NOT expose the error details to the client
     const errObj = new Error('dbDriver POST error') as any;
     errObj.name = ErrorCode.DATABASE_ERR;
