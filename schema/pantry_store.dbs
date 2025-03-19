@@ -13,9 +13,6 @@
 			<fk name="fk_category_list" to_schema="pantry_store" to_table="list" >
 				<fk_column name="list_id" pk="id" />
 			</fk>
-			<fk name="fk_category_purchase_history" to_schema="pantry_store" to_table="purchase_history" >
-				<fk_column name="id" pk="category_id" />
-			</fk>
 			<options><![CDATA[engine=InnoDB]]></options>
 		</table>
 		<table name="category_order" prior="tbl" >
@@ -105,19 +102,22 @@
 		<table name="item_history_relation" prior="purchase_history" >
 			<comment><![CDATA[log table, inserts only to capture events at completion of shopping session]]></comment>
 			<column name="item_id" type="binary" length="16" jt="-2" mandatory="y" />
-			<column name="history_id" prior="added_date" type="binary" length="16" jt="-2" mandatory="y" />
+			<column name="purchase_history_id" prior="history_id" type="binary" length="16" jt="-2" mandatory="y" />
 			<column name="purchased_by" prior="shopper_id" type="binary" length="16" jt="-2" mandatory="y" >
 				<comment><![CDATA[The shopper_id of the user that clicked the purchase button]]></comment>
 			</column>
+			<column name="category_name" type="varchar" length="100" jt="12" >
+				<comment><![CDATA[The name of the category at the time of purchase]]></comment>
+			</column>
 			<index name="pk_item_history_relation" unique="PRIMARY_KEY" >
 				<column name="item_id" />
-				<column name="history_id" />
+				<column name="purchase_history_id" />
 			</index>
 			<fk name="fk_item_history_relation_item" to_schema="pantry_store" to_table="item" >
 				<fk_column name="item_id" pk="id" />
 			</fk>
 			<fk name="fk_item_history_relation_shopping_history" to_schema="pantry_store" to_table="purchase_history" >
-				<fk_column name="history_id" pk="id" />
+				<fk_column name="purchase_history_id" pk="id" />
 			</fk>
 			<fk name="fk_item_history_relation_shopper" to_schema="pantry_store" to_table="shopper" >
 				<fk_column name="purchased_by" pk="id" />
@@ -190,14 +190,12 @@
 			<column name="location_id" type="binary" length="16" jt="-2" mandatory="y" />
 			<column name="list_id" prior="group_id" type="binary" length="16" jt="-2" mandatory="y" />
 			<column name="location_name" type="varchar" length="100" jt="12" mandatory="y" />
-			<column name="category_name" type="varchar" length="100" jt="12" />
-			<column name="category_id" type="binary" length="16" jt="-2" />
 			<index name="pk_shopping_history_id" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
-			<index name="unq_purchase_history_category_id" unique="UNIQUE_KEY" >
-				<column name="category_id" />
-			</index>
+			<constraint name="unique_purchase_history" >
+				<string><![CDATA[Unique combination of LIST_ID, PURCHASE_DATE, LOCATION_ID]]></string>
+			</constraint>
 			<fk name="fk_shopping_history_list" to_schema="pantry_store" to_table="list" >
 				<fk_column name="list_id" pk="id" />
 			</fk>
@@ -231,7 +229,7 @@
 		<entity schema="pantry_store" name="list_item_relation" color="C1D8EE" x="208" y="240" />
 		<entity schema="pantry_store" name="list_order" color="C1D8EE" x="656" y="112" />
 		<entity schema="pantry_store" name="location" color="D3C1EE" x="560" y="704" />
-		<entity schema="pantry_store" name="purchase_history" color="D3C1EE" x="752" y="416" />
+		<entity schema="pantry_store" name="purchase_history" color="D3C1EE" x="768" y="432" />
 		<entity schema="pantry_store" name="shopper" color="D3C1EE" x="848" y="64" />
 	</layout>
 </project>
