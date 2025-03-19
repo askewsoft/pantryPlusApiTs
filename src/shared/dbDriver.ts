@@ -10,17 +10,8 @@ const log: Logger = logger('dbDriver');
 
 const extractQuery = async (template: string): Promise<string> => {
   try {
-    // Try the build directory first
-    const buildPath = path.join(process.cwd(), 'build', template);
-    try {
-      const sqlFile = await readFile(buildPath, 'utf8');
-      return processSqlFile(sqlFile);
-    } catch (error: any) {
-      // If not found in build, try the src directory
-      const srcPath = path.join(process.cwd(), 'src', template);
-      const sqlFile = await readFile(srcPath, 'utf8');
-      return processSqlFile(sqlFile);
-    }
+    const sqlFile = await readFile(template, 'utf8');
+    return processSqlFile(sqlFile);
   } catch (error: any) {
     log.error({
       error: 'Failed to read SQL file',
