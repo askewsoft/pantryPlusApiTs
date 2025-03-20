@@ -102,19 +102,80 @@ app.use(errorHandler);
 
 // TODO: set up clustering
 const server = app.listen(config.apiport, () => {
-  log.info(`PantryPlus API listening at http://localhost:${config.apiport}`);
+  log.info(`PantryPlus API listening on port: ${config.apiport}`);
 });
 
+// Enhanced signal handling
 process.on('SIGTERM', () => {
-  server.close(() => {
-    log.warn('Process terminated');
+  log.warn({
+    message: 'SIGTERM received',
+    pid: process.pid,
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    resourceUsage: process.resourceUsage()
+  });
+  
+  server.close((err) => {
+    if (err) {
+      log.error({
+        message: 'Error while closing server on SIGTERM',
+        error: err.message,
+        stack: err.stack
+      });
+    }
+    log.warn('Process terminated by SIGTERM');
+  });
+});
+
+process.on('SIGINT', () => {
+  log.warn({
+    message: 'SIGINT received',
+    pid: process.pid,
+    uptime: process.uptime()
+  });
+  
+  server.close((err) => {
+    if (err) {
+      log.error({
+        message: 'Error while closing server on SIGINT',
+        error: err.message,
+        stack: err.stack
+      });
+    }
+    log.warn('Process terminated by SIGINT');
   });
 });
 
 process.on('uncaughtException', (err) => {
-  server.close(() => {
-    log.error('uncaughtException');
-    log.error(err);
-    log.warn('Process terminated unexpectedly');
+  log.error({
+    message: 'Uncaught Exception',
+    error: err.message,
+    stack: err.stack,
+    pid: process.pid,
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    resourceUsage: process.resourceUsage()
+  });
+  
+  server.close((closeErr) => {
+    if (closeErr) {
+      log.error({
+        message: 'Error while closing server after uncaught exception',
+        error: closeErr.message,
+        stack: closeErr.stack
+      });
+    }
+    log.warn('Process terminated due to uncaught exception');
+    process.exit(1);
+  });
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  log.error({
+    message: 'Unhandled Promise Rejection',
+    reason: reason instanceof Error ? reason.stack : reason,
+    promise: promise,
+    pid: process.pid,
+    uptime: process.uptime()
   });
 });
