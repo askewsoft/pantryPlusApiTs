@@ -57,15 +57,34 @@ const processSqlFile = (sqlFile: string): string => {
     .replace(/\s,/g, ',');
 };
 
+const getSslConfig = () => {
+  if (config.node_env === 'production') {
+    try {
+      return {
+        rejectUnauthorized: config.dbrejectunauthorized,
+        ca: require('fs').readFileSync('/etc/ssl/certs/ca-certificates.crt')
+      };
+    } catch (error: any) {
+      log.warn({
+        message: 'Could not read SSL certificate, falling back to basic SSL config',
+        error: error.message
+      });
+      return {
+        rejectUnauthorized: config.dbrejectunauthorized
+      };
+    }
+  }
+  // For local development, use basic SSL config or false if connecting to local Docker
+  return config.dbssl === 'true' ? { rejectUnauthorized: config.dbrejectunauthorized } : undefined;
+};
+
 const sqlConnectOpts: PoolOptions = {
   host: config.dbhost,
   user: config.dbuser,
   password: config.dbpassword,
   database: config.database,
   multipleStatements: true,
-  ssl: {
-    rejectUnauthorized: config.dbrejectunauthorized
-  },
+  ssl: getSslConfig(),
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
