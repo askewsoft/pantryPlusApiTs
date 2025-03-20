@@ -60,18 +60,25 @@ const processSqlFile = (sqlFile: string): string => {
 const getSslConfig = () => {
   if (config.node_env === 'production') {
     try {
+      // Look for certificate in build/certs directory
+      const certPath = path.join(process.cwd(), 'build', 'certs', 'rds-ca.pem');
+      log.debug({
+        message: 'Reading RDS certificate',
+        certPath,
+        exists: require('fs').existsSync(certPath)
+      });
+      const cert = require('fs').readFileSync(certPath);
       return {
         rejectUnauthorized: config.dbrejectunauthorized,
-        ca: require('fs').readFileSync('/etc/ssl/certs/ca-certificates.crt')
+        ca: cert
       };
     } catch (error: any) {
-      log.warn({
-        message: 'Could not read SSL certificate, falling back to basic SSL config',
-        error: error.message
+      log.error({
+        message: 'Failed to read RDS certificate',
+        error: error.message,
+        stack: error.stack
       });
-      return {
-        rejectUnauthorized: config.dbrejectunauthorized
-      };
+      throw new Error('RDS certificate not found. Ensure npm run download-cert has been executed.');
     }
   }
   // For local development, use basic SSL config or false if connecting to local Docker
