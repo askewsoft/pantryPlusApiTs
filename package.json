@@ -5,7 +5,7 @@
   "main": "./src/server.js",
   "scripts": {
     "mkdir-certs": "mkdir -p build/certs",
-    "download-cert": "curl -s -o build/certs/rds-ca.pem https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem",
+    "download-cert": "node scripts/download-cert.js",
     "prestart": "npm install && npm run build && npm run mkdir-certs && npm run download-cert",
     "buildv1": "tsoa spec-and-routes -c tsoa.v1.json && tsc && npm run copysqlv1",
     "copysqlv1": "node scripts/copy-sql.js",
