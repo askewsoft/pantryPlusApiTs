@@ -5,7 +5,7 @@
   "main": "./src/server.js",
   "scripts": {
     "mkdir-certs": "mkdir -p build/certs",
-    "download-cert": "NODE_ENV=production node scripts/download-cert.js",
+    "download-cert": "NODE_ENV=production node scripts/download-cert.js || exit 1",
     "prestart": "npm install && npm run build && npm run mkdir-certs && npm run download-cert",
     "buildv1": "tsoa spec-and-routes -c tsoa.v1.json && tsc && npm run copysqlv1",
     "copysqlv1": "node scripts/copy-sql.js",
