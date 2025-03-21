@@ -7,6 +7,7 @@ import config from './config';
 import getFileName from './getFileName';
 import path from 'path';
 import process from 'process';
+import fs from 'fs';
 const log: Logger = logger('dbDriver');
 
 const extractQuery = async (template: string): Promise<string> => {
@@ -18,7 +19,7 @@ const extractQuery = async (template: string): Promise<string> => {
       __dirname: __dirname,
       cwd: process.cwd(),
       absolutePath: path.resolve(template),
-      exists: require('fs').existsSync(template)
+      exists: fs.existsSync(template)
     });
 
     const sqlFile = await readFile(template, 'utf8');
@@ -41,9 +42,9 @@ const extractQuery = async (template: string): Promise<string> => {
       __dirname: __dirname,
       cwd: process.cwd(),
       absolutePath: path.resolve(template),
-      dirExists: require('fs').existsSync(path.dirname(template)),
-      dirContents: require('fs').existsSync(path.dirname(template)) ? 
-        require('fs').readdirSync(path.dirname(template)) : 'directory not found'
+      dirExists: fs.existsSync(path.dirname(template)),
+      dirContents: fs.existsSync(path.dirname(template)) ? 
+        fs.readdirSync(path.dirname(template)) : 'directory not found'
     });
     throw error;
   }
@@ -59,26 +60,50 @@ const processSqlFile = (sqlFile: string): string => {
 
 const getSslConfig = () => {
   if (config.node_env === 'production') {
+    log.info('Using RDS certificate for production environment');
     try {
+      // Create certs directory if it doesn't exist
+      const certDir = path.join(process.cwd(), 'build', 'certs');
+      if (!fs.existsSync(certDir)) {
+        fs.mkdirSync(certDir, { recursive: true });
+        log.info({
+          message: 'Created certificates directory',
+          certDir
+        });
+      }
+
       // Look for certificate in build/certs directory
-      const certPath = path.join(process.cwd(), 'build', 'certs', 'rds-ca.pem');
-      log.debug({
-        message: 'Reading RDS certificate',
+      const certPath = path.join(certDir, "rds-ca.pem");
+      log.info({
+        message: "Attempting to read RDS certificate",
         certPath,
-        exists: require('fs').existsSync(certPath)
+        exists: fs.existsSync(certPath),
       });
-      const cert = require('fs').readFileSync(certPath);
+      
+      if (!fs.existsSync(certPath)) {
+        log.warn({
+          message: 'RDS certificate not found, falling back to basic SSL',
+          certPath
+        });
+        return {
+          rejectUnauthorized: config.dbrejectunauthorized
+        };
+      }
+
+      const cert = fs.readFileSync(certPath);
+      log.info('Successfully loaded RDS certificate');
       return {
         rejectUnauthorized: config.dbrejectunauthorized,
         ca: cert
       };
     } catch (error: any) {
-      log.error({
-        message: 'Failed to read RDS certificate',
-        error: error.message,
-        stack: error.stack
+      log.warn({
+        message: 'Failed to read RDS certificate, falling back to basic SSL',
+        error: error.message
       });
-      throw new Error('RDS certificate not found. Ensure npm run download-cert has been executed.');
+      return {
+        rejectUnauthorized: config.dbrejectunauthorized
+      };
     }
   }
   // For local development, use basic SSL config or false if connecting to local Docker
