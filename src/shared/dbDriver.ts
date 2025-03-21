@@ -12,39 +12,14 @@ const log: Logger = logger('dbDriver');
 
 const extractQuery = async (template: string): Promise<string> => {
   try {
-    // Add debug logging for path information
-    log.debug({
-      message: 'Attempting to read SQL file',
-      template,
-      __dirname: __dirname,
-      cwd: process.cwd(),
-      absolutePath: path.resolve(template),
-      exists: fs.existsSync(template)
-    });
-
     const sqlFile = await readFile(template, 'utf8');
-    
-    // Log successful read
-    log.debug({
-      message: 'Successfully read SQL file',
-      template,
-      contentLength: sqlFile.length
-    });
-
     return processSqlFile(sqlFile);
   } catch (error: any) {
-    // Enhanced error logging
     log.error({
       error: 'Failed to read SQL file',
       template,
       message: error.message,
       stack: error.stack,
-      __dirname: __dirname,
-      cwd: process.cwd(),
-      absolutePath: path.resolve(template),
-      dirExists: fs.existsSync(path.dirname(template)),
-      dirContents: fs.existsSync(path.dirname(template)) ? 
-        fs.readdirSync(path.dirname(template)) : 'directory not found'
     });
     throw error;
   }
@@ -60,50 +35,23 @@ const processSqlFile = (sqlFile: string): string => {
 
 const getSslConfig = () => {
   if (config.node_env === 'production') {
-    log.info('Using RDS certificate for production environment');
     try {
-      // Create certs directory if it doesn't exist
-      const certDir = path.join(process.cwd(), 'build', 'certs');
-      if (!fs.existsSync(certDir)) {
-        fs.mkdirSync(certDir, { recursive: true });
-        log.info({
-          message: 'Created certificates directory',
-          certDir
-        });
-      }
-
-      // Look for certificate in build/certs directory
-      const certPath = path.join(certDir, "rds-ca.pem");
-      log.info({
-        message: "Attempting to read RDS certificate",
-        certPath,
-        exists: fs.existsSync(certPath),
-      });
+      const certPath = path.join(process.cwd(), 'certs', 'rds-ca.pem');
       
       if (!fs.existsSync(certPath)) {
-        log.warn({
-          message: 'RDS certificate not found, falling back to basic SSL',
-          certPath
-        });
-        return {
-          rejectUnauthorized: config.dbrejectunauthorized
-        };
+        const err = new Error('RDS certificate not found at ' + certPath) as any;
+        err.name = ErrorCode.DATABASE_ERR;
+        throw err;
       }
 
       const cert = fs.readFileSync(certPath);
-      log.info('Successfully loaded RDS certificate');
-      return {
-        rejectUnauthorized: config.dbrejectunauthorized,
-        ca: cert
-      };
+      const stats = fs.statSync(certPath);
+      
+      log.info({ message: 'Successfully loaded RDS certificate', certPath, certSize: stats.size});
+      return { rejectUnauthorized: true, ca: cert };
     } catch (error: any) {
-      log.warn({
-        message: 'Failed to read RDS certificate, falling back to basic SSL',
-        error: error.message
-      });
-      return {
-        rejectUnauthorized: config.dbrejectunauthorized
-      };
+      log.error({ message: 'Failed to load RDS certificate', error: error.message, stack: error.stack });
+      throw error;
     }
   }
   // For local development, use basic SSL config or false if connecting to local Docker
@@ -127,7 +75,7 @@ const sqlConnectOpts: PoolOptions = {
 
 // Log database connection configuration (excluding sensitive data)
 log.info({
-  message: 'Database connection configuration',
+  message: 'Database Connection Config',
   host: config.dbhost,
   database: config.database,
   ssl: config.dbssl,
@@ -144,7 +92,7 @@ async function getPool(): Promise<Pool> {
       
       // Add event listeners for better debugging
       pool.on('acquire', (connection) => {
-        log.debug('Connection acquired', { threadId: connection.threadId });
+        log.info('Connection acquired', { threadId: connection.threadId });
       });
 
       pool.on('connection', (connection) => {
@@ -156,7 +104,7 @@ async function getPool(): Promise<Pool> {
       });
 
       pool.on('release', (connection) => {
-        log.debug('Connection released', { threadId: connection.threadId });
+        log.info('Connection released', { threadId: connection.threadId });
       });
 
       // Test the connection
@@ -191,25 +139,11 @@ const dbPost = async (template: string, params: Object, debug: boolean = false):
       const dbConn = await pool.getConnection();
       
       try {
-        log.debug({
-          message: 'Executing query',
-          attempt,
-          template: getFileName(template),
-          params
-        });
-
         const [rows] = await dbConn.query(sqlStr, params);
         const results = extractDbResult(rows, debug);
         const endQueryTime = Date.now();
         const duration = `${endQueryTime - startQueryTime}ms`;
-        
-        log.info({
-          message: 'Query successful',
-          template: getFileName(template),
-          duration,
-          attempt
-        });
-        
+        log.info({ message: 'Query successful', template: getFileName(template), duration, attempt });
         return results;
       } finally {
         dbConn.release();
