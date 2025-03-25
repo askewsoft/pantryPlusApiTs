@@ -26,8 +26,8 @@ app.use(
 
 app.use(json());
 
-// Enhanced request logging middleware
-app.use((req: Request, _res: Response, next: Function) => {
+// Combined request and response logging middleware
+app.use((req: Request, res: Response, next: Function) => {
   const debugLoggingOnly = debugOnlyPaths.some(path => req.url.startsWith(path));
   const apiLoggingOnly = apiPaths.some(path => req.url.startsWith(path));
   const sillyLoggingOnly = !debugLoggingOnly && !apiLoggingOnly;
@@ -61,6 +61,19 @@ app.use((req: Request, _res: Response, next: Function) => {
       log.verbose({headers: extendedLogMsg.headers, params: extendedLogMsg.params, body: extendedLogMsg.body});
     }
   }
+
+  // Log response details when the response is finished
+  res.on('finish', () => {
+    log.verbose({
+      message: 'Response sent',
+      method: req.method,
+      url: req.url,
+      statusCode: res.statusCode,
+      sourceIp: req.ip || req.socket.remoteAddress,
+      headers: req.headers
+    });
+  });
+  
   next();
 });
 

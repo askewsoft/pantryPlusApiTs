@@ -92,11 +92,7 @@ async function getPool(): Promise<Pool> {
       
       // Add event listeners for better debugging
       pool.on('acquire', (connection) => {
-        log.info('Connection acquired', { threadId: connection.threadId });
-      });
-
-      pool.on('connection', (connection) => {
-        log.info('New connection established', { threadId: connection.threadId });
+        log.debug('Connection acquired', { threadId: connection.threadId });
       });
 
       pool.on('enqueue', () => {
@@ -104,12 +100,12 @@ async function getPool(): Promise<Pool> {
       });
 
       pool.on('release', (connection) => {
-        log.info('Connection released', { threadId: connection.threadId });
+        log.debug('Connection released', { threadId: connection.threadId });
       });
 
       // Test the connection
       const conn = await pool.getConnection();
-      log.info('Initial connection test successful');
+      log.debug('Initial connection test successful');
       conn.release();
     } catch (err: any) {
       log.error({
@@ -143,7 +139,7 @@ const dbPost = async (template: string, params: Object, debug: boolean = false):
         const results = extractDbResult(rows, debug);
         const endQueryTime = Date.now();
         const duration = `${endQueryTime - startQueryTime}ms`;
-        log.info({ message: 'Query successful', template: getFileName(template), duration, attempt });
+        log.debug({ message: 'Query successful', template: getFileName(template), duration, attempt });
         return results;
       } finally {
         dbConn.release();
@@ -166,7 +162,7 @@ const dbPost = async (template: string, params: Object, debug: boolean = false):
 
       if (attempt < maxRetries) {
         const delay = Math.min(1000 * attempt, 3000); // Progressive delay: 1s, 2s, 3s
-        log.info(`Retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`);
+        log.debug(`Retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
