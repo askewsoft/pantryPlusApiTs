@@ -43,7 +43,7 @@
   "license": "Unlicense",
   "private": true,
   "engines": {
-    "node": "18.20.8"
+    "node": "22.6.0"
   },
   "husky": {
     "hooks": {
