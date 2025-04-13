@@ -1,4 +1,5 @@
 build/
 certs/
+.ebextensions/
 package.json
 package-lock.json
