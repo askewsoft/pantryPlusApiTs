@@ -2,7 +2,7 @@
   "name": "pantryplus-api",
   "version": "1.0.0",
   "description": "This is the API layer for the PantryPlus mobile app",
-  "main": "./src/server.js",
+  "main": "./build/server.js",
   "scripts": {
     "prestart": "npm install && npm run build",
     "buildv1": "tsoa spec-and-routes -c tsoa.v1.json && tsc && npm run copysqlv1",
