@@ -4,7 +4,7 @@
   "description": "This is the API layer for the PantryPlus mobile app",
   "main": "./build/server.js",
   "scripts": {
-    "prestart": "npm install && npm run build",
+    "prestart": "npm install",
     "buildv1": "tsoa spec-and-routes -c tsoa.v1.json && tsc && npm run copysqlv1",
     "copysqlv1": "node scripts/copy-sql.js",
     "downloadcerts": "node scripts/download-rds-cert.js",
@@ -12,7 +12,7 @@
     "codegenv1": "openapi-generator generate -g typescript-axios -i build/swagger.json -o ../pantryPlusApiClient/v1",
     "codegen": "npm run codegenv1",
     "start": "node build/server.js",
-    "dev": "nodemon",
+    "dev": "npm run build && nodemon",
     "ebzip": "zip -r pantryplus-api.zip -@ < ebfilelist.txt"
   },
   "nodemonConfig": {
