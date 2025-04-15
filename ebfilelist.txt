@@ -1,5 +1,7 @@
 build/
 certs/
+scripts/
 .ebextensions/
 package.json
 package-lock.json
+tsoa.v1.json
