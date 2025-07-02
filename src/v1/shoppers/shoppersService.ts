@@ -36,6 +36,14 @@ export abstract class ShoppersService {
     const template = path.join(__dirname, './sql/createShopper.sql');
     const results = await dbPost(template, newShopper);
     const result = results?.[0];
+    
+    // Check for ID mismatch - indicates potential Cognito/DB sync issue
+    if (result?.id !== newShopper.id) {
+      const err = new Error(`account mismatch detected for ${newShopper.email}`) as any;
+      err.name = ErrorCode.DUPE_ENTRY;
+      throw err;
+    }
+    
     return result;
   };
 
