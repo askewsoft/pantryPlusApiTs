@@ -4,6 +4,7 @@
 SET @shopperId = UUID_TO_BIN(:shopperId);
 
 WITH shopperCohorts as (
+  -- Get cohorts where the shopper is a member (including cohorts they own)
   SELECT c.ID as COHORT_ID
   FROM PANTRY_PLUS.COHORT_SHOPPER_RELATION csr
   JOIN PANTRY_PLUS.SHOPPER sh
@@ -11,7 +12,6 @@ WITH shopperCohorts as (
     AND sh.ID = @shopperId
   JOIN PANTRY_PLUS.COHORT c
     ON c.ID = csr.COHORT_ID
-    AND c.OWNER_ID <> @shopperId
 )
 
 SELECT
