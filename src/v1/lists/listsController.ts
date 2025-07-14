@@ -133,7 +133,7 @@ export class ListsController extends Controller {
   @SuccessResponse(205, "Content Updated")
   @Security("bearerAuth")
   public async updateList(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() list: Pick<List, "name" | "groupId" | "ordinal">): Promise<void> {
-    await mayProceed({ email, id: listId, accessTemplate: mayUpdateListTemplate });
+    await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     await ListsService.update(email, listId, list.name, list.groupId ?? "", list.ordinal);
     return;
   };
