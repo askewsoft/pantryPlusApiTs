@@ -32,7 +32,7 @@ We also recommend that you use [nvm](https://nvm.sh) to manage different version
 
 #### Adding New Versions
 * Make a new version directory for source code: `cp ./src/v1 ./src/v2`
-* Copy then modify the tsoa config: `cp ./tsoa.v1.json ./tsoa.v2.json` 
+* Copy then modify the tsoa config: `cp ./tsoa.v1.json ./tsoa.v2.json`
 * Edit the server file `./src/server.ts` to create a new set of routes
   * e.g., `import { RegisterRoutes as RegisterV2Routes } from "./routes.v2";`
 * Edit `package.json` scripts:
@@ -65,3 +65,11 @@ An API client can be generated from the OpenAPI specification using the `openapi
   - e.g., `brew install openapi-generator`
 1. `npm run codegen`
   - This will generate a new client into a `../pantryPlusApiClient` peer directory
+
+## Deploy
+The API is currently deployed to AWS using Elastic Beanstalk. To deploy updates, run the following:
+
+1. `npm run build` — generates tsoa spec
+1. `npm run codegen` — only necessary if API signatures change
+1. `npm run ebzip` — compresses just the files needed to be deployed to AWS
+1. manually upload & deploy the archive to AWS

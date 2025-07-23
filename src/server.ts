@@ -113,8 +113,7 @@ app.use(function notFoundHandler(_req: Request, res: Response) {
 
 app.use(errorHandler);
 
-// TODO: set up clustering
-const server = app.listen(config.apiport, () => {
+const server = app.listen(config.apiport as number, '0.0.0.0', () => {
   log.info(`PantryPlus API listening on port: ${config.apiport}`);
 });
 

@@ -25,7 +25,7 @@ import { Item } from "../items/item";
 import { itemsExample } from "../items/itemsExamples";
 import { List } from "../lists/list";
 import { listsExample } from "../lists/listsExamples";
-import { Location, RecentLocation } from "../locations/location";
+import { RecentLocation } from "../locations/location";
 import { recentLocationsExample } from "../locations/locationsExamples";
 import { ShoppersService } from "./shoppersService";
 import { mayProceed } from "../../shared/mayProceed";
