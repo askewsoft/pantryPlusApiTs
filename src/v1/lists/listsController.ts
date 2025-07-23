@@ -225,4 +225,21 @@ export class ListsController extends Controller {
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     return await ListsService.getListItems(listId);
   };
+
+  /**
+   * @summary Retrieves the count of unpurchased items for a list
+   * @param email the email address of the user
+   * @param listId the ID of the list
+   * @example email "test@test.com"
+   * @example listId "123E4567-E89B-12D3-A456-426614174000"
+   * @returns The count of unpurchased items
+   */
+  @Get("{listId}/items/count")
+  @SuccessResponse(200, "OK")
+  @Example<{ count: number }>({ count: 5 })
+  @Security("bearerAuth")
+  public async getListItemsCount(@Header("X-Auth-User") email: string, @Path() listId: string): Promise<{ count: number }> {
+    await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
+    return await ListsService.getListItemsCount(listId);
+  };
 };
