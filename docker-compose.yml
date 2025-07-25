@@ -4,7 +4,7 @@ services:
   pantryplus-api:
     build: .
     ports:
-      - "3000:3000"
+      - "8000:${APIPORT}"
     env_file:
       - .env
     environment:
