@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  pantryplus-api:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+      - APIPORT=${APIPORT}
+      - DBPORT=${DBPORT}
+      - DBHOST=${DBHOST}
+      - DBUSER=${DBUSER}
+      - DBPASSWORD=${DBPASSWORD}
+      - DATABASE=${DATABASE}
+      - DBSSL=${DBSSL}
+      - DBREJECTUNAUTHORIZED=${DBREJECTUNAUTHORIZED}
+      - LOG_LEVEL=${LOG_LEVEL}
+    volumes:
+      # Mount certs directory for RDS SSL certificates
+      - ./certs:/app/certs:ro
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:${APIPORT}/healthcheck', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped 

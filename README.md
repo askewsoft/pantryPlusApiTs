@@ -67,9 +67,80 @@ An API client can be generated from the OpenAPI specification using the `openapi
   - This will generate a new client into a `../pantryPlusApiClient` peer directory
 
 ## Deploy
+
+### Current Deployment: Elastic Beanstalk (Legacy)
 The API is currently deployed to AWS using Elastic Beanstalk. To deploy updates, run the following:
 
 1. `npm run build` — generates tsoa spec
-1. `npm run codegen` — only necessary if API signatures change
+1. `npm run codegen` — only necessary if API signatures change
 1. `npm run ebzip` — compresses just the files needed to be deployed to AWS
 1. manually upload & deploy the archive to AWS
+
+### New Deployment: App Runner (Recommended)
+The API is being migrated to AWS App Runner for better scalability and managed operations.
+
+#### Prerequisites
+- AWS CLI configured with appropriate permissions
+- Docker installed locally
+- Database configuration stored in AWS Systems Manager Parameter Store
+
+#### Deployment Process
+
+1. **Set up AWS infrastructure** *(first-time only)*:
+   ```bash
+   ./scripts/setup-app-runner-infrastructure.sh
+   ```
+   This creates:
+   - VPC connector for RDS access
+   - IAM roles for App Runner (with Parameter Store access)
+   - Security groups
+
+2. **Build and deploy**:
+   ```bash
+   ./scripts/deploy-app-runner.sh
+   ```
+   This:
+   - Builds Docker image
+   - Pushes to ECR
+   - Creates/updates App Runner service
+
+3. **Complete first-time setup** *(first-time only)*:
+   After the deployment script runs, you'll need to:
+   - Update `app-runner-config.json` with ARNs from `app-runner-infrastructure.json`
+   - Create the App Runner service:
+     ```bash
+     aws apprunner create-service --cli-input-json file://app-runner-config.json --region us-east-1
+     ```
+   - Configure custom domain (`api.askewsoft.com`) in App Runner console
+   - Update DNS records to point to App Runner endpoint
+
+4. **Test the deployment**:
+   ```bash
+   ./scripts/test-app-runner-deployment.sh
+   ```
+   This verifies:
+   - Service is running and accessible
+   - Health check endpoint responds
+   - API documentation is available
+   - Database connectivity is working
+   - SSL/TLS is properly configured
+   - CloudWatch logs are being generated
+
+#### Code Generation (When API changes)
+If you modify API endpoints or schemas:
+1. `npm run codegen` — generates updated client code
+2. Commit and push the generated client code
+
+### Local Testing with Docker
+To test the containerized application locally:
+```bash
+docker compose up --build
+```
+This builds and runs the application with the same environment as App Runner.
+
+**Note**: Make sure your `.env` file is present in the project root with the required database configuration variables.
+
+## Migration Notes
+- The current Elastic Beanstalk deployment remains active during migration
+- Both deployments can run simultaneously for testing
+- TODO: Clean up Elastic Beanstalk resources after App Runner migration is complete
