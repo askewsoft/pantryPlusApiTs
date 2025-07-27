@@ -87,44 +87,25 @@ The API is being migrated to AWS App Runner for better scalability and managed o
 #### Deployment Process
 
 1. **Set up AWS infrastructure** *(first-time only)*:
-   ```bash
-   ./scripts/setup-app-runner-infrastructure.sh
-   ```
-   This creates:
-   - VPC connector for RDS access
-   - IAM roles for App Runner (with Parameter Store access)
-   - Security groups
+    - Create VPC connector for RDS access
+    - Create IAM roles for App Runner (with Parameter Store access)
+    - Create Security groups
 
 2. **Build and deploy**:
-   ```bash
-   ./scripts/deploy-app-runner.sh
-   ```
-   This:
-   - Builds Docker image
-   - Pushes to ECR
-   - Creates/updates App Runner service
+    - Build Docker image
+    - Push to ECR
+    - Create/update App Runner service
 
-3. **Complete first-time setup** *(first-time only)*:
-   After the deployment script runs, you'll need to:
-   - Update `app-runner-config.json` with ARNs from `app-runner-infrastructure.json`
-   - Create the App Runner service:
-     ```bash
-     aws apprunner create-service --cli-input-json file://app-runner-config.json --region us-east-1
-     ```
-   - Configure custom domain (`api.askewsoft.com`) in App Runner console
-   - Update DNS records to point to App Runner endpoint
+3. **Complete setup** *(first-time only)*:
+    - After the deployment completes, you'll need to create the App Runner service
 
 4. **Test the deployment**:
-   ```bash
-   ./scripts/test-app-runner-deployment.sh
-   ```
-   This verifies:
-   - Service is running and accessible
-   - Health check endpoint responds
-   - API documentation is available
-   - Database connectivity is working
-   - SSL/TLS is properly configured
-   - CloudWatch logs are being generated
+    - Service is running and accessible
+    - Health check endpoint responds
+    - API documentation is available
+    - Database connectivity is working
+    - SSL/TLS is properly configured
+    - CloudWatch logs are being generated
 
 #### Code Generation (When API changes)
 If you modify API endpoints or schemas:
