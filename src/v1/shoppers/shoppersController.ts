@@ -51,11 +51,6 @@ export class ShoppersController extends Controller {
   @Example<Shopper>(shopperExample)
   @Security("bearerAuth")
   public async createShopper(@Body() person: Shopper ): Promise<Shopper> {
-    /* TODO:
-     * how do we confirm that a user has created a username/password?
-     * look into using the @Security decorator to ensure that the user is authenticated
-     * https://tsoa-community.github.io/docs/authentication.html
-    */
     return ShoppersService.create(person);
   }
 
@@ -95,7 +90,7 @@ export class ShoppersController extends Controller {
   }
 
   /**
-   * @summary Retrieves all of the groups associated with a Shopper 
+   * @summary Retrieves all of the groups associated with a Shopper
    * @param email the email address of the user
    * @param shopperId the ID of the shopper for whom groups will be returned
    * @returns The groups associated with the supplied shopper
@@ -110,7 +105,7 @@ export class ShoppersController extends Controller {
   }
 
   /**
-   * @summary Retrieves all groups that a Shopper has been invited to 
+   * @summary Retrieves all groups that a Shopper has been invited to
    * @param email the email address of the user
    * @param shopperId the ID of the shopper for whom invites will be returned
    * @returns The invites for the supplied shopper
@@ -129,7 +124,7 @@ export class ShoppersController extends Controller {
   * @param email the email address of the user
   * @param shopperId the ID of the shopper for whom the invite will be declined
   * @param inviteId the ID of the invite to be declined
-  */ 
+  */
   @Delete("{shopperId}/invites/{inviteId}")
   @SuccessResponse(204, "No Content")
   @Security("bearerAuth")
@@ -153,7 +148,7 @@ export class ShoppersController extends Controller {
   }
 
   /**
-   * @summary Retrieves all previously purchased items associated with a Shopper 
+   * @summary Retrieves all previously purchased items associated with a Shopper
    * @param email the email address of the user
    * @param shopperId the ID of the shopper for whom items will be returned
    * @returns The items previously purchased by a shopper
@@ -168,7 +163,7 @@ export class ShoppersController extends Controller {
   }
 
   /**
-   * @summary Retrieves all lists associated with a Shopper 
+   * @summary Retrieves all lists associated with a Shopper
    * @param email the email address of the user
    * @param shopperId the ID of the shopper for whom lists will be returned
    * @returns The lists associated with the supplied shopper
@@ -183,7 +178,7 @@ export class ShoppersController extends Controller {
   }
 
   /**
-   * @summary Retrieves all locations associated with a Shopper 
+   * @summary Retrieves all locations associated with a Shopper
    * @param email the email address of the user
    * @param shopperId the ID of the shopper for whom locations will be returned
    * @param lookBackDays the number of days to look back for purchases
