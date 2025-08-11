@@ -29,6 +29,7 @@ import { RecentLocation } from "../locations/location";
 import { recentLocationsExample } from "../locations/locationsExamples";
 import { ShoppersService } from "./shoppersService";
 import { mayProceed } from "../../shared/mayProceed";
+import { validateUUIDParam, validateMultipleUUIDs, validateBodyUUIDs } from "../../shared/uuidValidation";
 
 const mayAccessShopperTemplate = path.join(__dirname, './sql/mayAccessShopper.sql');
 const maySeeShopperDetailsTemplate = path.join(__dirname, './sql/maySeeShopperDetails.sql');
@@ -51,6 +52,7 @@ export class ShoppersController extends Controller {
   @Example<Shopper>(shopperExample)
   @Security("bearerAuth")
   public async createShopper(@Body() person: Shopper ): Promise<Shopper> {
+    validateBodyUUIDs(person, ['id'], 'Invalid shopper ID format');
     return ShoppersService.create(person);
   }
 
@@ -70,6 +72,8 @@ export class ShoppersController extends Controller {
   @Example<Pick<Shopper, "id">>(shopperIdExample)
   @Security("bearerAuth")
   public async updateShopper(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Body() shopper: Shopper): Promise<Pick<Shopper, "id">> {
+    validateUUIDParam('shopperId', shopperId);
+    validateBodyUUIDs(shopper, ['id'], 'Invalid shopper ID format');
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.update(shopperId, shopper);
   }
@@ -85,6 +89,7 @@ export class ShoppersController extends Controller {
   @Example<Shopper>(shopperExample)
   @Security("bearerAuth")
   public async retrieveShopper(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Shopper> {
+    validateUUIDParam('shopperId', shopperId);
     await mayProceed({ email, id: shopperId, accessTemplate: maySeeShopperDetailsTemplate });
     return ShoppersService.retrieve(shopperId);
   }
@@ -100,6 +105,7 @@ export class ShoppersController extends Controller {
   @Example<Array<Pick<Group, "id" | "name" | "owner">>>(groupsExample)
   @Security("bearerAuth")
   public async getGroups(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Pick<Group, "id" | "name" | "owner">>> {
+    validateUUIDParam('shopperId', shopperId);
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.getGroups(shopperId);
   }
@@ -115,6 +121,7 @@ export class ShoppersController extends Controller {
   @Example<Array<Group>>(groupsExample)
   @Security("bearerAuth")
   public async getInvites(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Group>> {
+    validateUUIDParam('shopperId', shopperId);
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.getInvites(shopperId);
   }
@@ -129,6 +136,7 @@ export class ShoppersController extends Controller {
   @SuccessResponse(204, "No Content")
   @Security("bearerAuth")
   public async declineInvite(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Path() inviteId: string): Promise<void> {
+    validateMultipleUUIDs({ shopperId, inviteId });
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.declineInvite(shopperId, inviteId);
   }
@@ -143,6 +151,7 @@ export class ShoppersController extends Controller {
   @SuccessResponse(205, "Content Updated")
   @Security("bearerAuth")
   public async acceptInvite(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Path() inviteId: string): Promise<void> {
+    validateMultipleUUIDs({ shopperId, inviteId });
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.acceptInvite(shopperId, inviteId);
   }
@@ -158,6 +167,7 @@ export class ShoppersController extends Controller {
   @Example<Array<Item>>(itemsExample)
   @Security("bearerAuth")
   public async getPurchasedItems(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Item>> {
+    validateUUIDParam('shopperId', shopperId);
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.getPurchasedItems(shopperId);
   }
@@ -173,6 +183,7 @@ export class ShoppersController extends Controller {
   @Example<Array<List>>(listsExample)
   @Security("bearerAuth")
   public async getLists(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<List>> {
+    validateUUIDParam('shopperId', shopperId);
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.getLists(shopperId);
   }
@@ -189,6 +200,8 @@ export class ShoppersController extends Controller {
   @Example<Array<RecentLocation>>(recentLocationsExample)
   @Security("bearerAuth")
   public async getLocations(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Query() lookBackDays: number): Promise<Array<RecentLocation>> {
+    validateUUIDParam('shopperId', shopperId);
+    await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.getLocations(shopperId, lookBackDays);
   }
 };

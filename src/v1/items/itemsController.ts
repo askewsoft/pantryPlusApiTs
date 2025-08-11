@@ -5,6 +5,7 @@ import { ItemsService } from "./itemsService";
 import path from "path";
 import { ShoppersService } from "../shoppers/shoppersService";
 import { Item } from "./item";
+import { validateUUIDParam, validateBodyUUIDs } from "../../shared/uuidValidation";
 
 const mayModifyItemTemplate = path.join(__dirname, './sql/mayModifyItem.sql');
 
@@ -20,8 +21,11 @@ export class ItemsController extends Controller {
   @Put("{itemId}")
   @Security("bearerAuth")
   public async updateItem(@Header("X-Auth-User") email: string, @Path() itemId: string, @Body() item: Pick<Item, "name" | "upc">): Promise<void> {
+    // Validate UUID path parameter
+    validateUUIDParam('itemId', itemId);
+
     await mayProceed({ email, id: itemId, accessTemplate: mayModifyItemTemplate });
-    await ItemsService.updateItem({ id: itemId, name: item.name, upc: item.upc }); 
+    await ItemsService.updateItem({ id: itemId, name: item.name, upc: item.upc });
     return;
   };
 
@@ -33,9 +37,12 @@ export class ItemsController extends Controller {
   @Post()
   @Security("bearerAuth")
   public async createItem(@Header("X-Auth-User") email: string, @Body() item: Item): Promise<void> {
+    // Validate UUID in request body
+    validateBodyUUIDs(item, ['id'], 'Invalid item ID format');
+
     // any valid user can create an item
     await ShoppersService.validateUser(email);
-    await ItemsService.create(item); 
+    await ItemsService.create(item);
     return;
   };
 };

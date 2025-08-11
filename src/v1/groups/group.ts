@@ -8,7 +8,9 @@ export type GroupMembers = Array<string>;
  * A Group is a user generated collection of Shoppers.
  */
 export type Group = {
-    /** UUID representation of the group's ID */
+    /** UUID representation of the group's ID
+     * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$ Invalid UUID format
+     */
     id: string;
     /** The name of the group */
     name: string;

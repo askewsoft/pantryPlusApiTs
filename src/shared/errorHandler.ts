@@ -13,7 +13,8 @@ export enum ErrorCode {
   NOT_FOUND = 'NOT_FOUND',
   UNEXPECTED_ERR = 'UNEXPECTED_ERR',
   DATABASE_ERR = 'DATABASE_ERR',
-  TYPE_ERROR = 'TypeError'
+  TYPE_ERROR = 'TypeError',
+  INVALID_UUID = 'INVALID_UUID'
 };
 
 const getErrorMsg = (err: any) => {
@@ -57,6 +58,14 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
     case ErrorCode.DATABASE_ERR:
       errMessage = err.message;
       res.status(500).send(errMessage);
+      break;
+    case ErrorCode.INVALID_UUID:
+      errMessage = err.message;
+      res.status(400).json({
+        error: 'Bad Request',
+        message: errMessage,
+        details: err.details
+      });
       break;
     default:
       errMessage = getErrorMsg(err);

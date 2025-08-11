@@ -1,5 +1,5 @@
-import { Response } from 'express';
 import { logger } from './logger';
+import { ErrorCode } from './errorHandler';
 
 const log = logger('uuidValidation');
 
@@ -22,49 +22,41 @@ export function isValidUUID(uuid: string): boolean {
 }
 
 /**
- * Validates a single UUID parameter and returns an error response if invalid
+ * Validates a single UUID parameter and throws an error if invalid
  * Use this in your controllers before processing requests
  */
 export function validateUUIDParam(
-  res: Response,
   paramName: string,
   paramValue: string,
   errorMessage?: string
-): boolean {
+): void {
   if (!isValidUUID(paramValue)) {
     log.warn({
       message: 'UUID validation failed',
       paramName,
-      paramValue,
-      path: res.req?.path,
-      method: res.req?.method
+      paramValue
     });
 
-    res.status(400).json({
-      error: 'Bad Request',
-      message: errorMessage || 'Invalid UUID format',
-      details: {
-        invalidParameter: paramName,
-        receivedValue: paramValue,
-        expectedFormat: 'UUID v4 (e.g., 123e4567-e89b-12d3-a456-426614174000)'
-      }
-    });
+    const error = new Error(errorMessage || 'Invalid UUID format') as any;
+    error.name = ErrorCode.INVALID_UUID;
+    error.details = {
+      invalidParameter: paramName,
+      receivedValue: paramValue,
+      expectedFormat: 'UUID v4 (e.g., 123e4567-e89b-12d3-a456-426614174000)'
+    };
 
-    return false;
+    throw error;
   }
-
-  return true;
 }
 
 /**
  * Validates multiple UUID parameters at once
- * Returns false if any validation fails (response is already sent)
+ * Throws an error if any validation fails
  */
 export function validateMultipleUUIDs(
-  res: Response,
   params: Record<string, string>,
   errorMessage?: string
-): boolean {
+): void {
   const invalidParams: string[] = [];
   const validationResults: Record<string, { value: string; isValid: boolean }> = {};
 
@@ -78,33 +70,27 @@ export function validateMultipleUUIDs(
     }
   });
 
-  // If any UUIDs are invalid, return error
+  // If any UUIDs are invalid, throw error
   if (invalidParams.length > 0) {
     log.warn({
       message: 'Multiple UUID validation failed',
       invalidParams,
-      validationResults,
-      path: res.req?.path,
-      method: res.req?.method
+      validationResults
     });
 
-    res.status(400).json({
-      error: 'Bad Request',
-      message: errorMessage || 'One or more UUID parameters are invalid',
-      details: {
-        invalidParameters: invalidParams,
-        expectedFormat: 'UUID v4 (e.g., 123e4567-e89b-12d3-a456-426614174000)',
-        receivedValues: invalidParams.reduce((acc, param) => {
-          acc[param] = validationResults[param].value;
-          return acc;
-        }, {} as Record<string, string>)
-      }
-    });
+    const error = new Error(errorMessage || 'One or more UUID parameters are invalid') as any;
+    error.name = ErrorCode.INVALID_UUID;
+    error.details = {
+      invalidParameters: invalidParams,
+      expectedFormat: 'UUID v4 (e.g., 123e4567-e89b-12d3-a456-426614174000)',
+      receivedValues: invalidParams.reduce((acc, param) => {
+        acc[param] = validationResults[param].value;
+        return acc;
+      }, {} as Record<string, string>)
+    };
 
-    return false;
+    throw error;
   }
-
-  return true;
 }
 
 /**
@@ -112,12 +98,37 @@ export function validateMultipleUUIDs(
  * Use this for most endpoints with standard UUID parameters
  */
 export function validateCommonUUIDs(
-  res: Response,
   params: Record<string, string>
-): boolean {
+): void {
   return validateMultipleUUIDs(
-    res,
     params,
     'One or more UUID parameters are invalid'
   );
+}
+
+/**
+ * Validates UUID fields in request body objects
+ * Use this to validate UUIDs in POST/PUT request bodies
+ */
+export function validateBodyUUIDs(
+  body: Record<string, any>,
+  uuidFields: string[],
+  errorMessage?: string
+): void {
+  const bodyUUIDs: Record<string, string> = {};
+
+  // Extract UUID fields from body
+  uuidFields.forEach(fieldName => {
+    if (body[fieldName] && typeof body[fieldName] === 'string') {
+      bodyUUIDs[fieldName] = body[fieldName];
+    }
+  });
+
+  // If no UUID fields found, nothing to validate
+  if (Object.keys(bodyUUIDs).length === 0) {
+    return;
+  }
+
+  // Validate the UUIDs
+  validateMultipleUUIDs(bodyUUIDs, errorMessage);
 }
