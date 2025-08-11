@@ -58,13 +58,6 @@ jspm_packages/
 # Yarn Integrity file
 .yarn-integrity
 
-# Elastic Beanstalk Files (TODO: Remove after migration complete)
-.ebextensions/
-.elasticbeanstalk/
-
-# AWS deployment files (TODO: Remove after migration complete)
-pantryplus-api.zip
-
 # Documentation
 README.md
 *.md
@@ -80,4 +73,4 @@ __tests__/
 
 # Temporary files
 tmp/
-temp/ 
+temp/
