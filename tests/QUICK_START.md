@@ -67,3 +67,4 @@ pytest test_public_endpoints.py::test_health_endpoint -v
 - Check `tests/README.md` for detailed documentation
 - Run `pytest --help` for pytest options
 - Check `tests/schemathesis/conftest.py` for test configuration
+
