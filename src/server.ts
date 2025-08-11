@@ -73,7 +73,7 @@ app.use((req: Request, res: Response, next: Function) => {
       headers: req.headers
     });
   });
-  
+
   next();
 });
 
@@ -126,7 +126,7 @@ process.on('SIGTERM', () => {
     memory: process.memoryUsage(),
     resourceUsage: process.resourceUsage()
   });
-  
+
   server.close((err) => {
     if (err) {
       log.error({
@@ -145,7 +145,7 @@ process.on('SIGINT', () => {
     pid: process.pid,
     uptime: process.uptime()
   });
-  
+
   server.close((err) => {
     if (err) {
       log.error({
@@ -168,7 +168,7 @@ process.on('uncaughtException', (err) => {
     memory: process.memoryUsage(),
     resourceUsage: process.resourceUsage()
   });
-  
+
   server.close((closeErr) => {
     if (closeErr) {
       log.error({
