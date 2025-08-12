@@ -37,7 +37,7 @@ const getSslConfig = () => {
   if (config.node_env === 'production') {
     try {
       const certPath = path.join(process.cwd(), 'certs', 'rds-ca.pem');
-      
+
       if (!fs.existsSync(certPath)) {
         const err = new Error('RDS certificate not found at ' + certPath) as any;
         err.name = ErrorCode.DATABASE_ERR;
@@ -46,7 +46,7 @@ const getSslConfig = () => {
 
       const cert = fs.readFileSync(certPath);
       const stats = fs.statSync(certPath);
-      
+
       log.info({ message: 'Successfully loaded RDS certificate', certPath, certSize: stats.size});
       return { rejectUnauthorized: true, ca: cert };
     } catch (error: any) {
@@ -89,7 +89,7 @@ async function getPool(): Promise<Pool> {
   if (!pool) {
     try {
       pool = mysql.createPool(sqlConnectOpts);
-      
+
       // Add event listeners for better debugging
       pool.on('acquire', (connection) => {
         log.debug('Connection acquired', { threadId: connection.threadId });
@@ -133,7 +133,7 @@ const dbPost = async (template: string, params: Object, debug: boolean = false):
       const sqlStr = await extractQuery(template);
       const pool = await getPool();
       const dbConn = await pool.getConnection();
-      
+
       try {
         const [rows] = await dbConn.query(sqlStr, params);
         const results = extractDbResult(rows, debug);
@@ -160,6 +160,12 @@ const dbPost = async (template: string, params: Object, debug: boolean = false):
         stack: err.stack
       });
 
+      // Check if this is a non-retryable error
+      if (isNonRetryableError(err)) {
+        log.debug(`Non-retryable error detected, not retrying: ${err.message}`);
+        break;
+      }
+
       if (attempt < maxRetries) {
         const delay = Math.min(1000 * attempt, 3000); // Progressive delay: 1s, 2s, 3s
         log.debug(`Retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`);
@@ -174,6 +180,34 @@ const dbPost = async (template: string, params: Object, debug: boolean = false):
   errObj.originalError = lastError;
   throw errObj;
 };
+
+/**
+ * Determines if an error is non-retryable
+ */
+function isNonRetryableError(err: any): boolean {
+  // Encoding/character set errors are never transient
+  if (err.errno === 3854) return true; // ER_CANNOT_CONVERT_STRING
+
+  // Syntax errors are never transient
+  if (err.errno === 1064) return true; // ER_PARSE_ERROR
+
+  // Data type errors are never transient
+  if (err.errno === 1366) return true; // ER_TRUNCATED_WRONG_VALUE
+
+  // Constraint violations are never transient
+  if (err.errno === 1062) return true; // ER_DUP_ENTRY
+  if (err.errno === 1452) return true; // ER_NO_REFERENCED_ROW_2
+
+  // Authentication/authorization errors are never transient
+  if (err.errno === 1045) return true; // ER_ACCESS_DENIED_ERROR
+  if (err.errno === 1142) return true; // ER_TABLEACCESS_DENIED_ERROR
+
+  // Network/connection errors might be transient (retry these)
+  // Timeout errors might be transient (retry these)
+  // Deadlock errors might be transient (retry these)
+
+  return false;
+}
 
 // returns the array of results w/o all the MySQL wrapping
 const extractDbResult = (rows: any, debug: boolean = false): Array<any> | undefined => {
