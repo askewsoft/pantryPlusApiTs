@@ -123,21 +123,24 @@ fi
 
 echo ""
 echo -e "${BLUE}📁 Detailed Analysis Files Created:${NC}"
-echo "  - failures_by_endpoint.txt"
-echo "  - common_errors.txt"
-echo "  - status_code_analysis.txt"
+echo "  - analysis/failures_by_endpoint.txt"
+echo "  - analysis/common_errors.txt"
+echo "  - analysis/status_code_analysis.txt"
+
+# Create analysis directory
+mkdir -p analysis
 
 # Create detailed analysis files
 echo "Creating detailed analysis files..."
 
 # Failures by endpoint
-grep -B 2 "FAILED" "$LATEST_LOG" | grep -E "(POST|GET|PUT|DELETE) /v1/" | sort | uniq -c | sort -nr > "failures_by_endpoint.txt"
+grep -B 2 "FAILED" "$LATEST_LOG" | grep -E "(POST|GET|PUT|DELETE) /v1/" | sort | uniq -c | sort -nr > "analysis/failures_by_endpoint.txt"
 
 # Common errors
-grep -o "Error:.*" "$LATEST_LOG" 2>/dev/null | sort | uniq -c | sort -nr > "common_errors.txt"
+grep -o "Error:.*" "$LATEST_LOG" 2>/dev/null | sort | uniq -c | sort -nr > "analysis/common_errors.txt"
 
 # Status code analysis
-grep -o "Received: [0-9]*" "$LATEST_LOG" 2>/dev/null | sort | uniq -c | sort -nr > "status_code_analysis.txt"
+grep -o "Received: [0-9]*" "$LATEST_LOG" 2>/dev/null | sort | uniq -c | sort -nr > "analysis/status_code_analysis.txt"
 
 echo -e "${GREEN}✅ Analysis complete!${NC}"
 echo ""
