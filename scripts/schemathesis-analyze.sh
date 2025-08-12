@@ -16,9 +16,9 @@ echo -e "${BLUE}🔍 SCHEMATHEISIS TEST RESULTS ANALYZER${NC}"
 echo "=============================================="
 
 # Find the most recent log file
-LATEST_LOG=$(ls -t test_outputs/main_tests_*.log | head -1)
+LATEST_LOG=$(ls -t ../tests/schemathesis/test_outputs/main_tests_*.log | head -1)
 if [ -z "$LATEST_LOG" ]; then
-    echo -e "${RED}❌ No test output files found in test_outputs/ directory${NC}"
+    echo -e "${RED}❌ No test output files found in tests/schemathesis/test_outputs/ directory${NC}"
     exit 1
 fi
 

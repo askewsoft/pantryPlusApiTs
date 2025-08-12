@@ -66,6 +66,20 @@ An API client can be generated from the OpenAPI specification using the `openapi
 1. `npm run codegen`
   - This will generate a new client into a `../pantryPlusApiClient` peer directory
 
+## Testing
+### Schemathesis
+```sh
+npm run test:schemathesis
+```
+
+
+### Docker
+To test the containerized application locally:
+```sh
+docker compose up --build
+```
+This builds and runs the application with the same environment as App Runner.
+
 ## Deploy
 The API is being deployed to AWS App Runner for better scalability and managed operations.
 
@@ -88,10 +102,3 @@ If you modify API endpoints or schemas:
 1. `npm run codegen` — generates updated client code
 1. Commit and push the generated client code
 1. Follow the Client repos [README](https://github.com/askewsoft/pantryPlusApiClient/blob/main/README.md) to update the mobile app to the latest version
-
-### Local Testing with Docker
-To test the containerized application locally:
-```bash
-docker compose up --build
-```
-This builds and runs the application with the same environment as App Runner.

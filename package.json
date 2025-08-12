@@ -13,11 +13,11 @@
     "codegen": "npm run codegenv1",
     "start": "node build/server.js",
     "dev": "npm run build && nodemon",
-    "test:schemathesis": "./tests/schemathesis/setup-and-run.sh",
-    "test:schemathesis:quick": "/opt/anaconda3/envs/schemathesis/bin/pytest tests/schemathesis/test_property_based.py -v --tb=short --disable-warnings --maxfail=5",
-    "test:schemathesis:auth": "/opt/anaconda3/envs/schemathesis/bin/pytest tests/schemathesis/test_property_based.py::test_auth_edge_cases -v --tb=short --disable-warnings",
-    "test:schemathesis:quiet": "cd tests/schemathesis && ./run_tests_quiet.sh",
-    "test:schemathesis:analyze": "cd tests/schemathesis && ./analyze_results.sh"
+    "test:schemathesis": "cd tests/schemathesis && conda activate schemathesis && pytest",
+    "test:schemathesis:property": "cd tests/schemathesis && conda activate schemathesis && pytest test_property_based.py -v",
+    "test:schemathesis:fuzzing": "cd tests/schemathesis && conda activate schemathesis && pytest test_fuzzing.py -v",
+    "test:schemathesis:public": "cd tests/schemathesis && conda activate schemathesis && pytest test_public_endpoints.py -v",
+    "test:schemathesis:analyze": "./scripts/schemathesis-analyze.sh"
   },
   "nodemonConfig": {
     "watch": [

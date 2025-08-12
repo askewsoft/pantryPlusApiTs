@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Schemathesis Testing Setup and Execution Script
-# This script sets up the conda environment and runs the tests
+# Schemathesis Testing Environment Setup Script
+# This script sets up the conda environment and installs dependencies
 
 set -e  # Exit on any error
 
@@ -10,6 +10,7 @@ echo "🚀 Setting up Schemathesis testing environment..."
 # Check if conda is available
 if ! command -v conda &> /dev/null; then
     echo "❌ Error: conda is not installed or not in PATH"
+    echo "   Please install Anaconda or Miniconda first"
     exit 1
 fi
 
@@ -35,6 +36,10 @@ fi
 
 echo "✅ Activated environment: $CONDA_DEFAULT_ENV"
 
+# Change to schemathesis directory
+echo "📁 Changing to schemathesis directory..."
+cd ../tests/schemathesis
+
 # Install requirements
 echo "📥 Installing Python dependencies..."
 pip install -r requirements.txt
@@ -50,29 +55,20 @@ elif curl -s http://localhost:3000/healthcheck > /dev/null 2>&1; then
 else
     echo "⚠️  Warning: API doesn't appear to be running on localhost:3000"
     echo "   Make sure to run 'npm run dev' in another terminal first"
-    echo "   Continuing anyway..."
 fi
 
-# Run the tests
-echo "🧪 Running Schemathesis tests..."
-echo "=================================="
-
-# Run property-based tests
-echo "Running property-based tests..."
-pytest test_property_based.py -v
-
 echo ""
-echo "Running fuzzing tests..."
-pytest test_fuzzing.py -v
-
+echo "🎉 Setup complete!"
 echo ""
-echo "🎉 Testing complete!"
-echo ""
-echo "To run tests manually in the future:"
+echo "To run tests:"
 echo "1. conda activate schemathesis"
 echo "2. cd tests/schemathesis"
 echo "3. Set your JWT token: export AUTH_TOKEN='your.jwt.token.here'"
 echo "4. pytest test_property_based.py -v"
+echo ""
+echo "Or use npm scripts:"
+echo "  npm run test:schemathesis:quick"
+echo "  npm run test:schemathesis:auth"
 echo ""
 echo "To deactivate the environment:"
 echo "conda deactivate"

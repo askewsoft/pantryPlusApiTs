@@ -15,6 +15,9 @@ NC='\033[0m' # No Color
 echo -e "${BLUE}🧪 Running Schemathesis Tests (Quiet Mode)${NC}"
 echo "=================================================="
 
+# Change to schemathesis directory
+cd ../tests/schemathesis
+
 # Create output directory
 OUTPUT_DIR="test_outputs"
 mkdir -p "$OUTPUT_DIR"
