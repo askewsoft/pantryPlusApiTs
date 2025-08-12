@@ -6,8 +6,20 @@ import path from "path";
 import { ShoppersService } from "../shoppers/shoppersService";
 import { Item } from "./item";
 import { validateUUIDParam, validateBodyUUIDs } from "../../shared/uuidValidation";
+import { validateObject, commonValidations, ValidationResult } from "../../shared/inputValidation";
 
 const mayModifyItemTemplate = path.join(__dirname, './sql/mayModifyItem.sql');
+
+/**
+ * Validates item input data
+ */
+function validateItemInput(data: any): ValidationResult {
+  return validateObject(data, {
+    id: commonValidations.uuid,
+    name: { maxLength: 255 },
+    upc: { maxLength: 50 }
+  });
+}
 
 @Route("items")
 @Tags("Items")
@@ -21,6 +33,16 @@ export class ItemsController extends Controller {
   @Put("{itemId}")
   @Security("bearerAuth")
   public async updateItem(@Header("X-Auth-User") email: string, @Path() itemId: string, @Body() item: Pick<Item, "name" | "upc">): Promise<void> {
+    // Validate input data first
+    const validation = validateObject(item, {
+      name: { maxLength: 255 },
+      upc: { maxLength: 50 }
+    });
+    if (!validation.isValid) {
+      this.setStatus(400);
+      throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
+    }
+
     // Validate UUID path parameter
     validateUUIDParam('itemId', itemId);
 
@@ -37,6 +59,13 @@ export class ItemsController extends Controller {
   @Post()
   @Security("bearerAuth")
   public async createItem(@Header("X-Auth-User") email: string, @Body() item: Item): Promise<void> {
+    // Validate input data first
+    const validation = validateItemInput(item);
+    if (!validation.isValid) {
+      this.setStatus(400);
+      throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
+    }
+
     // Validate UUID in request body
     validateBodyUUIDs(item, ['id'], 'Invalid item ID format');
 

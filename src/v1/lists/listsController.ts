@@ -13,11 +13,35 @@ import { mayProceed } from "../../shared/mayProceed";
 import { ShoppersService } from "../shoppers/shoppersService";
 import { logger } from "../../shared/logger";
 import { validateUUIDParam, validateMultipleUUIDs, validateBodyUUIDs } from "../../shared/uuidValidation";
+import { validateObject, commonValidations, ValidationResult } from "../../shared/inputValidation";
 
 const log = logger("Lists Controller");
 
 const mayUpdateListTemplate = path.join(__dirname, './sql/mayUpdateList.sql');
 const mayContributeToListTemplate = path.join(__dirname, './sql/mayContributeToList.sql');
+
+/**
+ * Validates list input data
+ */
+function validateListInput(data: any): ValidationResult {
+  return validateObject(data, {
+    id: commonValidations.uuid,
+    name: { maxLength: 255 },
+    ownerId: commonValidations.uuid,
+    groupId: { ...commonValidations.uuid, allowEmpty: true },
+    ordinal: { customValidator: (value) => typeof value === 'number' && value >= 0 }
+  });
+}
+
+/**
+ * Validates category input data
+ */
+function validateCategoryInput(data: any): ValidationResult {
+  return validateObject(data, {
+    id: commonValidations.uuid,
+    name: { maxLength: 255 }
+  });
+}
 
 @Route("lists")
 @Tags("Lists")
@@ -35,6 +59,13 @@ export class ListsController extends Controller {
   @Example<Pick<List, "id">>(listIdExample)
   @Security("bearerAuth")
   public async createList(@Header("X-Auth-User") email: string, @Body() newList: List ): Promise<void> {
+    // Validate input data first
+    const validation = validateListInput(newList);
+    if (!validation.isValid) {
+      this.setStatus(400);
+      throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
+    }
+
     // Validate UUIDs in request body
     validateBodyUUIDs(newList, ['id', 'ownerId', 'groupId'], 'Invalid list ID format');
 
@@ -59,6 +90,13 @@ export class ListsController extends Controller {
   @SuccessResponse(201, "Created")
   @Security("bearerAuth")
   public async createCategory(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() listId: string, @Body() category: Category): Promise<void> {
+    // Validate input data first
+    const validation = validateCategoryInput(category);
+    if (!validation.isValid) {
+      this.setStatus(400);
+      throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
+    }
+
     // Validate UUIDs in path and body
     validateUUIDParam('listId', listId);
     validateBodyUUIDs(category, ['id'], 'Invalid category ID format');
