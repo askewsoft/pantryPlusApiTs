@@ -230,8 +230,9 @@ def problematic_emails(draw):
 def test_shopper_creation_with_problematic_data(case):
     """Test shopper creation with problematic email addresses"""
     if "email" in case.body:
-        # Replace email with problematic data
-        case.body["email"] = problematic_emails().example()
+        # Use a simple strategy instead of @given to avoid conflicts
+        problematic_emails_list = ["", "invalid", "a" * 1000 + "@example.com", "test@example.com"]
+        case.body["email"] = problematic_emails_list[hash(case.body.get("id", "")) % len(problematic_emails_list)]
 
     response = case.call()
 

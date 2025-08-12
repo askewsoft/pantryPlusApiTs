@@ -77,6 +77,27 @@ app.use((req: Request, res: Response, next: Function) => {
   next();
 });
 
+// Error handling middleware for authentication and other errors
+app.use((error: any, req: Request, res: Response, next: Function) => {
+  // Handle authentication errors
+  if (error.status && (error.status === 401 || error.status === 403)) {
+    log.warn({
+      message: 'Authentication error',
+      status: error.status,
+      errorMessage: error.message,
+      url: req.url,
+      method: req.method
+    });
+
+    return res.status(error.status).json({
+      error: error.message || 'Authentication failed'
+    });
+  }
+
+  // Pass other errors to the next middleware
+  return next(error);
+});
+
 // Register routes for v1 API
 log.info("Registering v1 routes...");
 RegisterV1Routes(app);

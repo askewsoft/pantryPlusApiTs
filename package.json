@@ -14,8 +14,10 @@
     "start": "node build/server.js",
     "dev": "npm run build && nodemon",
     "test:schemathesis": "./tests/schemathesis/setup-and-run.sh",
-    "test:schemathesis:quick": "cd tests/schemathesis && conda activate schemathesis && pytest test_property_based.py -v",
-    "test:schemathesis:auth": "cd tests/schemathesis && conda activate schemathesis && echo 'Set AUTH_TOKEN first: export AUTH_TOKEN=your.jwt.token.here' && pytest test_property_based.py -v"
+    "test:schemathesis:quick": "/opt/anaconda3/envs/schemathesis/bin/pytest tests/schemathesis/test_property_based.py -v --tb=short --disable-warnings --maxfail=5",
+    "test:schemathesis:auth": "/opt/anaconda3/envs/schemathesis/bin/pytest tests/schemathesis/test_property_based.py::test_auth_edge_cases -v --tb=short --disable-warnings",
+    "test:schemathesis:quiet": "cd tests/schemathesis && ./run_tests_quiet.sh",
+    "test:schemathesis:analyze": "cd tests/schemathesis && ./analyze_results.sh"
   },
   "nodemonConfig": {
     "watch": [

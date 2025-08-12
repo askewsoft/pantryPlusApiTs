@@ -7,3 +7,8 @@ build
 client
 src/routes*.ts
 pantryplus-api.zip
+.hypothesis/
+tests/schemathesis/.hypothesis/
+tests/schemathesis/test_outputs/
+**/.hypothesis/
+**/__pycache__
