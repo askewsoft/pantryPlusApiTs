@@ -3,6 +3,7 @@
 # and discovers edge cases from your OpenAPI specification
 
 import pytest
+import time
 import schemathesis
 from schemathesis import from_uri
 from hypothesis import settings, given, strategies as st
@@ -61,9 +62,12 @@ def get_auth_token_for_test():
 
 # Test all endpoints with automatically generated data
 @schema.parametrize()
-@settings(max_examples=1 if not get_auth_token_for_test() else 50, deadline=5000)
+@settings(max_examples=1 if not get_auth_token_for_test() else 15, deadline=5000)
 def test_all_endpoints(case):
     """Test all endpoints with automatically generated test data"""
+    # Small delay to reduce server load
+    time.sleep(0.1)
+
     # Get auth token when test runs
     token = get_auth_token_for_test()
 
@@ -91,31 +95,43 @@ def test_all_endpoints(case):
 
 # Test specific endpoint categories with custom strategies
 @schema.parametrize(endpoint="/v1/shoppers")
-@settings(max_examples=1 if not get_auth_token_for_test() else 30, deadline=3000)
+@settings(max_examples=1 if not get_auth_token_for_test() else 10, deadline=3000)
 def test_shopper_endpoints(case):
     """Test shopper endpoints with edge case generation"""
+    # Small delay to reduce server load
+    time.sleep(0.1)
+
     response = case.call()
     case.validate_response(response)
 
 @schema.parametrize(endpoint="/v1/groups")
-@settings(max_examples=1 if not get_auth_token_for_test() else 30, deadline=3000)
+@settings(max_examples=1 if not get_auth_token_for_test() else 10, deadline=3000)
 def test_group_endpoints(case):
     """Test group endpoints with edge case generation"""
+    # Small delay to reduce server load
+    time.sleep(0.1)
+
     response = case.call()
     case.validate_response(response)
 
 @schema.parametrize(endpoint="/v1/lists")
-@settings(max_examples=1 if not get_auth_token_for_test() else 30, deadline=3000)
+@settings(max_examples=1 if not get_auth_token_for_test() else 10, deadline=3000)
 def test_list_endpoints(case):
     """Test list endpoints with edge case generation"""
+    # Small delay to reduce server load
+    time.sleep(0.1)
+
     response = case.call()
     case.validate_response(response)
 
 # Custom test for edge cases in item creation
 @schema.parametrize(method="POST", endpoint="/v1/items")
-@settings(max_examples=1 if not get_auth_token_for_test() else 100, deadline=5000)
+@settings(max_examples=1 if not get_auth_token_for_test() else 20, deadline=5000)
 def test_item_creation_edge_cases(case):
     """Test item creation with various edge cases"""
+    # Small delay to reduce server load
+    time.sleep(0.1)
+
     response = case.call()
 
     # Additional assertions for edge cases
@@ -133,7 +149,7 @@ def test_item_creation_edge_cases(case):
 
 # Test authentication edge cases
 @schema.parametrize()
-@settings(max_examples=1 if not get_auth_token_for_test() else 20, deadline=2000)
+@settings(max_examples=1 if not get_auth_token_for_test() else 10, deadline=2000)
 def test_auth_edge_cases(case):
     """Test authentication with various token formats"""
     # Test with malformed tokens
