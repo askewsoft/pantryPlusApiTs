@@ -6,6 +6,7 @@ node_modules
 pantry_store.dbs.bak
 build
 client
+analysis
 src/routes*.ts
 pantryplus-api.zip
 .hypothesis/

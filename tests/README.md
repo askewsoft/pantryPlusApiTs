@@ -22,6 +22,8 @@ This directory contains testing implementations using multiple frameworks to ens
 ./scripts/schemathesis-setup.sh
 ```
 
+**Note**: After setup, you'll be in the `schemathesis` conda environment. The npm scripts will work automatically from any shell.
+
 ### Running Tests
 
 #### Authentication
@@ -37,5 +39,5 @@ npm run test:schemathesis          # Run all tests
 npm run test:schemathesis:property # Comprehensive API testing
 npm run test:schemathesis:fuzzing  # Security vulnerability testing
 npm run test:schemathesis:public   # Public endpoint validation
-npm run test:schemathesis:analyze  # Analyze test results
+npm run test:schemathesis:analyze  # Analyze test results from log files
 ```

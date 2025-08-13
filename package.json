@@ -13,10 +13,10 @@
     "codegen": "npm run codegenv1",
     "start": "node build/server.js",
     "dev": "npm run build && nodemon",
-    "test:schemathesis": "cd tests/schemathesis && conda activate schemathesis && pytest",
-    "test:schemathesis:property": "cd tests/schemathesis && conda activate schemathesis && pytest test_property_based.py -v",
-    "test:schemathesis:fuzzing": "cd tests/schemathesis && conda activate schemathesis && pytest test_fuzzing.py -v",
-    "test:schemathesis:public": "cd tests/schemathesis && conda activate schemathesis && pytest test_public_endpoints.py -v",
+    "test:schemathesis": "./scripts/schemathesis-all.sh",
+    "test:schemathesis:property": "./scripts/schemathesis-property.sh",
+    "test:schemathesis:fuzzing": "./scripts/schemathesis-fuzzing.sh",
+    "test:schemathesis:public": "./scripts/schemathesis-public.sh",
     "test:schemathesis:analyze": "./scripts/schemathesis-analyze.sh"
   },
   "nodemonConfig": {

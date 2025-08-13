@@ -68,8 +68,35 @@ An API client can be generated from the OpenAPI specification using the `openapi
 
 ## Testing
 ### Schemathesis
+
+1. In one terminal window, start the API server and pipe the output to a `api.log` file.
+1. Generate an auth token via pantryPlus mobile app repo script.
+1. In another terminal window, make it available to the test harness so that it can access the API.
+1. Then in the same terminal run the tests in question and run the analysis.
+1. Finally, kill the API server.
+
+For example:
+
 ```sh
-npm run test:schemathesis
+# 1st terminal window
+npm run dev > api.log 2>&1 &
+```
+
+```sh
+# 2nd terminal window
+export AUTH_TOKEN=<your.jwt.token.here>  # For protected endpoints
+npm run test:schemathesis # all tests
+
+# Then after the test run completes, run the analysis:
+npm run test:synthesis:analyze
+```
+
+To stop the server, find and kill the process:
+
+```sh
+# 1st terminal window
+ps aux | grep "node run dev" | grep -v grep
+kill -9 <PID>
 ```
 
 
