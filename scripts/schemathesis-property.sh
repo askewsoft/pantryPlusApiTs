@@ -74,14 +74,9 @@ while kill -0 $PYTEST_PID 2>/dev/null; do
     sleep 2  # Check every 2 seconds for faster updates
 
     # Count completed tests - look for the actual test result lines
-    # Try multiple patterns to catch different pytest output formats
-    COMPLETED=$(grep -c "PASSED\|FAILED\|SKIPPED\|ERROR" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
-
-    # If no results found with standard patterns, try alternative counting
-    if [ "$COMPLETED" -eq 0 ]; then
-        # Count lines that look like test results (contain test names and status)
-        COMPLETED=$(grep -c "test_.*::.*\[.*%\]" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
-    fi
+    # Only count the test execution lines, not the detailed failure lines
+    # Pattern: test_name::endpoint [XX%] - this is the actual test execution
+    COMPLETED=$(grep -c "test_.*::.*\[.*%\]" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
 
     # Get total tests from the "collected X items" line
     TOTAL_ESTIMATE=$(grep "collected.*items" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" | grep -o "[0-9]\+" | head -1 | tr -d '\n' || echo "0")
@@ -126,14 +121,8 @@ while kill -0 $PYTEST_PID 2>/dev/null; do
         if kill -0 $PYTEST_PID 2>/dev/null; then
             # Wait a bit longer to see if more results come in
             sleep 5
-            # Try multiple patterns to catch different pytest output formats
-            NEW_COMPLETED=$(grep -c "PASSED\|FAILED\|SKIPPED\|ERROR" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
-
-            # If no results found with standard patterns, try alternative counting
-            if [ "$NEW_COMPLETED" -eq 0 ]; then
-                # Count lines that look like test results (contain test names and status)
-                NEW_COMPLETED=$(grep -c "test_.*::.*\[.*%\]" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
-            fi
+            # Count completed tests using the same corrected method
+            NEW_COMPLETED=$(grep -c "test_.*::.*\[.*%\]" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
 
             if [ "$NEW_COMPLETED" -eq "$COMPLETED" ]; then
                 echo -e "${YELLOW}⚠️  No new test results detected for 5 seconds, tests may be stuck or complete${NC}"
