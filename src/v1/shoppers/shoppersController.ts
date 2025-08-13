@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   Query,
+  Response,
   Route,
   Security,
   SuccessResponse,
@@ -61,6 +62,7 @@ export class ShoppersController extends Controller {
    */
   @Post()
   @SuccessResponse(201, "Created")
+  @Response(403, "Forbidden", { error: "user not allowed access" })
   @Example<Shopper>(shopperExample)
   @Security("bearerAuth")
   public async createShopper(@Body() person: Shopper ): Promise<Shopper> {
@@ -88,6 +90,7 @@ export class ShoppersController extends Controller {
    */
   @Put("{shopperId}")
   @SuccessResponse(205, "Content Updated")
+  @Response(403, "Forbidden", { error: "user not allowed access" })
   @Example<Pick<Shopper, "id">>(shopperIdExample)
   @Security("bearerAuth")
   public async updateShopper(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Body() shopper: Shopper): Promise<Pick<Shopper, "id">> {
@@ -112,6 +115,7 @@ export class ShoppersController extends Controller {
    */
   @Get("{shopperId}")
   @SuccessResponse(200, "OK")
+  @Response(403, "Forbidden", { error: "user not allowed access" })
   @Example<Shopper>(shopperExample)
   @Security("bearerAuth")
   public async retrieveShopper(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Shopper> {
@@ -128,6 +132,7 @@ export class ShoppersController extends Controller {
    */
   @Get("{shopperId}/groups")
   @SuccessResponse(200, "OK")
+  @Response(403, "Forbidden", { error: "user not allowed access" })
   @Example<Array<Pick<Group, "id" | "name" | "owner">>>(groupsExample)
   @Security("bearerAuth")
   public async getGroups(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Pick<Group, "id" | "name" | "owner">>> {
