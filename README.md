@@ -88,7 +88,7 @@ export AUTH_TOKEN=<your.jwt.token.here>  # For protected endpoints
 npm run test:schemathesis # all tests
 
 # Then after the test run completes, run the analysis:
-npm run test:synthesis:analyze
+npm run test:schemathesis:analyze
 ```
 
 To stop the server, find and kill the process:
