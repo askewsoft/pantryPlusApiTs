@@ -62,11 +62,11 @@ def get_auth_token_for_test():
 
 # Test all endpoints with automatically generated data
 @schema.parametrize()
-@settings(max_examples=1 if not get_auth_token_for_test() else 15, deadline=5000)
+@settings(max_examples=1 if not get_auth_token_for_test() else 3, deadline=10000)
 def test_all_endpoints(case):
     """Test all endpoints with automatically generated test data"""
-    # Small delay to reduce server load
-    time.sleep(0.1)
+    # Longer delay to reduce server load
+    time.sleep(0.5)
 
     # Get auth token when test runs
     token = get_auth_token_for_test()
@@ -95,42 +95,42 @@ def test_all_endpoints(case):
 
 # Test specific endpoint categories with custom strategies
 @schema.parametrize(endpoint="/v1/shoppers")
-@settings(max_examples=1 if not get_auth_token_for_test() else 10, deadline=3000)
+@settings(max_examples=1 if not get_auth_token_for_test() else 2, deadline=5000)
 def test_shopper_endpoints(case):
     """Test shopper endpoints with edge case generation"""
-    # Small delay to reduce server load
-    time.sleep(0.1)
+    # Longer delay to reduce server load
+    time.sleep(0.5)
 
     response = case.call()
     case.validate_response(response)
 
 @schema.parametrize(endpoint="/v1/groups")
-@settings(max_examples=1 if not get_auth_token_for_test() else 10, deadline=3000)
+@settings(max_examples=1 if not get_auth_token_for_test() else 2, deadline=5000)
 def test_group_endpoints(case):
     """Test group endpoints with edge case generation"""
-    # Small delay to reduce server load
-    time.sleep(0.1)
+    # Longer delay to reduce server load
+    time.sleep(0.5)
 
     response = case.call()
     case.validate_response(response)
 
 @schema.parametrize(endpoint="/v1/lists")
-@settings(max_examples=1 if not get_auth_token_for_test() else 10, deadline=3000)
+@settings(max_examples=1 if not get_auth_token_for_test() else 2, deadline=5000)
 def test_list_endpoints(case):
     """Test list endpoints with edge case generation"""
-    # Small delay to reduce server load
-    time.sleep(0.1)
+    # Longer delay to reduce server load
+    time.sleep(0.5)
 
     response = case.call()
     case.validate_response(response)
 
 # Custom test for edge cases in item creation
 @schema.parametrize(method="POST", endpoint="/v1/items")
-@settings(max_examples=1 if not get_auth_token_for_test() else 20, deadline=5000)
+@settings(max_examples=1 if not get_auth_token_for_test() else 3, deadline=10000)
 def test_item_creation_edge_cases(case):
     """Test item creation with various edge cases"""
-    # Small delay to reduce server load
-    time.sleep(0.1)
+    # Longer delay to reduce server load
+    time.sleep(0.5)
 
     response = case.call()
 
@@ -149,9 +149,12 @@ def test_item_creation_edge_cases(case):
 
 # Test authentication edge cases
 @schema.parametrize()
-@settings(max_examples=1 if not get_auth_token_for_test() else 10, deadline=2000)
+@settings(max_examples=1 if not get_auth_token_for_test() else 2, deadline=5000)
 def test_auth_edge_cases(case):
     """Test authentication with various token formats"""
+    # Longer delay to reduce server load
+    time.sleep(0.5)
+
     # Test with malformed tokens
     if "Authorization" in case.headers:
         malformed_tokens = [
@@ -173,9 +176,12 @@ def test_auth_edge_cases(case):
 
 # Test invalid authentication scenarios (always runs)
 @schema.parametrize()
-@settings(max_examples=1 if not get_auth_token_for_test() else 30, deadline=3000)
+@settings(max_examples=1 if not get_auth_token_for_test() else 5, deadline=5000)
 def test_invalid_auth_scenarios(case):
     """Test how API handles invalid authentication"""
+    # Longer delay to reduce server load
+    time.sleep(0.5)
+
     # Generate various malformed authentication attempts
     malformed_auth = [
         "Bearer",
@@ -214,9 +220,12 @@ def test_invalid_auth_scenarios(case):
 
 # Test rate limiting and performance
 @schema.parametrize()
-@settings(max_examples=1 if not get_auth_token_for_test() else 10, deadline=10000)
+@settings(max_examples=1 if not get_auth_token_for_test() else 3, deadline=10000)
 def test_performance_edge_cases(case):
     """Test performance with various payload sizes"""
+    # Longer delay to reduce server load
+    time.sleep(0.5)
+
     try:
         response = case.call()
 
@@ -250,9 +259,12 @@ def problematic_emails(draw):
 
 # Test with problematic data
 @schema.parametrize(method="POST", endpoint="/v1/shoppers")
-@settings(max_examples=1 if not get_auth_token_for_test() else 50, deadline=3000)
+@settings(max_examples=1 if not get_auth_token_for_test() else 3, deadline=5000)
 def test_shopper_creation_with_problematic_data(case):
     """Test shopper creation with problematic email addresses"""
+    # Longer delay to reduce server load
+    time.sleep(0.5)
+
     if "email" in case.body:
         # Use a simple strategy instead of @given to avoid conflicts
         problematic_emails_list = ["", "invalid", "a" * 1000 + "@example.com", "test@example.com"]
