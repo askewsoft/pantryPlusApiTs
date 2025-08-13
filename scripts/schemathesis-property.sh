@@ -78,7 +78,7 @@ while kill -0 $PYTEST_PID 2>/dev/null; do
     # Count completed tests - look for the actual test result lines
     # With --quiet, we only get test results, no progress percentages
     # Pattern: test_name::endpoint PASSED/FAILED/SKIPPED/ERROR
-    COMPLETED=$(grep -c "test_.*::.*\(PASSED\|FAILED\|SKIPPED\|ERROR\)" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
+    COMPLETED=$(grep -c "test_.*::.*PASSED\|test_.*::.*FAILED\|test_.*::.*SKIPPED\|test_.*::.*ERROR" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
 
     # Get total tests from the "collected X items" line
     TOTAL_ESTIMATE=$(grep "collected.*items" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" | grep -o "[0-9]\+" | head -1 | tr -d '\n' || echo "0")
@@ -124,7 +124,7 @@ while kill -0 $PYTEST_PID 2>/dev/null; do
             # Wait a bit longer to see if more results come in
             sleep 5
             # Count completed tests using the same corrected method
-            NEW_COMPLETED=$(grep -c "test_.*::.*\(PASSED\|FAILED\|SKIPPED\|ERROR\)" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
+            NEW_COMPLETED=$(grep -c "test_.*::.*PASSED\|test_.*::.*FAILED\|test_.*::.*SKIPPED\|test_.*::.*ERROR" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
 
             if [ "$NEW_COMPLETED" -eq "$COMPLETED" ]; then
                 echo -e "${YELLOW}⚠️  No new test results detected for 5 seconds, tests may be stuck or complete${NC}"
@@ -143,7 +143,7 @@ PYTEST_EXIT_CODE=$?
 
 # Final progress update
 # Count completed tests using the test result pattern
-FINAL_COMPLETED=$(grep -c "test_.*::.*\(PASSED\|FAILED\|SKIPPED\|ERROR\)" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
+FINAL_COMPLETED=$(grep -c "test_.*::.*PASSED\|test_.*::.*FAILED\|test_.*::.*SKIPPED\|test_.*::.*ERROR" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
 
 FINAL_TOTAL=$(grep "collected.*items" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" | grep -o "[0-9]\+" | head -1 | tr -d '\n' || echo "0")
 
