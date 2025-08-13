@@ -35,7 +35,7 @@ TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 echo -e "${YELLOW}Running all Schemathesis tests...${NC}"
 
 # Run pytest with quiet output to avoid double counting
-pytest --quiet --tb=short --disable-warnings > "$OUTPUT_DIR/all_tests_${TIMESTAMP}.log" 2>&1
+pytest -q --tb=short --disable-warnings > "$OUTPUT_DIR/all_tests_${TIMESTAMP}.log" 2>&1
 
 # Generate summary
 echo -e "${GREEN}✅ All tests completed!${NC}"

@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# Run Schemathesis fuzzing tests with quiet output and logging
-
-set -e
-
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -56,100 +52,14 @@ mkdir -p "$OUTPUT_DIR"
 # Timestamp for unique filenames
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 
-# Run fuzzing tests with progress monitoring
-echo -e "${YELLOW}Running security fuzzing tests...${NC}"
+# Run fuzzing tests
+echo -e "${YELLOW}Running fuzzing tests...${NC}"
 
-# Start pytest in background and capture PID
-pytest test_fuzzing.py --quiet --tb=short --disable-warnings > "$OUTPUT_DIR/fuzzing_tests_${TIMESTAMP}.log" 2>&1 &
-PYTEST_PID=$!
-
-# Monitor progress
-echo -e "${BLUE}📊 Progress monitoring started...${NC}"
-LAST_PROGRESS=0
-LAST_COMPLETED=0
-INITIAL_CHECK=true
-COMPLETION_DETECTED=false
-
-while kill -0 $PYTEST_PID 2>/dev/null; do
-    sleep 2  # Check every 2 seconds for faster updates
-
-    # Count completed tests - look for the actual test result lines
-    # With --quiet, we only get test results, no progress percentages
-    # Pattern: test_name::endpoint PASSED/FAILED/SKIPPED/ERROR
-    COMPLETED=$(grep -c "test_.*::.*PASSED\|test_.*::.*FAILED\|test_.*::.*SKIPPED\|test_.*::.*ERROR" "$OUTPUT_DIR/fuzzing_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
-
-    # Get total tests from the "collected X items" line
-    TOTAL_ESTIMATE=$(grep "collected.*items" "$OUTPUT_DIR/fuzzing_tests_${TIMESTAMP}.log" | grep -o "[0-9]\+" | head -1 | tr -d '\n' || echo "0")
-
-    # Debug output (only show occasionally to avoid spam)
-    if [ $((RANDOM % 10)) -eq 0 ]; then
-        echo -e "${BLUE}🔍 Debug: Found ${COMPLETED} completed tests, total estimated: ${TOTAL_ESTIMATE}${NC}"
-    fi
-
-    # Only show progress if we have both a total and completed count, and the count is stable
-    if [ "$TOTAL_ESTIMATE" -gt 0 ] && [ "$COMPLETED" -gt 0 ] && [ "$COMPLETED" -ge "$LAST_COMPLETED" ]; then
-        LAST_COMPLETED=$COMPLETED
-        PROGRESS=$(( (COMPLETED * 100) / TOTAL_ESTIMATE ))
-
-        # Show initial progress immediately
-        if [ "$INITIAL_CHECK" = true ]; then
-            echo -e "${YELLOW}📊 Initial Progress: ${PROGRESS}% (${COMPLETED}/${TOTAL_ESTIMATE} tests completed)${NC}"
-            INITIAL_CHECK=false
-            LAST_PROGRESS=$PROGRESS
-        # Show progress every 5% for more granular updates
-        elif [ $PROGRESS -gt $LAST_PROGRESS ] && [ $((PROGRESS % 5)) -eq 0 ]; then
-            echo -e "${GREEN}📈 Progress: ${PROGRESS}% (${COMPLETED}/${TOTAL_ESTIMATE} tests completed)${NC}"
-            LAST_PROGRESS=$PROGRESS
-        fi
-
-        # Check for completion - if we're at 100% and pytest is finishing
-        if [ $PROGRESS -eq 100 ] && [ "$COMPLETION_DETECTED" = false ]; then
-            echo -e "${GREEN}🎉 All tests completed!${NC}"
-            COMPLETION_DETECTED=true
-
-            # Give pytest a moment to finish writing output, then check if it's done
-            sleep 1
-            if ! kill -0 $PYTEST_PID 2>/dev/null; then
-                break  # pytest has finished, exit monitoring
-            fi
-        fi
-    fi
-
-    # Alternative completion detection: if we haven't seen new test results in a while
-    if [ "$COMPLETED" -gt 0 ] && [ "$COMPLETED" -eq "$LAST_COMPLETED" ] && [ "$COMPLETED" -gt 20 ]; then
-        # Check if pytest is still running but we haven't seen new results
-        if kill -0 $PYTEST_PID 2>/dev/null; then
-            # Wait a bit longer to see if more results come in
-            sleep 5
-            # Count completed tests using the same corrected method
-            NEW_COMPLETED=$(grep -c "test_.*::.*PASSED\|test_.*::.*FAILED\|test_.*::.*SKIPPED\|test_.*::.*ERROR" "$OUTPUT_DIR/fuzzing_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
-
-            if [ "$NEW_COMPLETED" -eq "$COMPLETED" ]; then
-                echo -e "${YELLOW}⚠️  No new test results detected for 5 seconds, tests may be stuck or complete${NC}"
-                # Don't break here, just continue monitoring
-            fi
-        fi
-    fi
-done
-
-# Wait for pytest to finish (should be quick if we detected completion)
-if kill -0 $PYTEST_PID 2>/dev/null; then
-    echo -e "${YELLOW}⏳ Waiting for pytest to finish...${NC}"
-    wait $PYTEST_PID
-fi
+# Run pytest and capture output
+pytest test_fuzzing.py -q --tb=short --disable-warnings > "$OUTPUT_DIR/fuzzing_tests_${TIMESTAMP}.log" 2>&1
 PYTEST_EXIT_CODE=$?
 
-# Final progress update
-# Count completed tests using the test result pattern
-FINAL_COMPLETED=$(grep -c "test_.*::.*PASSED\|test_.*::.*FAILED\|test_.*::.*SKIPPED\|test_.*::.*ERROR" "$OUTPUT_DIR/fuzzing_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
-
-FINAL_TOTAL=$(grep "collected.*items" "$OUTPUT_DIR/fuzzing_tests_${TIMESTAMP}.log" | grep -o "[0-9]\+" | head -1 | tr -d '\n' || echo "0")
-
-if [ "$FINAL_TOTAL" -gt 0 ]; then
-    echo -e "${GREEN}📈 Final Progress: 100% (${FINAL_COMPLETED}/${FINAL_TOTAL} tests completed)${NC}"
-fi
-
-# Generate summary
+# Show completion message
 echo -e "${GREEN}✅ Fuzzing tests completed!${NC}"
 echo ""
 echo -e "${BLUE}📁 Output file created:${NC}"
@@ -165,4 +75,4 @@ echo -e "${YELLOW}💡 To view detailed results:${NC}"
 echo "  cat $OUTPUT_DIR/fuzzing_tests_${TIMESTAMP}.log"
 echo ""
 echo -e "${YELLOW}💡 To view only failures:${NC}"
-echo "  grep -A 5 -B 5 'FAILED\|ERROR' $OUTPUT_DIR/fuzzing_tests_${TIMESTAMP}.log"
+echo "  grep 'FAILED\|ERROR' $OUTPUT_DIR/fuzzing_tests_${TIMESTAMP}.log"
