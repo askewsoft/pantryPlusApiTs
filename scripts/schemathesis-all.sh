@@ -31,9 +31,11 @@ mkdir -p "$OUTPUT_DIR"
 # Timestamp for unique filenames
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 
-# Run all tests with quiet output
-echo -e "${YELLOW}Running all tests...${NC}"
-pytest --tb=short --disable-warnings > "$OUTPUT_DIR/all_tests_${TIMESTAMP}.log" 2>&1
+# Run all Schemathesis tests
+echo -e "${YELLOW}Running all Schemathesis tests...${NC}"
+
+# Run pytest with quiet output to avoid double counting
+pytest --quiet --tb=short --disable-warnings > "$OUTPUT_DIR/all_tests_${TIMESTAMP}.log" 2>&1
 
 # Generate summary
 echo -e "${GREEN}✅ All tests completed!${NC}"

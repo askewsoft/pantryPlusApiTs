@@ -14,13 +14,15 @@ NC='\033[0m' # No Color
 echo -e "${BLUE}🧪 Running Schemathesis Property Tests${NC}"
 echo "============================================="
 
+TESTS_DIR='tests/schemathesis'
+
 # Change to schemathesis directory (handle being run from root or scripts directory)
-if [ -d "tests/schemathesis" ]; then
-    cd tests/schemathesis
-elif [ -d "../tests/schemathesis" ]; then
-    cd ../tests/schemathesis
+if [ -d "$TESTS_DIR" ]; then
+    cd $TESTS_DIR
+elif [ -d "../$TESTS_DIR" ]; then
+    cd ../$TESTS_DIR
 else
-    echo -e "${RED}❌ Error: Cannot find tests/schemathesis directory${NC}"
+    echo -e "${RED}❌ Error: Cannot find $TESTS_DIR directory${NC}"
     exit 1
 fi
 
@@ -60,7 +62,7 @@ TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 echo -e "${YELLOW}Running property-based tests...${NC}"
 
 # Start pytest in background and capture PID
-pytest test_property_based.py -v --tb=short --disable-warnings > "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" 2>&1 &
+pytest test_property_based.py --quiet --tb=short --disable-warnings > "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" 2>&1 &
 PYTEST_PID=$!
 
 # Monitor progress
@@ -74,9 +76,9 @@ while kill -0 $PYTEST_PID 2>/dev/null; do
     sleep 2  # Check every 2 seconds for faster updates
 
     # Count completed tests - look for the actual test result lines
-    # Only count the test execution lines, not the detailed failure lines
-    # Pattern: test_name::endpoint [XX%] - this is the actual test execution
-    COMPLETED=$(grep -c "test_.*::.*\[.*%\]" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
+    # With --quiet, we only get test results, no progress percentages
+    # Pattern: test_name::endpoint PASSED/FAILED/SKIPPED/ERROR
+    COMPLETED=$(grep -c "test_.*::.*\(PASSED\|FAILED\|SKIPPED\|ERROR\)" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
 
     # Get total tests from the "collected X items" line
     TOTAL_ESTIMATE=$(grep "collected.*items" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" | grep -o "[0-9]\+" | head -1 | tr -d '\n' || echo "0")
@@ -122,7 +124,7 @@ while kill -0 $PYTEST_PID 2>/dev/null; do
             # Wait a bit longer to see if more results come in
             sleep 5
             # Count completed tests using the same corrected method
-            NEW_COMPLETED=$(grep -c "test_.*::.*\[.*%\]" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
+            NEW_COMPLETED=$(grep -c "test_.*::.*\(PASSED\|FAILED\|SKIPPED\|ERROR\)" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
 
             if [ "$NEW_COMPLETED" -eq "$COMPLETED" ]; then
                 echo -e "${YELLOW}⚠️  No new test results detected for 5 seconds, tests may be stuck or complete${NC}"
@@ -140,14 +142,8 @@ fi
 PYTEST_EXIT_CODE=$?
 
 # Final progress update
-# Try multiple patterns to catch different pytest output formats
-FINAL_COMPLETED=$(grep -c "PASSED\|FAILED\|SKIPPED\|ERROR" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
-
-# If no results found with standard patterns, try alternative counting
-if [ "$FINAL_COMPLETED" -eq 0 ]; then
-    # Count lines that look like test results (contain test names and status)
-    FINAL_COMPLETED=$(grep -c "test_.*::.*\[.*%\]" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
-fi
+# Count completed tests using the test result pattern
+FINAL_COMPLETED=$(grep -c "test_.*::.*\(PASSED\|FAILED\|SKIPPED\|ERROR\)" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" 2>/dev/null | tr -d '\n' || echo "0")
 
 FINAL_TOTAL=$(grep "collected.*items" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" | grep -o "[0-9]\+" | head -1 | tr -d '\n' || echo "0")
 
@@ -159,16 +155,16 @@ fi
 echo -e "${GREEN}✅ Property tests completed!${NC}"
 echo ""
 echo -e "${BLUE}📁 Output file created:${NC}"
-echo "  - Property tests: $OUTPUT_DIR/property_tests_${TIMESTAMP}.log"
+echo "  - Property tests: $TESTS_DIR/$OUTPUT_DIR/property_tests_${TIMESTAMP}.log"
 echo ""
 
 # Show quick summary of results
 echo -e "${BLUE}📊 Quick Results Summary:${NC}"
-grep -E "(PASSED|FAILED|SKIPPED)" "$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" | tail -1
+grep -E "(PASSED|FAILED|SKIPPED)" "$TESTS_DIR/$OUTPUT_DIR/property_tests_${TIMESTAMP}.log" | tail -1
 
 echo ""
 echo -e "${YELLOW}💡 To view detailed results:${NC}"
-echo "  cat $OUTPUT_DIR/property_tests_${TIMESTAMP}.log"
+echo "  cat $TESTS_DIR/$OUTPUT_DIR/property_tests_${TIMESTAMP}.log"
 echo ""
 echo -e "${YELLOW}💡 To view only failures:${NC}"
-echo "  grep -A 5 -B 5 'FAILED\|ERROR' $OUTPUT_DIR/property_tests_${TIMESTAMP}.log"
+echo "  grep -A 5 -B 5 'FAILED\|ERROR' $TESTS_DIR/$OUTPUT_DIR/property_tests_${TIMESTAMP}.log"

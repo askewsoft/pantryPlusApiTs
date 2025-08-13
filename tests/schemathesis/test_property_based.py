@@ -80,15 +80,20 @@ def test_all_endpoints(case):
         response = case.call()
         case.validate_response(response)
     except Exception as e:
-        # Check if this is an expected "failure" (like 401 for protected endpoints)
         if "401" in str(e) or "403" in str(e) or "Unauthorized" in str(e):
-            # This is actually a successful test - API properly rejected unauthorized access
-            print(f"✅ SUCCESS: {case.method} {case.endpoint} properly rejected unauthorized access")
-            pytest.skip(f"Expected behavior: {case.method} {case.endpoint} requires authentication")
+            if token:
+                # We provided a token but got 401 - this is a FAILURE
+                # The token might be expired, invalid, or the endpoint has different auth requirements
+                print(f"❌ FAILURE: {case.method} {case.endpoint} returned 401 despite providing token")
+                raise  # Let this fail the test
+            else:
+                # No token provided and got 401 - this is EXPECTED behavior
+                print(f"✅ SUCCESS: {case.method} {case.endpoint} properly rejected unauthorized access")
+                pytest.skip(f"Expected behavior: {case.method} {case.endpoint} requires authentication")
         elif "500" in str(e) or "Internal Server Error" in str(e):
-            # This might be a real issue - log it but don't fail the test
-            print(f"⚠️  WARNING: {case.method} {case.endpoint} returned 500 - investigate")
-            pytest.skip(f"Server error on {case.method} {case.endpoint} - needs investigation")
+            # 500 errors are BUGS - don't skip, let them fail
+            print(f"💥 BUG: {case.method} {case.endpoint} returned 500 - this is a server error")
+            raise  # This should fail the test
         else:
             # Re-raise unexpected errors
             raise
@@ -101,8 +106,35 @@ def test_shopper_endpoints(case):
     # Longer delay to reduce server load
     time.sleep(0.5)
 
-    response = case.call()
-    case.validate_response(response)
+    # Get auth token when test runs
+    token = get_auth_token_for_test()
+
+    # Add authentication header if we have a token
+    if token:
+        case.headers = case.headers or {}
+        case.headers["Authorization"] = f"Bearer {token}"
+
+    try:
+        response = case.call()
+        case.validate_response(response)
+    except Exception as e:
+        if "401" in str(e) or "403" in str(e) or "Unauthorized" in str(e):
+            if token:
+                # We provided a token but got 401 - this is a FAILURE
+                # The token might be expired, invalid, or the endpoint has different auth requirements
+                print(f"❌ FAILURE: {case.method} {case.endpoint} returned 401 despite providing token")
+                raise  # Let this fail the test
+            else:
+                # No token provided and got 401 - this is EXPECTED behavior
+                print(f"✅ SUCCESS: {case.method} {case.endpoint} properly rejected unauthorized access")
+                pytest.skip(f"Expected behavior: {case.method} {case.endpoint} requires authentication")
+        elif "500" in str(e) or "Internal Server Error" in str(e):
+            # 500 errors are BUGS - don't skip, let them fail
+            print(f"💥 BUG: {case.method} {case.endpoint} returned 500 - this is a server error")
+            raise  # This should fail the test
+        else:
+            # Re-raise unexpected errors
+            raise
 
 @schema.parametrize(endpoint="/v1/groups")
 @settings(max_examples=1 if not get_auth_token_for_test() else 2, deadline=5000)
@@ -111,8 +143,35 @@ def test_group_endpoints(case):
     # Longer delay to reduce server load
     time.sleep(0.5)
 
-    response = case.call()
-    case.validate_response(response)
+    # Get auth token when test runs
+    token = get_auth_token_for_test()
+
+    # Add authentication header if we have a token
+    if token:
+        case.headers = case.headers or {}
+        case.headers["Authorization"] = f"Bearer {token}"
+
+    try:
+        response = case.call()
+        case.validate_response(response)
+    except Exception as e:
+        if "401" in str(e) or "403" in str(e) or "Unauthorized" in str(e):
+            if token:
+                # We provided a token but got 401 - this is a FAILURE
+                # The token might be expired, invalid, or the endpoint has different auth requirements
+                print(f"❌ FAILURE: {case.method} {case.endpoint} returned 401 despite providing token")
+                raise  # Let this fail the test
+            else:
+                # No token provided and got 401 - this is EXPECTED behavior
+                print(f"✅ SUCCESS: {case.method} {case.endpoint} properly rejected unauthorized access")
+                pytest.skip(f"Expected behavior: {case.method} {case.endpoint} requires authentication")
+        elif "500" in str(e) or "Internal Server Error" in str(e):
+            # 500 errors are BUGS - don't skip, let them fail
+            print(f"💥 BUG: {case.method} {case.endpoint} returned 500 - this is a server error")
+            raise  # This should fail the test
+        else:
+            # Re-raise unexpected errors
+            raise
 
 @schema.parametrize(endpoint="/v1/lists")
 @settings(max_examples=1 if not get_auth_token_for_test() else 2, deadline=5000)
@@ -121,8 +180,35 @@ def test_list_endpoints(case):
     # Longer delay to reduce server load
     time.sleep(0.5)
 
-    response = case.call()
-    case.validate_response(response)
+    # Get auth token when test runs
+    token = get_auth_token_for_test()
+
+    # Add authentication header if we have a token
+    if token:
+        case.headers = case.headers or {}
+        case.headers["Authorization"] = f"Bearer {token}"
+
+    try:
+        response = case.call()
+        case.validate_response(response)
+    except Exception as e:
+        if "401" in str(e) or "403" in str(e) or "Unauthorized" in str(e):
+            if token:
+                # We provided a token but got 401 - this is a FAILURE
+                # The token might be expired, invalid, or the endpoint has different auth requirements
+                print(f"❌ FAILURE: {case.method} {case.endpoint} returned 401 despite providing token")
+                raise  # Let this fail the test
+            else:
+                # No token provided and got 401 - this is EXPECTED behavior
+                print(f"✅ SUCCESS: {case.method} {case.endpoint} properly rejected unauthorized access")
+                pytest.skip(f"Expected behavior: {case.method} {case.endpoint} requires authentication")
+        elif "500" in str(e) or "Internal Server Error" in str(e):
+            # 500 errors are BUGS - don't skip, let them fail
+            print(f"💥 BUG: {case.method} {case.endpoint} returned 500 - this is a server error")
+            raise  # This should fail the test
+        else:
+            # Re-raise unexpected errors
+            raise
 
 # Custom test for edge cases in item creation
 @schema.parametrize(method="POST", endpoint="/v1/items")
@@ -132,20 +218,47 @@ def test_item_creation_edge_cases(case):
     # Longer delay to reduce server load
     time.sleep(0.5)
 
-    response = case.call()
+    # Get auth token when test runs
+    token = get_auth_token_for_test()
 
-    # Additional assertions for edge cases
-    if response.status_code == 201:
-        data = response.json()
-        assert "id" in data
-        assert "name" in data
-        assert "quantity" in data
+    # Add authentication header if we have a token
+    if token:
+        case.headers = case.headers or {}
+        case.headers["Authorization"] = f"Bearer {token}"
 
-        # Test edge cases for quantity
-        if "quantity" in case.body:
-            quantity = case.body["quantity"]
-            assert isinstance(quantity, (int, float))
-            assert quantity > 0
+    try:
+        response = case.call()
+
+        # Additional assertions for edge cases
+        if response.status_code == 201:
+            data = response.json()
+            assert "id" in data
+            assert "name" in data
+            assert "quantity" in data
+
+            # Test edge cases for quantity
+            if "quantity" in case.body:
+                quantity = case.body["quantity"]
+                assert isinstance(quantity, (int, float))
+                assert quantity > 0
+    except Exception as e:
+        if "401" in str(e) or "403" in str(e) or "Unauthorized" in str(e):
+            if token:
+                # We provided a token but got 401 - this is a FAILURE
+                # The token might be expired, invalid, or the endpoint has different auth requirements
+                print(f"❌ FAILURE: {case.method} {case.endpoint} returned 401 despite providing token")
+                raise  # Let this fail the test
+            else:
+                # No token provided and got 401 - this is EXPECTED behavior
+                print(f"✅ SUCCESS: {case.method} {case.endpoint} properly rejected unauthorized access")
+                pytest.skip(f"Expected behavior: {case.method} {case.endpoint} requires authentication")
+        elif "500" in str(e) or "Internal Server Error" in str(e):
+            # 500 errors are BUGS - don't skip, let them fail
+            print(f"💥 BUG: {case.method} {case.endpoint} returned 500 - this is a server error")
+            raise  # This should fail the test
+        else:
+            # Re-raise unexpected errors
+            raise
 
 # Test authentication edge cases
 @schema.parametrize()
@@ -169,10 +282,29 @@ def test_auth_edge_cases(case):
 
         for token in malformed_tokens:
             case.headers["Authorization"] = token
-            response = case.call()
-            # Should return 401/403 for malformed tokens, or 400/422 for validation errors
-            if token in ["Bearer", "Bearer ", "", None]:
-                assert response.status_code in [401, 403, 400, 422]
+            try:
+                response = case.call()
+                # Should return 401/403 for malformed tokens, or 400/422 for validation errors
+                if token in ["Bearer", "Bearer ", "", None]:
+                    assert response.status_code in [401, 403, 400, 422]
+            except Exception as e:
+                if "401" in str(e) or "403" in str(e) or "Unauthorized" in str(e):
+                    if token:
+                        # We provided a token but got 401 - this is a FAILURE
+                        # The token might be expired, invalid, or the endpoint has different auth requirements
+                        print(f"❌ FAILURE: {case.method} {case.endpoint} returned 401 despite providing token")
+                        raise  # Let this fail the test
+                    else:
+                        # No token provided and got 401 - this is EXPECTED behavior
+                        print(f"✅ SUCCESS: {case.method} {case.endpoint} properly rejected unauthorized access")
+                        pytest.skip(f"Expected behavior: {case.method} {case.endpoint} requires authentication")
+                elif "500" in str(e) or "Internal Server Error" in str(e):
+                    # 500 errors are BUGS - don't skip, let them fail
+                    print(f"💥 BUG: {case.method} {case.endpoint} returned 500 - this is a server error")
+                    raise  # This should fail the test
+                else:
+                    # Re-raise unexpected errors
+                    raise
 
 # Test invalid authentication scenarios (always runs)
 @schema.parametrize()
@@ -226,6 +358,14 @@ def test_performance_edge_cases(case):
     # Longer delay to reduce server load
     time.sleep(0.5)
 
+    # Get auth token when test runs
+    token = get_auth_token_for_test()
+
+    # Add authentication header if we have a token
+    if token:
+        case.headers = case.headers or {}
+        case.headers["Authorization"] = f"Bearer {token}"
+
     try:
         response = case.call()
 
@@ -237,8 +377,22 @@ def test_performance_edge_cases(case):
             assert len(response.content) < 1024 * 1024  # 1MB limit
 
     except Exception as e:
+        if "401" in str(e) or "403" in str(e) or "Unauthorized" in str(e):
+            if token:
+                # We provided a token but got 401 - this is a FAILURE
+                # The token might be expired, invalid, or the endpoint has different auth requirements
+                print(f"❌ FAILURE: {case.method} {case.endpoint} returned 401 despite providing token")
+                raise  # Let this fail the test
+            else:
+                # No token provided and got 401 - this is EXPECTED behavior
+                print(f"✅ SUCCESS: {case.method} {case.endpoint} properly rejected unauthorized access")
+                pytest.skip(f"Expected behavior: {case.method} {case.endpoint} requires authentication")
+        elif "500" in str(e) or "Internal Server Error" in str(e):
+            # 500 errors are BUGS - don't skip, let them fail
+            print(f"💥 BUG: {case.method} {case.endpoint} returned 500 - this is a server error")
+            raise  # This should fail the test
         # Handle connection errors gracefully
-        if "Connection reset" in str(e) or "Connection broken" in str(e):
+        elif "Connection reset" in str(e) or "Connection broken" in str(e):
             pytest.skip(f"Connection issue: {e}")
         else:
             raise
@@ -265,18 +419,45 @@ def test_shopper_creation_with_problematic_data(case):
     # Longer delay to reduce server load
     time.sleep(0.5)
 
+    # Get auth token when test runs
+    token = get_auth_token_for_test()
+
+    # Add authentication header if we have a token
+    if token:
+        case.headers = case.headers or {}
+        case.headers["Authorization"] = f"Bearer {token}"
+
     if "email" in case.body:
         # Use a simple strategy instead of @given to avoid conflicts
         problematic_emails_list = ["", "invalid", "a" * 1000 + "@example.com", "test@example.com"]
         case.body["email"] = problematic_emails_list[hash(case.body.get("id", "")) % len(problematic_emails_list)]
 
-    response = case.call()
+    try:
+        response = case.call()
 
-    # Should handle problematic data gracefully
-    if case.body.get("email") in ["", "invalid"]:
-        assert response.status_code in [400, 422]
-    else:
-        assert response.status_code in [201, 400, 422]
+        # Should handle problematic data gracefully
+        if case.body.get("email") in ["", "invalid"]:
+            assert response.status_code in [400, 422]
+        else:
+            assert response.status_code in [201, 400, 422]
+    except Exception as e:
+        if "401" in str(e) or "403" in str(e) or "Unauthorized" in str(e):
+            if token:
+                # We provided a token but got 401 - this is a FAILURE
+                # The token might be expired, invalid, or the endpoint has different auth requirements
+                print(f"❌ FAILURE: {case.method} {case.endpoint} returned 401 despite providing token")
+                raise  # Let this fail the test
+            else:
+                # No token provided and got 401 - this is EXPECTED behavior
+                print(f"✅ SUCCESS: {case.method} {case.endpoint} properly rejected unauthorized access")
+                pytest.skip(f"Expected behavior: {case.method} {case.endpoint} requires authentication")
+        elif "500" in str(e) or "Internal Server Error" in str(e):
+            # 500 errors are BUGS - don't skip, let them fail
+            print(f"💥 BUG: {case.method} {case.endpoint} returned 500 - this is a server error")
+            raise  # This should fail the test
+        else:
+            # Re-raise unexpected errors
+            raise
 
 # Test concurrent requests
 @pytest.mark.asyncio
@@ -334,18 +515,24 @@ def test_results_summary():
     print("📊 TEST RESULTS INTERPRETATION")
     print("="*60)
     print("🔒 Authentication Tests:")
-    print("   ✅ 401/403 responses = SUCCESS (API properly rejects unauthorized access)")
-    print("   ❌ 200 responses with invalid auth = FAILURE (security vulnerability)")
-    print("   ⚠️  500 responses = INVESTIGATE (server error, not security issue)")
+    print("   ✅ 401/403 responses (no token) = SUCCESS (API properly rejects unauthorized access)")
+    print("   ❌ 401/403 responses (with token) = FAILURE (token expired, invalid, or endpoint auth mismatch)")
+    print("   💥 500 responses = BUG (server error, always a failure)")
     print("")
     print("🛡️  Security Testing:")
     print("   ✅ Malformed data rejected = SUCCESS (input validation working)")
     print("   ❌ Malformed data accepted = FAILURE (input validation needed)")
-    print("   ⚠️  Server crashes = INVESTIGATE (robustness needed)")
+    print("   💥 Server crashes = BUG (robustness needed)")
     print("")
     print("📈 Performance Testing:")
     print("   ✅ Fast responses = SUCCESS (good performance)")
     print("   ⚠️  Slow responses = INVESTIGATE (performance optimization needed)")
+    print("")
+    print("🔍 Test Logic:")
+    print("   • Tests with tokens that get 401s = FAIL (investigate token/endpoint)")
+    print("   • Tests without tokens that get 401s = SKIP (expected behavior)")
+    print("   • Tests that get 500s = FAIL (server bug)")
+    print("   • Connection issues = SKIP (environment problem)")
     print("="*60)
 
     # This test always passes - it's just for information
