@@ -24,6 +24,24 @@ else
     exit 1
 fi
 
+# Check if API server is accessible
+echo -e "${BLUE}🔍 Checking API server accessibility...${NC}"
+API_HEALTH_CHECK=false
+for port in 3000 3001 8080 8000 5000; do
+    if curl -s "http://localhost:${port}/healthcheck" >/dev/null 2>&1; then
+        echo -e "${GREEN}✅ API server found running on port ${port}${NC}"
+        API_HEALTH_CHECK=true
+        break
+    fi
+done
+
+if [ "$API_HEALTH_CHECK" = false ]; then
+    echo -e "${RED}❌ Error: API server is not accessible on any common port${NC}"
+    echo -e "${YELLOW}💡 Please start the API server before running tests${NC}"
+    echo -e "${YELLOW}💡 Common ports: 3000, 3001, 8080, 8000, 5000${NC}"
+    exit 1
+fi
+
 # Create output directory
 OUTPUT_DIR="test_outputs"
 mkdir -p "$OUTPUT_DIR"

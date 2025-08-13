@@ -59,12 +59,27 @@ echo ""
 # 1. Basic Statistics
 echo -e "${BLUE}📈 BASIC STATISTICS${NC}"
 echo "-------------------"
-TOTAL_TESTS=$(grep -c "::test_" "$LATEST_LOG" 2>/dev/null | tr -d '\n' || echo "0")
-PASSED=$(grep -c "PASSED" "$LATEST_LOG" 2>/dev/null | tr -d '\n' || echo "0")
-FAILED=$(grep -c "FAILED" "$LATEST_LOG" 2>/dev/null | tr -d '\n' || echo "0")
-SKIPPED=$(grep -c "SKIPPED" "$LATEST_LOG" 2>/dev/null | tr -d '\n' || echo "0")
 
-echo "Total Tests: $TOTAL_TESTS"
+# Get the final summary from pytest output (most accurate)
+FINAL_SUMMARY=$(grep "====.*failed.*passed.*skipped.*====" "$LATEST_LOG" | tail -1)
+
+if [ -n "$FINAL_SUMMARY" ]; then
+    # Extract numbers from final summary: "==== 50 failed, 127 passed, 24 skipped ===="
+    FAILED=$(echo "$FINAL_SUMMARY" | grep -o "[0-9]* failed" | grep -o "[0-9]*" | tr -d '\n' || echo "0")
+    PASSED=$(echo "$FINAL_SUMMARY" | grep -o "[0-9]* passed" | grep -o "[0-9]*" | tr -d '\n' || echo "0")
+    SKIPPED=$(echo "$FINAL_SUMMARY" | grep -o "[0-9]* skipped" | grep -o "[0-9]*" | tr -d '\n' || echo "0")
+    TOTAL_TESTS=$((FAILED + PASSED + SKIPPED))
+
+    echo "Total Tests: $TOTAL_TESTS (from final summary)"
+else
+    # Fallback to counting individual test results (less accurate)
+    TOTAL_TESTS=$(grep -c "::test_" "$LATEST_LOG" 2>/dev/null | tr -d '\n' || echo "0")
+    PASSED=$(grep -c "PASSED" "$LATEST_LOG" 2>/dev/null | tr -d '\n' || echo "0")
+    FAILED=$(grep -c "FAILED" "$LATEST_LOG" 2>/dev/null | tr -d '\n' || echo "0")
+    SKIPPED=$(grep -c "SKIPPED" "$LATEST_LOG" 2>/dev/null | tr -d '\n' || echo "0")
+
+    echo "Total Tests: $TOTAL_TESTS (estimated from individual results)"
+fi
 
 if [ "$PASSED" -gt 0 ]; then
     echo -e "${GREEN}✅ Passed: $PASSED${NC}"
@@ -92,25 +107,26 @@ if [ "$FAILED" -gt 0 ]; then
     echo -e "${RED}Found $FAILED failures. Analyzing patterns...${NC}"
     echo ""
 
-    # Common assertion failures
+    # Common assertion failures (avoid duplicates)
     echo -e "${YELLOW}🔍 Common Assertion Failures:${NC}"
     grep -o "assert.*in.*\[.*\]" "$LATEST_LOG" 2>/dev/null | sort | uniq -c | sort -nr | head -10
 
     echo ""
 
-    # HTTP status code mismatches
+    # HTTP status code mismatches (avoid duplicates)
     echo -e "${YELLOW}🔍 HTTP Status Code Issues:${NC}"
     grep -o "Received: [0-9]*" "$LATEST_LOG" 2>/dev/null | sort | uniq -c | sort -nr | head -10
 
     echo ""
 
-    # Endpoint failure distribution
+    # Endpoint failure distribution (count unique test failures, not individual lines)
     echo -e "${YELLOW}🔍 Endpoints with Most Failures:${NC}"
-    grep -B 2 "FAILED" "$LATEST_LOG" | grep -E "(POST|GET|PUT|DELETE) /v1/" | sort | uniq -c | sort -nr | head -10
+    # Extract unique test names that failed, avoiding duplicate counting
+    grep "FAILED" "$LATEST_LOG" | grep "::test_" | sed 's/.*::test_\([^[]*\).*/\1/' | sort | uniq -c | sort -nr | head -10
 
     echo ""
 
-    # Error types
+    # Error types (avoid duplicates)
     echo -e "${YELLOW}🔍 Common Error Types:${NC}"
     grep -o "Error:.*" "$LATEST_LOG" 2>/dev/null | sort | uniq -c | sort -nr | head -10
 
