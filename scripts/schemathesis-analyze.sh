@@ -12,8 +12,20 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Get API version from command line or prompt user
+if [ -z "$1" ]; then
+    echo -e "${BLUE}🔍 SCHEMATHEISIS TEST RESULTS ANALYZER${NC}"
+    echo "=============================================="
+    echo -e "${YELLOW}No API version specified.${NC}"
+    read -p "Enter API version (e.g., v1, v2): " API_VERSION
+else
+    API_VERSION=$1
+fi
+
 echo -e "${BLUE}🔍 SCHEMATHEISIS TEST RESULTS ANALYZER${NC}"
 echo "=============================================="
+echo -e "${YELLOW}Target API Version: ${API_VERSION}${NC}"
+echo ""
 
 # Find the most recent log file (check multiple types)
 LATEST_LOG=""
@@ -33,21 +45,33 @@ fi
 
 echo -e "${BLUE}📁 Using test outputs directory: $TEST_OUTPUTS_DIR${NC}"
 
-for pattern in "property_tests_*.log" "fuzzing_tests_*.log" "all_tests_*.log" "public_tests_*.log"; do
+# Look for logs specific to the version
+for pattern in "property_tests_${API_VERSION}_*.log" "fuzzing_tests_${API_VERSION}_*.log" "all_tests_${API_VERSION}_*.log" "public_tests_${API_VERSION}_*.log"; do
     LATEST_LOG=$(ls -t $TEST_OUTPUTS_DIR/$pattern 2>/dev/null | head -1)
     if [ -n "$LATEST_LOG" ]; then
         break
     fi
 done
 
+# If no version-specific logs found, fall back to any logs
+if [ -z "$LATEST_LOG" ]; then
+    echo -e "${YELLOW}⚠️  No logs found for ${API_VERSION}, looking for any available logs...${NC}"
+    for pattern in "property_tests_*.log" "fuzzing_tests_*.log" "all_tests_*.log" "public_tests_*.log"; do
+        LATEST_LOG=$(ls -t $TEST_OUTPUTS_DIR/$pattern 2>/dev/null | head -1)
+        if [ -n "$LATEST_LOG" ]; then
+            break
+        fi
+    done
+fi
+
 if [ -z "$LATEST_LOG" ]; then
     echo -e "${YELLOW}⚠️  No test output files found in $TEST_OUTPUTS_DIR directory${NC}"
     echo ""
     echo -e "${BLUE}💡 To generate log files for analysis:${NC}"
-    echo "   npm run test:schemathesis:property    # Run property tests (generates logs)"
-    echo "   npm run test:schemathesis:fuzzing     # Run fuzzing tests (generates logs)"
-    echo "   npm run test:schemathesis:public      # Run public tests (generates logs)"
-    echo "   npm run test:schemathesis             # Run all tests (generates logs)"
+    echo "   npm run test:schemathesis:property $API_VERSION    # Run property tests for $API_VERSION"
+    echo "   npm run test:schemathesis:fuzzing $API_VERSION     # Run fuzzing tests for $API_VERSION"
+    echo "   npm run test:schemathesis:public $API_VERSION      # Run public tests for $API_VERSION"
+    echo "   npm run test:schemathesis $API_VERSION             # Run all tests for $API_VERSION"
     echo ""
     echo -e "${YELLOW}Note: All test types now generate log files for analysis.${NC}"
     exit 0
@@ -193,7 +217,7 @@ if [ "$FAILED" -gt 0 ]; then
     mkdir -p analysis
 
     # Failures by endpoint
-    grep -B 2 "FAILED" "$LATEST_LOG" | grep -E "(POST|GET|PUT|DELETE) /v1/" | sort | uniq -c | sort -nr > "analysis/failures_by_endpoint.txt"
+    grep -B 2 "FAILED" "$LATEST_LOG" | grep -E "(POST|GET|PUT|DELETE) /v[0-9]+/" | sort | uniq -c | sort -nr > "analysis/failures_by_endpoint.txt"
     echo "  - analysis/failures_by_endpoint.txt"
 
     # Common errors
@@ -206,3 +230,9 @@ if [ "$FAILED" -gt 0 ]; then
 
     echo -e "${GREEN}✅ Analysis complete!${NC}"
 fi
+
+echo ""
+echo -e "${YELLOW}💡 Usage examples:${NC}"
+echo "  ./scripts/schemathesis-analyze.sh v1    # Analyze v1 test results"
+echo "  ./scripts/schemathesis-analyze.sh v2    # Analyze v2 test results"
+echo "  ./scripts/schemathesis-analyze.sh       # Interactive version selection"

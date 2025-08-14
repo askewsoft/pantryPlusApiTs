@@ -3,23 +3,33 @@
 
 import pytest
 import requests
-from test_property_based import api_base
+import os
 
-def test_health_endpoint():
+def get_api_base_url():
+    """Get API base URL from environment"""
+    api_port = os.getenv('APIPORT')
+    if not api_port:
+        raise ValueError("APIPORT environment variable is required but not set")
+    return f"http://localhost:{api_port}"
+
+def test_health_endpoint(api_version):
     """Test the health check endpoint"""
+    api_base = get_api_base_url()
     response = requests.get(f"{api_base}/healthcheck")
     assert response.status_code == 200
     assert response.text == "OK"
 
-def test_swagger_documentation():
+def test_swagger_documentation(api_version):
     """Test that Swagger documentation is accessible"""
-    response = requests.get(f"{api_base}/v1/docs")
+    api_base = get_api_base_url()
+    response = requests.get(f"{api_base}/{api_version}/docs")
     assert response.status_code == 200
     assert "Swagger UI" in response.text
 
-def test_openapi_spec():
+def test_openapi_spec(api_version):
     """Test that OpenAPI specification is accessible"""
-    response = requests.get(f"{api_base}/v1/swagger.json")
+    api_base = get_api_base_url()
+    response = requests.get(f"{api_base}/{api_version}/swagger.json")
     assert response.status_code == 200
 
     spec = response.json()
@@ -28,22 +38,23 @@ def test_openapi_spec():
     assert "paths" in spec
     assert spec["info"]["title"] == "pantryplus-api"
 
-def test_public_endpoints_summary():
+def test_public_endpoints_summary(api_version):
     """Display summary of public endpoint testing"""
+    api_base = get_api_base_url()
     print("\n" + "="*60)
     print("🌐 PUBLIC ENDPOINT TESTING SUMMARY")
     print("="*60)
     print(f"✅ Health Check: {api_base}/healthcheck")
-    print(f"✅ Documentation: {api_base}/v1/docs")
-    print(f"✅ OpenAPI Spec: {api_base}/v1/swagger.json")
+    print(f"✅ Documentation: {api_base}/{api_version}/docs")
+    print(f"✅ OpenAPI Spec: {api_base}/{api_version}/swagger.json")
     print("")
     print("🔒 Protected endpoints (not tested):")
-    print("   - /v1/shoppers/*")
-    print("   - /v1/groups/*")
-    print("   - /v1/lists/*")
-    print("   - /v1/items/*")
-    print("   - /v1/categories/*")
-    print("   - /v1/locations/*")
+    print(f"   - /{api_version}/shoppers/*")
+    print(f"   - /{api_version}/groups/*")
+    print(f"   - /{api_version}/lists/*")
+    print(f"   - /{api_version}/items/*")
+    print(f"   - /{api_version}/categories/*")
+    print(f"   - /{api_version}/locations/*")
     print("")
     print("📊 Next Steps:")
     print("   1. Fix UUID validation and auth error handling")

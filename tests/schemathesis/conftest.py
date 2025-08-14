@@ -4,11 +4,24 @@ import schemathesis
 from schemathesis import from_uri
 from schemathesis.specs.openapi import loaders
 
-# Load the OpenAPI spec
+def pytest_addoption(parser):
+    """Add command line option for API version"""
+    parser.addoption(
+        "--api-version",
+        action="store",
+        default="v1",
+        help="API version to test (v1, v2, etc.)"
+    )
+
 @pytest.fixture(scope="session")
-def api_schema():
-    """Load the OpenAPI schema from the built swagger.json file"""
-    return from_uri("http://localhost:3000/v1/swagger.json")
+def api_version(request):
+    """Get the API version from command line argument"""
+    return request.config.getoption("--api-version")
+
+@pytest.fixture(scope="session")
+def api_schema(api_version):
+    """Load the OpenAPI schema from the built swagger.json file for the specified version"""
+    return from_uri(f"http://localhost:3000/{api_version}/swagger.json")
 
 @pytest.fixture(scope="session")
 def auth_headers():
@@ -38,4 +51,4 @@ def custom_strategies():
         "price": schemathesis.strategies.floats(min_value=0.01, max_value=1000.0),
         "latitude": schemathesis.strategies.floats(min_value=-90.0, max_value=90.0),
         "longitude": schemathesis.strategies.floats(min_value=-180.0, max_value=180.0)
-    } 
+    }

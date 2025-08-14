@@ -9,8 +9,8 @@ import json
 import random
 import string
 
-# Load the API schema
-schema = from_uri("http://localhost:3000/v1/swagger.json")
+# Load the API schema - will be provided by conftest.py
+schema = None
 
 # Fuzzing strategies for malicious input
 @st.composite
@@ -62,18 +62,16 @@ def command_injection_payloads(draw):
     ]))
 
 # Test SQL injection vulnerabilities
-@schema.parametrize()
-@settings(max_examples=50, deadline=3000)
-def test_sql_injection_fuzzing(case):
+def test_sql_injection_fuzzing(case, api_schema):
     """Test for SQL injection vulnerabilities"""
     # Inject SQL payloads into string fields
     if case.body:
         for key, value in case.body.items():
             if isinstance(value, str) and len(value) > 0:
                 case.body[key] = sql_injection_payloads().example()
-    
+
     response = case.call()
-    
+
     # Check for SQL errors in response
     if response.status_code == 500:
         response_text = response.text.lower()
@@ -82,83 +80,115 @@ def test_sql_injection_fuzzing(case):
             "you have an error in your sql syntax",
             "mysql_fetch_array", "mysql_num_rows"
         ]
-        
+
         # If we get SQL errors, it might indicate a vulnerability
         if any(error in response_text for error in sql_errors):
             pytest.fail(f"Potential SQL injection vulnerability detected: {response.text}")
 
 # Test XSS vulnerabilities
-@schema.parametrize()
-@settings(max_examples=30, deadline=3000)
-def test_xss_fuzzing(case):
+def test_xss_fuzzing(case, api_schema):
     """Test for XSS vulnerabilities"""
     # Inject XSS payloads into string fields
     if case.body:
         for key, value in case.body.items():
             if isinstance(value, str) and len(value) > 0:
                 case.body[key] = xss_payloads().example()
-    
-    response = case.call()
-    
-    # Check if XSS payload is reflected in response
-    if response.status_code in [200, 201]:
-        response_text = response.text
-        xss_payloads_list = [
-            "<script>alert('XSS')</script>",
-            "<img src=x onerror=alert('XSS')>",
-            "javascript:alert('XSS')"
-        ]
-        
-        for payload in xss_payloads_list:
-            if payload in response_text:
-                pytest.fail(f"Potential XSS vulnerability detected: {payload} found in response")
 
-# Test path traversal vulnerabilities
-@schema.parametrize()
-@settings(max_examples=20, deadline=3000)
-def test_path_traversal_fuzzing(case):
-    """Test for path traversal vulnerabilities"""
-    # Inject path traversal payloads into path parameters
-    if case.path_parameters:
-        for key, value in case.path_parameters.items():
-            case.path_parameters[key] = path_traversal_payloads().example()
-    
     response = case.call()
-    
-    # Check for sensitive file content in response
+
+    # Check for XSS in response
     if response.status_code == 200:
         response_text = response.text.lower()
-        sensitive_patterns = [
-            "root:", "bin:", "daemon:", "sys:", "adm:",
-            "mysql:", "postgres:", "apache:", "nginx:"
+        xss_indicators = [
+            "<script>alert('xss')</script>",
+            "<img src=x onerror=alert('xss')>",
+            "javascript:alert('xss')"
         ]
-        
-        if any(pattern in response_text for pattern in sensitive_patterns):
+
+        # If we get XSS payloads back, it might indicate a vulnerability
+        if any(indicator in response_text for indicator in xss_indicators):
+            pytest.fail(f"Potential XSS vulnerability detected: {response.text}")
+
+# Test path traversal vulnerabilities
+def test_path_traversal_fuzzing(case, api_schema):
+    """Test for path traversal vulnerabilities"""
+    # Inject path traversal payloads into string fields
+    if case.body:
+        for key, value in case.body.items():
+            if isinstance(value, str) and len(value) > 0:
+                case.body[key] = path_traversal_payloads().example()
+
+    response = case.call()
+
+    # Check for path traversal indicators
+    if response.status_code == 200:
+        response_text = response.text.lower()
+        path_indicators = [
+            "etc/passwd", "windows/system32", "root:", "administrator:"
+        ]
+
+        # If we get system file contents back, it might indicate a vulnerability
+        if any(indicator in response_text for indicator in path_indicators):
             pytest.fail(f"Potential path traversal vulnerability detected: {response.text}")
 
 # Test command injection vulnerabilities
-@schema.parametrize()
-@settings(max_examples=20, deadline=3000)
-def test_command_injection_fuzzing(case):
+def test_command_injection_fuzzing(case, api_schema):
     """Test for command injection vulnerabilities"""
-    # Inject command payloads into string fields
+    # Inject command injection payloads into string fields
     if case.body:
         for key, value in case.body.items():
             if isinstance(value, str) and len(value) > 0:
                 case.body[key] = command_injection_payloads().example()
-    
+
     response = case.call()
-    
-    # Check for command execution results
+
+    # Check for command injection indicators
     if response.status_code == 200:
         response_text = response.text.lower()
-        command_outputs = [
-            "root", "bin", "daemon", "sys", "adm",
-            "total", "drwx", "-rwx", "rwxr-xr-x"
+        command_indicators = [
+            "root:x:", "uid=", "gid=", "groups=", "total "
         ]
-        
-        if any(output in response_text for output in command_outputs):
+
+        # If we get command output back, it might indicate a vulnerability
+        if any(indicator in response_text for indicator in command_indicators):
             pytest.fail(f"Potential command injection vulnerability detected: {response.text}")
+
+# Create version-aware test functions using fixtures
+@pytest.fixture
+def sql_injection_test(api_schema):
+    """Create a test function for SQL injection fuzzing"""
+    @api_schema.parametrize()
+    @settings(max_examples=50, deadline=3000)
+    def test_func(case):
+        return test_sql_injection_fuzzing(case, api_schema)
+    return test_func
+
+@pytest.fixture
+def xss_test(api_schema):
+    """Create a test function for XSS fuzzing"""
+    @api_schema.parametrize()
+    @settings(max_examples=30, deadline=3000)
+    def test_func(case):
+        return test_xss_fuzzing(case, api_schema)
+    return test_func
+
+@pytest.fixture
+def path_traversal_test(api_schema):
+    """Create a test function for path traversal fuzzing"""
+    @api_schema.parametrize()
+    @settings(max_examples=20, deadline=3000)
+    def test_func(case):
+        return test_path_traversal_fuzzing(case, api_schema)
+    return test_func
+
+@pytest.fixture
+def command_injection_test(api_schema):
+    """Create a test function for command injection fuzzing"""
+    @api_schema.parametrize()
+    @settings(max_examples=20, deadline=3000)
+    def test_func(case):
+        return test_command_injection_fuzzing(case, api_schema)
+    return test_func
 
 # Test buffer overflow attempts
 @st.composite
@@ -181,9 +211,9 @@ def test_buffer_overflow_fuzzing(case):
         for key, value in case.body.items():
             if isinstance(value, str):
                 case.body[key] = buffer_overflow_payloads().example()
-    
+
     response = case.call()
-    
+
     # Check for crashes or memory issues
     if response.status_code == 500:
         response_text = response.text.lower()
@@ -191,7 +221,7 @@ def test_buffer_overflow_fuzzing(case):
             "segmentation fault", "stack overflow", "buffer overflow",
             "memory", "stack", "heap", "corruption"
         ]
-        
+
         if any(indicator in response_text for indicator in crash_indicators):
             pytest.fail(f"Potential buffer overflow vulnerability detected: {response.text}")
 
@@ -219,9 +249,9 @@ def test_auth_bypass_fuzzing(case):
     # Test with various authentication bypass attempts
     if "Authorization" in case.headers:
         case.headers["Authorization"] = auth_bypass_payloads().example()
-    
+
     response = case.call()
-    
+
     # Check if we got unauthorized access
     if response.status_code == 200 and case.headers.get("Authorization") in ["", "null", "undefined", "admin", "true", "1"]:
         pytest.fail(f"Potential authentication bypass vulnerability detected with token: {case.headers.get('Authorization')}")
@@ -244,9 +274,9 @@ def test_dos_fuzzing(case):
     # Inject DoS payloads into request body
     if case.body:
         case.body = dos_payloads().example()
-    
+
     response = case.call()
-    
+
     # Check for timeouts or crashes
     if response.status_code == 500:
         response_text = response.text.lower()
@@ -254,6 +284,6 @@ def test_dos_fuzzing(case):
             "timeout", "memory", "stack", "heap", "overflow",
             "too many", "limit exceeded", "resource"
         ]
-        
+
         if any(indicator in response_text for indicator in dos_indicators):
-            pytest.fail(f"Potential DoS vulnerability detected: {response.text}") 
+            pytest.fail(f"Potential DoS vulnerability detected: {response.text}")

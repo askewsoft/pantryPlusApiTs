@@ -22,26 +22,23 @@ fi
 
 # Check if API server is accessible
 echo -e "${BLUE}🔍 Checking API server accessibility...${NC}"
-API_HEALTH_CHECK=false
-for port in 3000 3001 8080 8000 5000; do
-    # Try health check first with timeout
-    if curl -s --max-time 3 "http://localhost:${port}/healthcheck" >/dev/null 2>&1; then
-        echo -e "${GREEN}✅ API server found running on port ${port} (health check)${NC}"
-        API_HEALTH_CHECK=true
-        break
-    fi
-    # Fallback: try root endpoint if health check fails
-    if curl -s --max-time 3 "http://localhost:${port}/" >/dev/null 2>&1; then
-        echo -e "${GREEN}✅ API server found running on port ${port} (root endpoint)${NC}"
-        API_HEALTH_CHECK=true
-        break
-    fi
-done
 
-if [ "$API_HEALTH_CHECK" = false ]; then
-    echo -e "${RED}❌ Error: API server is not accessible on any common port${NC}"
-    echo -e "${YELLOW}💡 Please start the API server before running tests${NC}"
-    echo -e "${YELLOW}💡 Common ports: 3000, 3001, 8080, 8000, 5000${NC}"
+# Get port from environment variable
+if [ -z "$APIPORT" ]; then
+    echo -e "${RED}❌ Error: APIPORT environment variable is required but not set${NC}"
+    echo -e "${YELLOW}💡 Please set APIPORT environment variable before running tests${NC}"
+    exit 1
+fi
+
+API_PORT=$APIPORT
+echo -e "${BLUE}🔍 Using API port: ${API_PORT} (from APIPORT env var)${NC}"
+
+# Check if API server is accessible on the configured port
+if curl -s --max-time 3 "http://localhost:${API_PORT}/healthcheck" >/dev/null 2>&1; then
+    echo -e "${GREEN}✅ API server found running on port ${API_PORT} (health check)${NC}"
+else
+    echo -e "${RED}❌ Error: API server is not accessible on port ${API_PORT}${NC}"
+    echo -e "${YELLOW}💡 Please start the API server on port ${API_PORT} before running tests${NC}"
     exit 1
 fi
 

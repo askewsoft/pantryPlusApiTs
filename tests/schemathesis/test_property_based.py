@@ -14,23 +14,25 @@ import os
 import requests
 
 def get_api_url():
-    """Try to detect the API URL by checking common ports"""
-    ports = [3000, 3001, 8080, 8000, 5000]
+    """Get API URL from environment variable"""
+    # Get port from environment variable
+    api_port = os.getenv('APIPORT')
+    if not api_port:
+        raise ValueError("APIPORT environment variable is required but not set")
 
-    for port in ports:
-        try:
-            # Try health check first
-            health_url = f"http://localhost:{port}/healthcheck"
-            response = requests.get(health_url, timeout=2)
-            if response.status_code == 200:
-                print(f"✅ API found running on port {port}")
-                return f"http://localhost:{port}"
-        except:
-            continue
-
-    # If no port found, default to 3000
-    print("⚠️  Could not detect API port, defaulting to 3000")
-    return "http://localhost:3000"
+    try:
+        port = int(api_port)
+        health_url = f"http://localhost:{port}/healthcheck"
+        response = requests.get(health_url, timeout=2)
+        if response.status_code == 200:
+            print(f"✅ API found running on port {port} (from APIPORT env var)")
+            return f"http://localhost:{port}"
+        else:
+            raise ValueError(f"API server responded with status {response.status_code} on port {port}")
+    except requests.exceptions.RequestException as e:
+        raise ValueError(f"API server not accessible on port {api_port}: {e}")
+    except ValueError as e:
+        raise ValueError(f"Invalid APIPORT value '{api_port}': {e}")
 
 def get_auth_token():
     """Get JWT token from environment variable or return None"""
@@ -47,8 +49,8 @@ def get_auth_token():
 # Load the API schema
 api_base = get_api_url()
 
-# Initialize schema without auth first
-schema = from_uri(f"{api_base}/v1/swagger.json")
+# Initialize schema without auth first - will be updated by conftest.py
+schema = None
 
 # We'll get the auth token when tests actually run
 auth_token = None
@@ -61,9 +63,7 @@ def get_auth_token_for_test():
     return auth_token
 
 # Test all endpoints with automatically generated data
-@schema.parametrize()
-@settings(max_examples=1 if not get_auth_token_for_test() else 3, deadline=10000)
-def test_all_endpoints(case):
+def test_all_endpoints(case, api_schema):
     """Test all endpoints with automatically generated test data"""
     # Longer delay to reduce server load
     time.sleep(0.5)
@@ -98,10 +98,18 @@ def test_all_endpoints(case):
             # Re-raise unexpected errors
             raise
 
+# Create version-aware test function using fixture
+@pytest.fixture
+def all_endpoints_test(api_schema):
+    """Create a test function for all endpoints"""
+    @api_schema.parametrize()
+    @settings(max_examples=1 if not get_auth_token_for_test() else 3, deadline=10000)
+    def test_func(case):
+        return test_all_endpoints(case, api_schema)
+    return test_func
+
 # Test specific endpoint categories with custom strategies
-@schema.parametrize(endpoint="/v1/shoppers")
-@settings(max_examples=1 if not get_auth_token_for_test() else 2, deadline=5000)
-def test_shopper_endpoints(case):
+def test_shopper_endpoints(case, api_schema):
     """Test shopper endpoints with edge case generation"""
     # Longer delay to reduce server load
     time.sleep(0.5)
@@ -136,9 +144,7 @@ def test_shopper_endpoints(case):
             # Re-raise unexpected errors
             raise
 
-@schema.parametrize(endpoint="/v1/groups")
-@settings(max_examples=1 if not get_auth_token_for_test() else 2, deadline=5000)
-def test_group_endpoints(case):
+def test_group_endpoints(case, api_schema):
     """Test group endpoints with edge case generation"""
     # Longer delay to reduce server load
     time.sleep(0.5)
@@ -173,9 +179,7 @@ def test_group_endpoints(case):
             # Re-raise unexpected errors
             raise
 
-@schema.parametrize(endpoint="/v1/lists")
-@settings(max_examples=1 if not get_auth_token_for_test() else 2, deadline=5000)
-def test_list_endpoints(case):
+def test_list_endpoints(case, api_schema):
     """Test list endpoints with edge case generation"""
     # Longer delay to reduce server load
     time.sleep(0.5)
@@ -211,9 +215,7 @@ def test_list_endpoints(case):
             raise
 
 # Custom test for edge cases in item creation
-@schema.parametrize(method="POST", endpoint="/v1/items")
-@settings(max_examples=1 if not get_auth_token_for_test() else 3, deadline=10000)
-def test_item_creation_edge_cases(case):
+def test_item_creation_edge_cases(case, api_schema):
     """Test item creation with various edge cases"""
     # Longer delay to reduce server load
     time.sleep(0.5)
@@ -261,9 +263,7 @@ def test_item_creation_edge_cases(case):
             raise
 
 # Test authentication edge cases
-@schema.parametrize()
-@settings(max_examples=1 if not get_auth_token_for_test() else 2, deadline=5000)
-def test_auth_edge_cases(case):
+def test_auth_edge_cases(case, api_schema):
     """Test authentication with various token formats"""
     # Longer delay to reduce server load
     time.sleep(0.5)
@@ -307,9 +307,7 @@ def test_auth_edge_cases(case):
                     raise
 
 # Test invalid authentication scenarios (always runs)
-@schema.parametrize()
-@settings(max_examples=1 if not get_auth_token_for_test() else 5, deadline=5000)
-def test_invalid_auth_scenarios(case):
+def test_invalid_auth_scenarios(case, api_schema, api_version):
     """Test how API handles invalid authentication"""
     # Longer delay to reduce server load
     time.sleep(0.5)
@@ -338,7 +336,7 @@ def test_invalid_auth_scenarios(case):
             response = case.call()
 
             # Protected endpoints should return 401/403 for invalid auth
-            if case.endpoint and any(protected in case.endpoint for protected in ['/v1/shoppers', '/v1/groups', '/v1/lists', '/v1/items']):
+            if case.endpoint and any(protected in case.endpoint for protected in [f'/{api_version}/shoppers', f'/{api_version}/groups', f'/{api_version}/lists', f'/{api_version}/items']):
                 if auth_header in ["Bearer", "Bearer ", "", None]:
                     assert response.status_code in [401, 403], f"Expected 401/403 for '{auth_header}', got {response.status_code}"
                 else:
@@ -351,9 +349,7 @@ def test_invalid_auth_scenarios(case):
             continue
 
 # Test rate limiting and performance
-@schema.parametrize()
-@settings(max_examples=1 if not get_auth_token_for_test() else 3, deadline=10000)
-def test_performance_edge_cases(case):
+def test_performance_edge_cases(case, api_schema):
     """Test performance with various payload sizes"""
     # Longer delay to reduce server load
     time.sleep(0.5)
@@ -412,9 +408,7 @@ def problematic_emails(draw):
     ]))
 
 # Test with problematic data
-@schema.parametrize(method="POST", endpoint="/v1/shoppers")
-@settings(max_examples=1 if not get_auth_token_for_test() else 3, deadline=5000)
-def test_shopper_creation_with_problematic_data(case):
+def test_shopper_creation_with_problematic_data(case, api_schema):
     """Test shopper creation with problematic email addresses"""
     # Longer delay to reduce server load
     time.sleep(0.5)
@@ -537,3 +531,76 @@ def test_results_summary():
 
     # This test always passes - it's just for information
     assert True
+
+# Create version-aware test functions using fixtures
+@pytest.fixture
+def shopper_endpoints_test(api_schema, api_version):
+    """Create a test function for shopper endpoints"""
+    @api_schema.parametrize(endpoint=f"/{api_version}/shoppers")
+    @settings(max_examples=1 if not get_auth_token_for_test() else 2, deadline=5000)
+    def test_func(case):
+        return test_shopper_endpoints(case, api_schema)
+    return test_func
+
+@pytest.fixture
+def group_endpoints_test(api_schema, api_version):
+    """Create a test function for group endpoints"""
+    @api_schema.parametrize(endpoint=f"/{api_version}/groups")
+    @settings(max_examples=1 if not get_auth_token_for_test() else 2, deadline=5000)
+    def test_func(case):
+        return test_group_endpoints(case, api_schema)
+    return test_func
+
+@pytest.fixture
+def list_endpoints_test(api_schema, api_version):
+    """Create a test function for list endpoints"""
+    @api_schema.parametrize(endpoint=f"/{api_version}/lists")
+    @settings(max_examples=1 if not get_auth_token_for_test() else 2, deadline=5000)
+    def test_func(case):
+        return test_list_endpoints(case, api_schema)
+    return test_func
+
+@pytest.fixture
+def item_creation_test(api_schema, api_version):
+    """Create a test function for item creation"""
+    @api_schema.parametrize(method="POST", endpoint=f"/{api_version}/items")
+    @settings(max_examples=1 if not get_auth_token_for_test() else 3, deadline=10000)
+    def test_func(case):
+        return test_item_creation_edge_cases(case, api_schema)
+    return test_func
+
+@pytest.fixture
+def auth_edge_cases_test(api_schema):
+    """Create a test function for auth edge cases"""
+    @api_schema.parametrize()
+    @settings(max_examples=1 if not get_auth_token_for_test() else 2, deadline=5000)
+    def test_func(case):
+        return test_auth_edge_cases(case, api_schema)
+    return test_func
+
+@pytest.fixture
+def invalid_auth_test(api_schema, api_version):
+    """Create a test function for invalid auth scenarios"""
+    @api_schema.parametrize()
+    @settings(max_examples=1 if not get_auth_token_for_test() else 5, deadline=5000)
+    def test_func(case):
+        return test_invalid_auth_scenarios(case, api_schema, api_version)
+    return test_func
+
+@pytest.fixture
+def performance_test(api_schema):
+    """Create a test function for performance edge cases"""
+    @api_schema.parametrize()
+    @settings(max_examples=1 if not get_auth_token_for_test() else 3, deadline=10000)
+    def test_func(case):
+        return test_performance_edge_cases(case, api_schema)
+    return test_func
+
+@pytest.fixture
+def problematic_data_test(api_schema, api_version):
+    """Create a test function for problematic data testing"""
+    @api_schema.parametrize(method="POST", endpoint=f"/{api_version}/shoppers")
+    @settings(max_examples=1 if not get_auth_token_for_test() else 2, deadline=5000)
+    def test_func(case):
+        return test_shopper_creation_with_problematic_data(case, api_schema)
+    return test_func
