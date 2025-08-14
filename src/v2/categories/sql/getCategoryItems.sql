@@ -1,0 +1,14 @@
+SET @categoryId = UUID_TO_BIN(:categoryId);
+
+SELECT BIN_TO_UUID(i.ID) as ID, i.NAME, i.UPC
+FROM CATEGORY c
+JOIN ITEM_CATEGORY_RELATION itr
+    ON itr.CATEGORY_ID = c.ID
+JOIN ITEM i
+    ON i.ID = itr.ITEM_ID
+JOIN LIST l
+    ON l.ID = c.LIST_ID
+JOIN LIST_ITEM_RELATION lir
+    ON lir.ITEM_ID = i.ID
+WHERE c.ID = @categoryId
+;
