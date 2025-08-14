@@ -46,14 +46,31 @@ pip install -r requirements.txt
 
 echo "✅ Dependencies installed successfully"
 
+# Read API port from .env file
+echo "🔍 Reading API configuration from .env..."
+if [ ! -f "../../.env" ]; then
+    echo "❌ Error: .env file not found at ../../.env"
+    echo "   Please ensure the .env file exists in the repository root"
+    exit 1
+fi
+
+# Source the .env file to get APIPORT
+export $(grep -v '^#' ../../.env | xargs)
+
+if [ -z "$APIPORT" ]; then
+    echo "❌ Error: APIPORT not found in .env file"
+    echo "   Please ensure APIPORT is defined in your .env file"
+    exit 1
+fi
+
+echo "📡 Using API port: ${APIPORT}"
+
 # Check if API is running
 echo "🔍 Checking if API is accessible..."
-if curl -s http://localhost:3000/v1/health > /dev/null 2>&1; then
-    echo "✅ API is running and accessible"
-elif curl -s http://localhost:3000/healthcheck > /dev/null 2>&1; then
-    echo "✅ API is running (healthcheck endpoint accessible)"
+if curl -s http://localhost:${APIPORT}/healthcheck > /dev/null 2>&1; then
+    echo "✅ API is running on port ${APIPORT} (healthcheck endpoint accessible)"
 else
-    echo "⚠️  Warning: API doesn't appear to be running on localhost:3000"
+    echo "⚠️  Warning: API doesn't appear to be running on localhost:${APIPORT}"
     echo "   Make sure to run 'npm run dev' in another terminal first"
 fi
 

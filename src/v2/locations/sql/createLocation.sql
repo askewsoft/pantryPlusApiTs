@@ -9,9 +9,3 @@ SET @geoLocation = ST_GeomFromText(CONCAT('POINT(', @latitude, ' ', @longitude, 
 INSERT IGNORE INTO LOCATION (ID, NAME, GEO_LOCATION)
 VALUES (@locationId, @name, @geoLocation)
 ;
-
-SELECT BIN_TO_UUID(ID) as ID
-FROM LOCATION
-WHERE NAME = @name
-  and GEO_LOCATION = @geoLocation
-;

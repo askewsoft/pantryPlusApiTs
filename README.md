@@ -30,15 +30,17 @@ We also recommend that you use [nvm](https://nvm.sh) to manage different version
   * `./src/v1/**/*Controllers.ts`
   * `./src/v1/**/sql/`
 
-#### Adding New Versions
-* Make a new version directory for source code: `cp ./src/v1 ./src/v2`
-* Copy then modify the tsoa config: `cp ./tsoa.v1.json ./tsoa.v2.json`
-* Edit the server file `./src/server.ts` to create a new set of routes
-  * e.g., `import { RegisterRoutes as RegisterV2Routes } from "./routes.v2";`
-* Edit `package.json` scripts:
+### Adding New Versions
+1. Make a new version directory for source code: `cp ./src/v1 ./src/v2`
+1. Copy then modify the tsoa config: `cp ./tsoa.v1.json ./tsoa.v2.json`
+1. Edit the server file `./src/server.ts` to create a new set of routes
+    * e.g., `import { RegisterRoutes as RegisterV2Routes } from "./routes.v2";`
+1. Edit `package.json` scripts:
   ```json
     "buildv1": "tsoa spec-and-routes && tsc",
     "buildv2": "tsoa spec-and-routes -c tsoa.v2.json && tsc",
+    "copysqlv1": "node scripts/copy-sql.js v1",
+    "copysqlv2": "node scripts/copy-sql.js v2",
     "build": "npm run buildv1 && npm run buildv2",
     "codegenv1": "openapi-generator generate -g typescript-axios -i build/swagger.json -o ../pantryPlusApiClient",
     "codegenv2": "openapi-generator generate -g typescript-axios -i build/swagger.v2.json -o ../pantryPlusApiClientV2",

@@ -44,12 +44,12 @@ export class LocationsController extends Controller {
    *  "latitude": 42.7456,
    *  "longitude": -71.4910
    * }
+   * @returns void - confirms successful creation
    */
   @Post()
   @SuccessResponse(201, "Created")
-  @Example<Pick<Location, "id">>(locationIdExample)
   @Security("bearerAuth")
-  public async createLocation(@Header("X-Auth-User") email: string, @Body() location: Location ): Promise<Pick<Location, "id">> {
+  public async createLocation(@Header("X-Auth-User") email: string, @Body() location: Location ): Promise<void> {
     // Validate input data first
     const validation = validateLocationInput(location);
     if (!validation.isValid) {
@@ -60,7 +60,8 @@ export class LocationsController extends Controller {
     // Validate UUID in request body
     validateBodyUUIDs(location, ['id'], 'Invalid location ID format');
 
-    return await LocationsService.create(location);
+    await LocationsService.create(location);
+    return;
   };
 
   /**

@@ -1,13 +1,13 @@
 {
     "entryFile": "src/server.ts",
     "noImplicitAdditionalProperties": "throw-on-extras",
-    "controllerPathGlobs": ["src/v1/**/*Controller.ts"],
+    "controllerPathGlobs": ["src/v2/**/*Controller.ts"],
     "spec": {
       "outputDirectory": "./build",
       "specVersion": 3,
-      "basePath": "/v1",
-      "specFileBaseName": "swagger.v1",
-      "version": "1.0.0",
+      "basePath": "/v2",
+      "specFileBaseName": "swagger.v2",
+      "version": "2.0.0",
       "securityDefinitions": {
         "bearerAuth": {
           "type": "http",
@@ -19,8 +19,8 @@
     "routes": {
       "routesDir": "./src",
       "middleware": "express",
-      "basePath": "/v1",
-      "routesFileName": "routes.v1.ts",
+      "basePath": "/v2",
+      "routesFileName": "routes.v2.ts",
       "authenticationModule": "src/shared/authentication.ts"
     }
 }

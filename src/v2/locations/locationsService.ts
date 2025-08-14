@@ -6,12 +6,11 @@ import { Logger, logger } from "../../shared/logger";
 const log: Logger = logger('Location Service')
 
 export abstract class LocationsService {
-  public static async create(location: Location): Promise<Pick<Location, "id">> {
+  public static async create(location: Location): Promise<void> {
     const { latitude, longitude, name, id } = location;
     const createTemplate = path.join(__dirname, './sql/createLocation.sql');
-    const results = await dbPost(createTemplate, { latitude, longitude, name, locationId: id });
-    const locationId = results[0].id;
-    return { id: locationId };
+    await dbPost(createTemplate, { latitude, longitude, name, locationId: id });
+    return;
   };
 
   public static async update(locationId: string, name: string, email: string): Promise<void> {
