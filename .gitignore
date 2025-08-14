@@ -1,9 +1,17 @@
 .DS_Store
+api.log
 npm-debug.log
 node_modules
 .env
 pantry_store.dbs.bak
 build
 client
+analysis
 src/routes*.ts
 pantryplus-api.zip
+.hypothesis/
+tests/schemathesis/.hypothesis/
+tests/schemathesis/test_outputs/
+tests/schemathesis/analysis/
+**/.hypothesis/
+**/__pycache__

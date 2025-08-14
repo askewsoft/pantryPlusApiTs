@@ -66,6 +66,47 @@ An API client can be generated from the OpenAPI specification using the `openapi
 1. `npm run codegen`
   - This will generate a new client into a `../pantryPlusApiClient` peer directory
 
+## Testing
+### Schemathesis
+
+1. In one terminal window, start the API server and pipe the output to a `api.log` file.
+1. Generate an auth token via pantryPlus mobile app repo script.
+1. In another terminal window, make it available to the test harness so that it can access the API.
+1. Then in the same terminal run the tests in question and run the analysis.
+1. Finally, kill the API server.
+
+For example:
+
+```sh
+# 1st terminal window
+npm run dev > api.log 2>&1 &
+```
+
+```sh
+# 2nd terminal window
+export AUTH_TOKEN=<your.jwt.token.here>  # For protected endpoints
+npm run test:schemathesis # all tests
+
+# Then after the test run completes, run the analysis:
+npm run test:schemathesis:analyze
+```
+
+To stop the server, find and kill the process:
+
+```sh
+# 1st terminal window
+ps aux | grep "node run dev" | grep -v grep
+kill -9 <PID>
+```
+
+
+### Docker
+To test the containerized application locally:
+```sh
+docker compose up --build
+```
+This builds and runs the application with the same environment as App Runner.
+
 ## Deploy
 The API is being deployed to AWS App Runner for better scalability and managed operations.
 
@@ -88,10 +129,3 @@ If you modify API endpoints or schemas:
 1. `npm run codegen` — generates updated client code
 1. Commit and push the generated client code
 1. Follow the Client repos [README](https://github.com/askewsoft/pantryPlusApiClient/blob/main/README.md) to update the mobile app to the latest version
-
-### Local Testing with Docker
-To test the containerized application locally:
-```bash
-docker compose up --build
-```
-This builds and runs the application with the same environment as App Runner.

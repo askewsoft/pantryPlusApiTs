@@ -10,9 +10,30 @@ import { GroupsService } from "./groupsService";
 import { ErrorCode } from "../../shared/errorHandler";
 import { mayProceed } from "../../shared/mayProceed";
 import { ShoppersService } from "../shoppers/shoppersService";
+import { validateUUIDParam, validateMultipleUUIDs, validateBodyUUIDs } from "../../shared/uuidValidation";
+import { validateObject, commonValidations, ValidationResult } from "../../shared/inputValidation";
 
 const mayModifyGroupTemplate = path.join(__dirname, "./sql/mayModifyGroup.sql");
 const mayAccessGroupTemplate = path.join(__dirname, "./sql/mayAccessGroup.sql");
+
+/**
+ * Validates group input data
+ */
+function validateGroupInput(data: any): ValidationResult {
+  return validateObject(data, {
+    id: commonValidations.uuid,
+    name: { maxLength: 255 }
+  });
+}
+
+/**
+ * Validates shopper email input data
+ */
+function validateShopperEmailInput(data: any): ValidationResult {
+  return validateObject(data, {
+    email: commonValidations.email
+  });
+}
 
 @Route("groups")
 @Tags("Groups")
@@ -28,6 +49,16 @@ export class GroupsController extends Controller {
   @SuccessResponse(201, "Created")
   @Security("bearerAuth")
   public async createGroup(@Header("X-Auth-User") email: string, @Body() group: Pick<Group, "name" | "id">): Promise<void> {
+    // Validate input data first
+    const validation = validateGroupInput(group);
+    if (!validation.isValid) {
+      this.setStatus(400);
+      throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
+    }
+
+    // Validate UUID in request body
+    validateBodyUUIDs(group, ['id'], 'Invalid group ID format');
+
     // any valid user can create a group
     const { name, id } = group;
     await ShoppersService.validateUser(email);
@@ -47,6 +78,18 @@ export class GroupsController extends Controller {
   @SuccessResponse(205, "Content Updated")
   @Security("bearerAuth")
   public async updateGroupName(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() group: Pick<Group, "name">): Promise<void> {
+    // Validate input data first
+    const validation = validateObject(group, {
+      name: { maxLength: 255 }
+    });
+    if (!validation.isValid) {
+      this.setStatus(400);
+      throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
+    }
+
+    // Validate UUID path parameter
+    validateUUIDParam('groupId', groupId);
+
     await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
     return await GroupsService.update(groupId, group.name);
   };
@@ -64,6 +107,16 @@ export class GroupsController extends Controller {
   @SuccessResponse(201, "Created")
   @Security("bearerAuth")
   public async inviteShopper(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() shopper: Pick<Shopper, "email">): Promise<void> {
+    // Validate input data first
+    const validation = validateShopperEmailInput(shopper);
+    if (!validation.isValid) {
+      this.setStatus(400);
+      throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
+    }
+
+    // Validate UUID path parameter
+    validateUUIDParam('groupId', groupId);
+
     await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
     return await GroupsService.inviteShopper(groupId, shopper.email);
   };
@@ -80,6 +133,9 @@ export class GroupsController extends Controller {
   @Example<Array<Pick<Shopper, "email">>>(shoppersExample)
   @Security("bearerAuth")
   public async getInvitees(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<Array<Pick<Shopper, "email">>> {
+    // Validate UUID path parameter
+    validateUUIDParam('groupId', groupId);
+
     await mayProceed({ email, id: groupId, accessTemplate: mayAccessGroupTemplate });
     return await GroupsService.getInvitees(groupId);
   };
@@ -97,6 +153,9 @@ export class GroupsController extends Controller {
   @SuccessResponse(204, "No Content")
   @Security("bearerAuth")
   public async uninviteShopper(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() shopper: Pick<Shopper, "email">): Promise<void> {
+    // Validate UUID path parameter
+    validateUUIDParam('groupId', groupId);
+
     await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
     return await GroupsService.uninviteShopper(groupId, shopper.email);
   };
@@ -114,6 +173,10 @@ export class GroupsController extends Controller {
   @SuccessResponse(201, "Created")
   @Security("bearerAuth")
   public async addShopperToGroup(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() shopper: Pick<Shopper, "id">): Promise<void> {
+    // Validate UUIDs in path and body
+    validateUUIDParam('groupId', groupId);
+    validateBodyUUIDs(shopper, ['id'], 'Invalid shopper ID format');
+
     await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
     return await GroupsService.addShopperToGroup(shopper.id, groupId);
   };
@@ -131,6 +194,9 @@ export class GroupsController extends Controller {
   @SuccessResponse(204, "No Content")
   @Security("bearerAuth")
   public async removeShopperFromGroup(@Header("X-Auth-User") email: string, @Path() groupId: string, @Path() shopperId: string): Promise<void> {
+    // Validate both UUID path parameters
+    validateMultipleUUIDs({ groupId, shopperId });
+
     await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
     return await GroupsService.removeShopperFromGroup(groupId, shopperId);
   };
@@ -147,6 +213,9 @@ export class GroupsController extends Controller {
   @SuccessResponse(204, "No Content")
   @Security("bearerAuth")
   public async deleteGroup(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<void> {
+    // Validate UUID path parameter
+    validateUUIDParam('groupId', groupId);
+
     await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
     return GroupsService.delete(groupId);
   };
@@ -164,6 +233,9 @@ export class GroupsController extends Controller {
   @Example<Pick<Group, "id" | "name" | "owner">>(groupExample)
   @Security("bearerAuth")
   public async getGroup(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<Pick<Group, "id" | "name" | "owner">> {
+    // Validate UUID path parameter
+    validateUUIDParam('groupId', groupId);
+
     await mayProceed({ email, id: groupId, accessTemplate: mayAccessGroupTemplate });
     return GroupsService.get(groupId);
   };
@@ -181,6 +253,9 @@ export class GroupsController extends Controller {
   @Example<Array<Shopper>>(shoppersExample)
   @Security("bearerAuth")
   public async getGroupShoppers(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<Array<Shopper>> {
+    // Validate UUID path parameter
+    validateUUIDParam('groupId', groupId);
+
     await mayProceed({ email, id: groupId, accessTemplate: mayAccessGroupTemplate });
     return GroupsService.getGroupShoppers(groupId);
   };

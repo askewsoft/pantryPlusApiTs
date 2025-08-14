@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   Query,
+  Response,
   Route,
   Security,
   SuccessResponse,
@@ -29,9 +30,22 @@ import { RecentLocation } from "../locations/location";
 import { recentLocationsExample } from "../locations/locationsExamples";
 import { ShoppersService } from "./shoppersService";
 import { mayProceed } from "../../shared/mayProceed";
+import { validateUUIDParam, validateMultipleUUIDs, validateBodyUUIDs } from "../../shared/uuidValidation";
+import { validateObject, commonValidations, ValidationResult } from "../../shared/inputValidation";
 
 const mayAccessShopperTemplate = path.join(__dirname, './sql/mayAccessShopper.sql');
 const maySeeShopperDetailsTemplate = path.join(__dirname, './sql/maySeeShopperDetails.sql');
+
+/**
+ * Validates shopper input data
+ */
+function validateShopperInput(data: any): ValidationResult {
+  return validateObject(data, {
+    id: commonValidations.uuid,
+    nickname: commonValidations.nickname,
+    email: commonValidations.email
+  });
+}
 
 @Route("shoppers")
 @Tags("Shoppers")
@@ -48,14 +62,18 @@ export class ShoppersController extends Controller {
    */
   @Post()
   @SuccessResponse(201, "Created")
+  @Response(403, "Forbidden", { error: "user not allowed access" })
   @Example<Shopper>(shopperExample)
   @Security("bearerAuth")
   public async createShopper(@Body() person: Shopper ): Promise<Shopper> {
-    /* TODO:
-     * how do we confirm that a user has created a username/password?
-     * look into using the @Security decorator to ensure that the user is authenticated
-     * https://tsoa-community.github.io/docs/authentication.html
-    */
+    // Validate input data first
+    const validation = validateShopperInput(person);
+    if (!validation.isValid) {
+      this.setStatus(400);
+      throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
+    }
+
+    validateBodyUUIDs(person, ['id'], 'Invalid shopper ID format');
     return ShoppersService.create(person);
   }
 
@@ -72,9 +90,19 @@ export class ShoppersController extends Controller {
    */
   @Put("{shopperId}")
   @SuccessResponse(205, "Content Updated")
+  @Response(403, "Forbidden", { error: "user not allowed access" })
   @Example<Pick<Shopper, "id">>(shopperIdExample)
   @Security("bearerAuth")
   public async updateShopper(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Body() shopper: Shopper): Promise<Pick<Shopper, "id">> {
+    // Validate input data first
+    const validation = validateShopperInput(shopper);
+    if (!validation.isValid) {
+      this.setStatus(400);
+      throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
+    }
+
+    validateUUIDParam('shopperId', shopperId);
+    validateBodyUUIDs(shopper, ['id'], 'Invalid shopper ID format');
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.update(shopperId, shopper);
   }
@@ -87,30 +115,34 @@ export class ShoppersController extends Controller {
    */
   @Get("{shopperId}")
   @SuccessResponse(200, "OK")
+  @Response(403, "Forbidden", { error: "user not allowed access" })
   @Example<Shopper>(shopperExample)
   @Security("bearerAuth")
   public async retrieveShopper(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Shopper> {
+    validateUUIDParam('shopperId', shopperId);
     await mayProceed({ email, id: shopperId, accessTemplate: maySeeShopperDetailsTemplate });
     return ShoppersService.retrieve(shopperId);
   }
 
   /**
-   * @summary Retrieves all of the groups associated with a Shopper 
+   * @summary Retrieves all of the groups associated with a Shopper
    * @param email the email address of the user
    * @param shopperId the ID of the shopper for whom groups will be returned
    * @returns The groups associated with the supplied shopper
    */
   @Get("{shopperId}/groups")
   @SuccessResponse(200, "OK")
+  @Response(403, "Forbidden", { error: "user not allowed access" })
   @Example<Array<Pick<Group, "id" | "name" | "owner">>>(groupsExample)
   @Security("bearerAuth")
   public async getGroups(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Pick<Group, "id" | "name" | "owner">>> {
+    validateUUIDParam('shopperId', shopperId);
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.getGroups(shopperId);
   }
 
   /**
-   * @summary Retrieves all groups that a Shopper has been invited to 
+   * @summary Retrieves all groups that a Shopper has been invited to
    * @param email the email address of the user
    * @param shopperId the ID of the shopper for whom invites will be returned
    * @returns The invites for the supplied shopper
@@ -120,6 +152,7 @@ export class ShoppersController extends Controller {
   @Example<Array<Group>>(groupsExample)
   @Security("bearerAuth")
   public async getInvites(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Group>> {
+    validateUUIDParam('shopperId', shopperId);
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.getInvites(shopperId);
   }
@@ -129,11 +162,12 @@ export class ShoppersController extends Controller {
   * @param email the email address of the user
   * @param shopperId the ID of the shopper for whom the invite will be declined
   * @param inviteId the ID of the invite to be declined
-  */ 
+  */
   @Delete("{shopperId}/invites/{inviteId}")
   @SuccessResponse(204, "No Content")
   @Security("bearerAuth")
   public async declineInvite(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Path() inviteId: string): Promise<void> {
+    validateMultipleUUIDs({ shopperId, inviteId });
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.declineInvite(shopperId, inviteId);
   }
@@ -148,12 +182,13 @@ export class ShoppersController extends Controller {
   @SuccessResponse(205, "Content Updated")
   @Security("bearerAuth")
   public async acceptInvite(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Path() inviteId: string): Promise<void> {
+    validateMultipleUUIDs({ shopperId, inviteId });
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.acceptInvite(shopperId, inviteId);
   }
 
   /**
-   * @summary Retrieves all previously purchased items associated with a Shopper 
+   * @summary Retrieves all previously purchased items associated with a Shopper
    * @param email the email address of the user
    * @param shopperId the ID of the shopper for whom items will be returned
    * @returns The items previously purchased by a shopper
@@ -163,12 +198,13 @@ export class ShoppersController extends Controller {
   @Example<Array<Item>>(itemsExample)
   @Security("bearerAuth")
   public async getPurchasedItems(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Item>> {
+    validateUUIDParam('shopperId', shopperId);
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.getPurchasedItems(shopperId);
   }
 
   /**
-   * @summary Retrieves all lists associated with a Shopper 
+   * @summary Retrieves all lists associated with a Shopper
    * @param email the email address of the user
    * @param shopperId the ID of the shopper for whom lists will be returned
    * @returns The lists associated with the supplied shopper
@@ -178,12 +214,13 @@ export class ShoppersController extends Controller {
   @Example<Array<List>>(listsExample)
   @Security("bearerAuth")
   public async getLists(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<List>> {
+    validateUUIDParam('shopperId', shopperId);
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.getLists(shopperId);
   }
 
   /**
-   * @summary Retrieves all locations associated with a Shopper 
+   * @summary Retrieves all locations associated with a Shopper
    * @param email the email address of the user
    * @param shopperId the ID of the shopper for whom locations will be returned
    * @param lookBackDays the number of days to look back for purchases
@@ -194,6 +231,8 @@ export class ShoppersController extends Controller {
   @Example<Array<RecentLocation>>(recentLocationsExample)
   @Security("bearerAuth")
   public async getLocations(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Query() lookBackDays: number): Promise<Array<RecentLocation>> {
+    validateUUIDParam('shopperId', shopperId);
+    await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
     return ShoppersService.getLocations(shopperId, lookBackDays);
   }
 };

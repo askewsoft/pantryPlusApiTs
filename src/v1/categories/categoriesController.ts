@@ -6,8 +6,20 @@ import { CategoriesService } from "./categoriesService";
 import { mayProceed } from "../../shared/mayProceed";
 import { Item } from "../items/item";
 import { Category } from "./category";
+import { validateUUIDParam, validateMultipleUUIDs } from "../../shared/uuidValidation";
+import { validateObject, ValidationResult } from "../../shared/inputValidation";
 
 const mayModifyCategoryTemplate = path.join(__dirname, "./sql/mayModifyCategory.sql");
+
+/**
+ * Validates category input data
+ */
+function validateCategoryInput(data: any): ValidationResult {
+  return validateObject(data, {
+    name: { maxLength: 255 },
+    ordinal: { customValidator: (value) => typeof value === 'number' && value >= 0 }
+  });
+}
 
 @Route("categories")
 @Tags("Categories")
@@ -25,6 +37,9 @@ export class CategoriesController extends Controller {
   @SuccessResponse(201, "Created")
   @Security("bearerAuth")
   public async addItemToCategory(@Header("X-Auth-User") email: string, @Path() categoryId: string, @Path() itemId: string): Promise<void> {
+    // Validate both UUID path parameters
+    validateMultipleUUIDs({ categoryId, itemId });
+
     await mayProceed({ email, id: categoryId, accessTemplate: mayModifyCategoryTemplate });
     await CategoriesService.addItem(itemId, categoryId);
     return;
@@ -43,6 +58,9 @@ export class CategoriesController extends Controller {
   @SuccessResponse(204, "No Content")
   @Security("bearerAuth")
   public async removeItemFromCategory(@Header("X-Auth-User") email: string, @Path() categoryId: string, @Path() itemId: string): Promise<void> {
+    // Validate both UUID path parameters
+    validateMultipleUUIDs({ categoryId, itemId });
+
     await mayProceed({ email, id: categoryId, accessTemplate: mayModifyCategoryTemplate });
     await CategoriesService.removeItem(itemId, categoryId);
     return;
@@ -63,6 +81,16 @@ export class CategoriesController extends Controller {
   @SuccessResponse(205, "Content Updated")
   @Security("bearerAuth")
   public async updateCategory(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() categoryId: string, @Body() category: Pick<Category, "name" | "ordinal">): Promise<void> {
+    // Validate input data first
+    const validation = validateCategoryInput(category);
+    if (!validation.isValid) {
+      this.setStatus(400);
+      throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
+    }
+
+    // Validate UUID path parameter
+    validateUUIDParam('categoryId', categoryId);
+
     await mayProceed({ email, id: categoryId, accessTemplate: mayModifyCategoryTemplate });
     await CategoriesService.updateCategory(categoryId, category.name, category.ordinal, locationId);
     return;
@@ -78,6 +106,9 @@ export class CategoriesController extends Controller {
   @Get("{categoryId}/items")
   @Security("bearerAuth")
   public async getCategoryItems(@Header("X-Auth-User") email: string, @Path() categoryId: string): Promise<Array<Item>> {
+    // Validate UUID path parameter
+    validateUUIDParam('categoryId', categoryId);
+
     await mayProceed({ email, id: categoryId, accessTemplate: mayModifyCategoryTemplate });
     return await CategoriesService.getCategoryItems(categoryId);
   };

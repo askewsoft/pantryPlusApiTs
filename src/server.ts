@@ -5,8 +5,13 @@ import swaggerUi, { SwaggerUiOptions } from 'swagger-ui-express';
 import { RegisterRoutes as RegisterV1Routes } from "./routes.v1";
 import config from './shared/config';
 import { errorHandler } from './shared/errorHandler';
+import {
+  jsonErrorHandler,
+  requestLogger,
+  authErrorHandler,
+  notFoundHandler
+} from './middleware';
 import { logger, Logger } from './shared/logger';
-import { loggableHeaders, debugOnlyPaths, apiPaths } from './shared/loggingWhitelists';
 
 // import cluster from 'cluster';
 
@@ -26,61 +31,16 @@ app.use(
 
 app.use(json());
 
+// JSON parsing error handling middleware
+app.use(jsonErrorHandler);
+
 // Combined request and response logging middleware
-app.use((req: Request, res: Response, next: Function) => {
-  const debugLoggingOnly = debugOnlyPaths.some(path => req.url.startsWith(path));
-  const apiLoggingOnly = apiPaths.some(path => req.url.startsWith(path));
-  const sillyLoggingOnly = !debugLoggingOnly && !apiLoggingOnly;
-
-  const logMsg = {
-    type: debugLoggingOnly ? 'diagnostic' : apiLoggingOnly ? 'api' : 'suspicious',
-    method: req.method,
-    url: req.url,
-  };
-
-  if (debugLoggingOnly) {
-    log.debug(logMsg);
-  } else if (sillyLoggingOnly) {
-    log.silly(logMsg);
-  } else {
-    // Logging for API routes
-    log.info(logMsg);
-
-    if (['verbose', 'debug', 'silly'].includes(config.log_level)) {
-      const verboseLoggingHeaders = Object.fromEntries(
-        Object.entries(req.headers || {})
-          .filter(([key]) => loggableHeaders.includes(key))
-      );
-      const verboseLoggingParams = req.params ?? undefined;
-      const verboseLoggingBody = req.body ?? undefined;
-      const extendedLogMsg = {
-        headers: verboseLoggingHeaders,
-        params: verboseLoggingParams,
-        body: verboseLoggingBody
-      };
-      log.verbose({headers: extendedLogMsg.headers, params: extendedLogMsg.params, body: extendedLogMsg.body});
-    }
-  }
-
-  // Log response details when the response is finished
-  res.on('finish', () => {
-    log.verbose({
-      message: 'Response sent',
-      method: req.method,
-      url: req.url,
-      statusCode: res.statusCode,
-      sourceIp: req.ip || req.socket.remoteAddress,
-      headers: req.headers
-    });
-  });
-  
-  next();
-});
+app.use(requestLogger);
 
 // Register routes for v1 API
-log.info("Registering v1 routes...");
+console.log("Registering v1 routes...");
 RegisterV1Routes(app);
-log.info("v1 routes registered successfully");
+console.log("v1 routes registered successfully");
 
 // Serve OpenAPI documentation for v1
 app.use(["/v1/docs", "/v1/docs/", "/v1/docs/swagger-ui.html"], swaggerUi.serve, async (_req: Request, res: Response) => {
@@ -105,11 +65,10 @@ app.get('/healthcheck', (req, res) => {
   res.status(200).send('OK');
 });
 
-app.use(function notFoundHandler(_req: Request, res: Response) {
-  res.status(404).send({
-    message: "Not Found",
-  });
-});
+app.use(notFoundHandler);
+
+// Error handling middleware for authentication and other errors
+app.use(authErrorHandler);
 
 app.use(errorHandler);
 
@@ -126,7 +85,7 @@ process.on('SIGTERM', () => {
     memory: process.memoryUsage(),
     resourceUsage: process.resourceUsage()
   });
-  
+
   server.close((err) => {
     if (err) {
       log.error({
@@ -145,7 +104,7 @@ process.on('SIGINT', () => {
     pid: process.pid,
     uptime: process.uptime()
   });
-  
+
   server.close((err) => {
     if (err) {
       log.error({
@@ -168,7 +127,7 @@ process.on('uncaughtException', (err) => {
     memory: process.memoryUsage(),
     resourceUsage: process.resourceUsage()
   });
-  
+
   server.close((closeErr) => {
     if (closeErr) {
       log.error({
