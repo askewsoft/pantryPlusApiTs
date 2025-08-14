@@ -6,9 +6,13 @@ set -e
 
 # Source .env file if it exists
 if [ -f ".env" ]; then
-    export $(grep -v '^#' .env | xargs)
+    set -a
+    source .env
+    set +a
 elif [ -f "../.env" ]; then
-    export $(grep -v '^#' ../.env | xargs)
+    set -a
+    source ../.env
+    set +a
 fi
 
 # Colors for output

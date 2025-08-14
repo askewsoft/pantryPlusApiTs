@@ -1,6 +1,7 @@
 # pytest configuration for Schemathesis testing
 import pytest
 import schemathesis
+import os
 from schemathesis import from_uri
 from schemathesis.specs.openapi import loaders
 
@@ -21,7 +22,10 @@ def api_version(request):
 @pytest.fixture(scope="session")
 def api_schema(api_version):
     """Load the OpenAPI schema from the built swagger.json file for the specified version"""
-    return from_uri(f"http://localhost:3000/{api_version}/swagger.json")
+    api_port = os.getenv('APIPORT')
+    if not api_port:
+        raise ValueError("APIPORT environment variable is required but not set")
+    return from_uri(f"http://localhost:{api_port}/{api_version}/swagger.json")
 
 @pytest.fixture(scope="session")
 def auth_headers():

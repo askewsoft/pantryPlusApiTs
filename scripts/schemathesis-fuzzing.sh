@@ -9,9 +9,13 @@ NC='\033[0m' # No Color
 
 # Source .env file if it exists
 if [ -f ".env" ]; then
-    export $(grep -v '^#' .env | xargs)
+    set -a
+    source .env
+    set +a
 elif [ -f "../.env" ]; then
-    export $(grep -v '^#' ../.env | xargs)
+    set -a
+    source ../.env
+    set +a
 fi
 
 echo -e "${BLUE}🧪 Running Schemathesis Fuzzing Tests${NC}"
