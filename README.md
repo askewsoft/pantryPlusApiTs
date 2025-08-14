@@ -87,7 +87,7 @@ npm run dev > api.log 2>&1 &
 ```sh
 # 2nd terminal window
 export AUTH_TOKEN=<your.jwt.token.here>  # For protected endpoints
-npm run test:schemathesis # all tests
+npm run test:schemathesis v2 # all tests for version 2 endpoints
 
 # Then after the test run completes, run the analysis:
 npm run test:schemathesis:analyze

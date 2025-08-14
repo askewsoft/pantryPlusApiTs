@@ -14,7 +14,7 @@ This directory contains testing implementations using multiple frameworks to ens
 
 ### Configuration
 - **`pytest.ini`** - Test execution settings
-- **`conftest.py`** - Shared test configuration
+- **`conftest.py`** - Shared test configuration and version selection
 - **`requirements.txt`** - Python dependencies
 
 ### Setup
@@ -33,11 +33,16 @@ Make a recent auth token available to the test harness so that it can access the
 export AUTH_TOKEN='your.jwt.token.here'  # For protected endpoints
 ```
 
-#### NPM Scripts
+#### API Version Selection
+Tests support different API versions. Add the version as the first argument to npm scripts:
+
 ```sh
-npm run test:schemathesis          # Run all tests
-npm run test:schemathesis:property # Comprehensive API testing
-npm run test:schemathesis:fuzzing  # Security vulnerability testing
-npm run test:schemathesis:public   # Public endpoint validation
-npm run test:schemathesis:analyze  # Analyze test results from log files
+npm run test:schemathesis v1          # Run all tests against v1
+npm run test:schemathesis v2          # Run all tests against v2
+npm run test:schemathesis:public v1   # Public endpoint validation against v1
+npm run test:schemathesis:property v2    # Comprehensive API testing
+npm run test:schemathesis:fuzzing v2     # Security vulnerability testing
+npm run test:schemathesis:analyze v2     # Analyze test results from log files
 ```
+
+If no version is specified, the scripts will prompt you to choose one.
