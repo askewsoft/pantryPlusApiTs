@@ -40,7 +40,7 @@ Tests support different API versions. Add the version as the first argument:
 ```sh
 npm run test:schemathesis v1          # Test entire v1 API
 npm run test:schemathesis v2          # Test entire v2 API
-npm run test:schemathesis:analyze     # Analyze test results
+
 ```
 
 If no version is specified, the scripts will prompt you to choose one.
@@ -54,13 +54,7 @@ tests/schemathesis/test_outputs/
 └── ...
 ```
 
-### Analysis
-After running tests, analyze the results:
-```sh
-npm run test:schemathesis:analyze
-```
 
-This will help you understand test coverage, identify failures, and review API behavior.
 
 ### Environment Variables
 - **`APIPORT`** - API server port (required, read from `.env`)
