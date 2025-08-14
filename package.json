@@ -16,10 +16,7 @@
     "codegen": "npm run codegenv1 && npm run codegenv2",
     "start": "node build/server.js",
     "dev": "npm run build && nodemon",
-    "test:schemathesis": "./scripts/schemathesis-all.sh",
-    "test:schemathesis:property": "./scripts/schemathesis-property.sh",
-    "test:schemathesis:fuzzing": "./scripts/schemathesis-fuzzing.sh",
-    "test:schemathesis:public": "./scripts/schemathesis-public.sh",
+    "test:schemathesis": "./scripts/schemathesis.sh",
     "test:schemathesis:analyze": "./scripts/schemathesis-analyze.sh"
   },
   "nodemonConfig": {
