@@ -7,42 +7,63 @@ This directory contains testing implementations using multiple frameworks to ens
 ## Schemathesis
 [Schemathesis](https://schemathesis.readthedocs.io/en/stable/) automatically generates tests from your OpenAPI specification and discovers edge cases through property-based testing.
 
-### Test Types
-- Comprehensive API testing - `test_property_based.py`
-- Security vulnerability testing - `test_fuzzing.py`
-- Public endpoint validation - `test_public_endpoints.py`
+### What It Tests
+- **Comprehensive API Coverage** - Tests all endpoints in the API specification
+- **Version Support** - Works with v1, v2, or any future API version
+- **Authentication Handling** - Automatically handles protected vs public endpoints
+- **Edge Case Discovery** - Uses Hypothesis for property-based testing
 
-### Configuration
-- **`pytest.ini`** - Test execution settings
-- **`conftest.py`** - Shared test configuration and version selection
-- **`requirements.txt`** - Python dependencies
+### How It Works
+The testing system uses Schemathesis CLI directly against the swagger endpoints:
+- Loads OpenAPI spec from `/v1/swagger.json` or `/v2/swagger.json`
+- Generates test cases using Hypothesis
+- Runs tests against the live API
+- Handles authentication and error responses appropriately
 
 ### Setup
-```bash
-./scripts/schemathesis-setup.sh
-```
-
-**Note**: After setup, you'll be in the `schemathesis` conda environment. The npm scripts will work automatically from any shell.
+No special setup required! The system automatically:
+- Sources environment variables from `.env`
+- Validates API accessibility on the configured port
+- Creates output directories as needed
 
 ### Running Tests
 
 #### Authentication
-Make a recent auth token available to the test harness so that it can access the API.
-
+For testing protected endpoints, set an auth token:
 ```sh
-export AUTH_TOKEN='your.jwt.token.here'  # For protected endpoints
+export AUTH_TOKEN='your.jwt.token.here'
 ```
 
 #### API Version Selection
-Tests support different API versions. Add the version as the first argument to npm scripts:
+Tests support different API versions. Add the version as the first argument:
 
 ```sh
-npm run test:schemathesis v1          # Run all tests against v1
-npm run test:schemathesis v2          # Run all tests against v2
-npm run test:schemathesis:public v1   # Public endpoint validation against v1
-npm run test:schemathesis:property v2    # Comprehensive API testing
-npm run test:schemathesis:fuzzing v2     # Security vulnerability testing
-npm run test:schemathesis:analyze v2     # Analyze test results from log files
+npm run test:schemathesis v1          # Test entire v1 API
+npm run test:schemathesis v2          # Test entire v2 API
+npm run test:schemathesis:analyze     # Analyze test results
 ```
 
 If no version is specified, the scripts will prompt you to choose one.
+
+#### Test Output
+Results are saved to timestamped log files:
+```
+tests/schemathesis/test_outputs/
+├── schemathesis_v1_20250814_165423.log
+├── schemathesis_v2_20250814_171803.log
+└── ...
+```
+
+### Analysis
+After running tests, analyze the results:
+```sh
+npm run test:schemathesis:analyze
+```
+
+This will help you understand test coverage, identify failures, and review API behavior.
+
+### Environment Variables
+- **`APIPORT`** - API server port (required, read from `.env`)
+- **`AUTH_TOKEN`** - JWT token for authenticated endpoints
+
+The system will fail explicitly if required environment variables are missing.
