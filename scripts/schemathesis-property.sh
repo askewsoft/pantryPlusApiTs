@@ -83,6 +83,9 @@ fi
 OUTPUT_DIR="test_outputs"
 mkdir -p "$OUTPUT_DIR"
 
+# Path from project root to test outputs (for user instructions)
+ROOT_TO_OUTPUTS="tests/schemathesis/test_outputs"
+
 # Timestamp for unique filenames
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 
@@ -97,7 +100,7 @@ PYTEST_EXIT_CODE=$?
 echo -e "${GREEN}✅ Property tests completed for ${API_VERSION}!${NC}"
 echo ""
 echo -e "${BLUE}📁 Output file created:${NC}"
-echo "  - Property tests: $OUTPUT_DIR/property_tests_${API_VERSION}_${TIMESTAMP}.log"
+echo "  - Property tests: $ROOT_TO_OUTPUTS/property_tests_${API_VERSION}_${TIMESTAMP}.log"
 echo ""
 
 # Show quick summary of results
@@ -106,10 +109,10 @@ grep -E "(PASSED|FAILED|SKIPPED)" "$OUTPUT_DIR/property_tests_${API_VERSION}_${T
 
 echo ""
 echo -e "${YELLOW}💡 To view detailed results:${NC}"
-echo "  cat $OUTPUT_DIR/property_tests_${API_VERSION}_${TIMESTAMP}.log"
+echo "  cat $ROOT_TO_OUTPUTS/property_tests_${API_VERSION}_${TIMESTAMP}.log"
 echo ""
 echo -e "${YELLOW}💡 To view only failures:${NC}"
-echo "  grep 'FAILED\|ERROR' $OUTPUT_DIR/property_tests_${API_VERSION}_${TIMESTAMP}.log"
+echo "  grep 'FAILED\|ERROR' $ROOT_TO_OUTPUTS/property_tests_${API_VERSION}_${TIMESTAMP}.log"
 echo ""
 echo -e "${YELLOW}💡 Usage examples:${NC}"
 echo "  ./scripts/schemathesis-property.sh v1    # Test v1 API"

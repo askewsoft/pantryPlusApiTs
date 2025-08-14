@@ -53,6 +53,9 @@ fi
 OUTPUT_DIR="test_outputs"
 mkdir -p "$OUTPUT_DIR"
 
+# Path from project root to test outputs (for user instructions)
+ROOT_TO_OUTPUTS="tests/schemathesis/test_outputs"
+
 # Timestamp for unique filenames
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 
@@ -64,19 +67,19 @@ APIPORT=$API_PORT pytest test_fuzzing.py -q --tb=short --disable-warnings --api-
 PYTEST_EXIT_CODE=$?
 
 # Show completion message
-echo -e "${GREEN}✅ Fuzzing tests completed!${NC}"
+echo -e "${GREEN}✅ Fuzzing tests completed for ${API_VERSION}!${NC}"
 echo ""
 echo -e "${BLUE}📁 Output file created:${NC}"
-echo "  - Fuzzing tests: $OUTPUT_DIR/fuzzing_tests_${TIMESTAMP}.log"
+echo "  - Fuzzing tests: $ROOT_TO_OUTPUTS/fuzzing_tests_${API_VERSION}_${TIMESTAMP}.log"
 echo ""
 
 # Show quick summary of results
 echo -e "${BLUE}📊 Quick Results Summary:${NC}"
-grep -E "(PASSED|FAILED|SKIPPED)" "$OUTPUT_DIR/fuzzing_tests_${TIMESTAMP}.log" | tail -1
+grep -E "(PASSED|FAILED|SKIPPED)" "$OUTPUT_DIR/fuzzing_tests_${API_VERSION}_${TIMESTAMP}.log" | tail -1
 
 echo ""
 echo -e "${YELLOW}💡 To view detailed results:${NC}"
-echo "  cat $OUTPUT_DIR/fuzzing_tests_${TIMESTAMP}.log"
+echo "  cat $ROOT_TO_OUTPUTS/fuzzing_tests_${API_VERSION}_${TIMESTAMP}.log"
 echo ""
 echo -e "${YELLOW}💡 To view only failures:${NC}"
-echo "  grep 'FAILED\|ERROR' $OUTPUT_DIR/fuzzing_tests_${TIMESTAMP}.log"
+echo "  grep 'FAILED\|ERROR' $ROOT_TO_OUTPUTS/fuzzing_tests_${API_VERSION}_${TIMESTAMP}.log"

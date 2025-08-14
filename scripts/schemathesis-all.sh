@@ -85,6 +85,9 @@ fi
 OUTPUT_DIR="test_outputs"
 mkdir -p "$OUTPUT_DIR"
 
+# Path from project root to test outputs (for user instructions)
+ROOT_TO_OUTPUTS="tests/schemathesis/test_outputs"
+
 # Timestamp for unique filenames
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 
@@ -98,7 +101,7 @@ APIPORT=$API_PORT pytest -q --tb=short --disable-warnings --api-version "$API_VE
 echo -e "${GREEN}✅ All tests completed for ${API_VERSION}!${NC}"
 echo ""
 echo -e "${BLUE}📁 Output file created:${NC}"
-echo "  - All tests: $OUTPUT_DIR/all_tests_${API_VERSION}_${TIMESTAMP}.log"
+echo "  - All tests: $ROOT_TO_OUTPUTS/all_tests_${API_VERSION}_${TIMESTAMP}.log"
 echo ""
 
 # Show quick summary of results
@@ -107,10 +110,10 @@ grep -E "(PASSED|FAILED|SKIPPED)" "$OUTPUT_DIR/all_tests_${API_VERSION}_${TIMEST
 
 echo ""
 echo -e "${YELLOW}💡 To view detailed results:${NC}"
-echo "  cat $OUTPUT_DIR/all_tests_${API_VERSION}_${TIMESTAMP}.log"
+echo "  cat $ROOT_TO_OUTPUTS/all_tests_${API_VERSION}_${TIMESTAMP}.log"
 echo ""
 echo -e "${YELLOW}💡 To view only failures:${NC}"
-echo "  grep -A 5 -B 5 'FAILED\|ERROR' $OUTPUT_DIR/all_tests_${API_VERSION}_${TIMESTAMP}.log"
+echo "  grep 'FAILED\|ERROR' $ROOT_TO_OUTPUTS/all_tests_${API_VERSION}_${TIMESTAMP}.log"
 echo ""
 echo -e "${YELLOW}💡 Usage examples:${NC}"
 echo "  ./scripts/schemathesis-all.sh v1    # Test v1 API"
