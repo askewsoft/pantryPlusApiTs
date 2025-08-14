@@ -4,6 +4,13 @@
 
 set -e
 
+# Source .env file if it exists
+if [ -f ".env" ]; then
+    export $(grep -v '^#' .env | xargs)
+elif [ -f "../.env" ]; then
+    export $(grep -v '^#' ../.env | xargs)
+fi
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -85,7 +92,7 @@ TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 echo -e "${YELLOW}Running all Schemathesis tests against ${API_VERSION}...${NC}"
 
 # Run pytest with quiet output to avoid double counting
-pytest -q --tb=short --disable-warnings --api-version "$API_VERSION" > "$OUTPUT_DIR/all_tests_${API_VERSION}_${TIMESTAMP}.log" 2>&1
+APIPORT=$API_PORT pytest -q --tb=short --disable-warnings --api-version "$API_VERSION" > "$OUTPUT_DIR/all_tests_${API_VERSION}_${TIMESTAMP}.log" 2>&1
 
 # Generate summary
 echo -e "${GREEN}✅ All tests completed for ${API_VERSION}!${NC}"

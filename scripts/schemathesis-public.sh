@@ -4,6 +4,13 @@
 
 set -e
 
+# Source .env file if it exists
+if [ -f ".env" ]; then
+    export $(grep -v '^#' .env | xargs)
+elif [ -f "../.env" ]; then
+    export $(grep -v '^#' ../.env | xargs)
+fi
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -83,7 +90,7 @@ TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 
 # Run public endpoint tests with quiet output
 echo -e "${YELLOW}Running public endpoint tests against ${API_VERSION}...${NC}"
-pytest test_public_endpoints.py -v --tb=short --disable-warnings --api-version "$API_VERSION" > "$OUTPUT_DIR/public_tests_${API_VERSION}_${TIMESTAMP}.log" 2>&1
+APIPORT=$API_PORT pytest test_public_endpoints.py -v --tb=short --disable-warnings --api-version "$API_VERSION" > "$OUTPUT_DIR/public_tests_${API_VERSION}_${TIMESTAMP}.log" 2>&1
 
 # Generate summary
 echo -e "${GREEN}✅ Public endpoint tests completed for ${API_VERSION}!${NC}"

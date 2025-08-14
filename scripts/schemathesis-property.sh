@@ -7,6 +7,13 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Source .env file if it exists
+if [ -f ".env" ]; then
+    export $(grep -v '^#' .env | xargs)
+elif [ -f "../.env" ]; then
+    export $(grep -v '^#' ../.env | xargs)
+fi
+
 # Get API version from command line or prompt user
 if [ -z "$1" ]; then
     echo -e "${BLUE}🧪 Schemathesis Property Test Runner${NC}"
@@ -83,7 +90,7 @@ TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 echo -e "${YELLOW}Running property-based tests against ${API_VERSION}...${NC}"
 
 # Run pytest and capture output
-pytest test_property_based.py -q --tb=short --disable-warnings --api-version "$API_VERSION" > "$OUTPUT_DIR/property_tests_${API_VERSION}_${TIMESTAMP}.log" 2>&1
+APIPORT=$API_PORT pytest test_property_based.py -q --tb=short --disable-warnings --api-version "$API_VERSION" > "$OUTPUT_DIR/property_tests_${API_VERSION}_${TIMESTAMP}.log" 2>&1
 PYTEST_EXIT_CODE=$?
 
 # Show completion message

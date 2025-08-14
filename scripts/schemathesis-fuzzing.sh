@@ -7,6 +7,13 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Source .env file if it exists
+if [ -f ".env" ]; then
+    export $(grep -v '^#' .env | xargs)
+elif [ -f "../.env" ]; then
+    export $(grep -v '^#' ../.env | xargs)
+fi
+
 echo -e "${BLUE}🧪 Running Schemathesis Fuzzing Tests${NC}"
 echo "============================================="
 
@@ -50,10 +57,10 @@ mkdir -p "$OUTPUT_DIR"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 
 # Run fuzzing tests
-echo -e "${YELLOW}Running fuzzing tests...${NC}"
+echo -e "${YELLOW}Running fuzzing tests against ${API_VERSION}...${NC}"
 
 # Run pytest and capture output
-pytest test_fuzzing.py -q --tb=short --disable-warnings > "$OUTPUT_DIR/fuzzing_tests_${TIMESTAMP}.log" 2>&1
+APIPORT=$API_PORT pytest test_fuzzing.py -q --tb=short --disable-warnings --api-version "$API_VERSION" > "$OUTPUT_DIR/fuzzing_tests_${API_VERSION}_${TIMESTAMP}.log" 2>&1
 PYTEST_EXIT_CODE=$?
 
 # Show completion message
