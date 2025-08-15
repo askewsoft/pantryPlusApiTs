@@ -10,30 +10,10 @@ import { GroupsService } from "./groupsService";
 import { ErrorCode } from "../../shared/errorHandler";
 import { mayProceed } from "../../shared/mayProceed";
 import { ShoppersService } from "../shoppers/shoppersService";
-import { validateUUIDParam, validateMultipleUUIDs, validateBodyUUIDs } from "../../shared/uuidValidation";
-import { validateObject, commonValidations, ValidationResult } from "../../shared/inputValidation";
+import { validateUUIDParam, validateBodyUUIDs } from "../../shared/uuidValidation";
 
 const mayModifyGroupTemplate = path.join(__dirname, "./sql/mayModifyGroup.sql");
 const mayAccessGroupTemplate = path.join(__dirname, "./sql/mayAccessGroup.sql");
-
-/**
- * Validates group input data
- */
-function validateGroupInput(data: any): ValidationResult {
-  return validateObject(data, {
-    id: commonValidations.uuid,
-    name: { maxLength: 255 }
-  });
-}
-
-/**
- * Validates shopper email input data
- */
-function validateShopperEmailInput(data: any): ValidationResult {
-  return validateObject(data, {
-    email: commonValidations.email
-  });
-}
 
 @Route("groups")
 @Tags("Groups")
@@ -49,13 +29,6 @@ export class GroupsController extends Controller {
   @SuccessResponse(201, "Created")
   @Security("bearerAuth")
   public async createGroup(@Header("X-Auth-User") email: string, @Body() group: Pick<Group, "name" | "id">): Promise<void> {
-    // Validate input data first
-    const validation = validateGroupInput(group);
-    if (!validation.isValid) {
-      this.setStatus(400);
-      throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
-    }
-
     // Validate UUID in request body
     validateBodyUUIDs(group, ['id'], 'Invalid group ID format');
 
@@ -78,15 +51,6 @@ export class GroupsController extends Controller {
   @SuccessResponse(205, "Content Updated")
   @Security("bearerAuth")
   public async updateGroupName(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() group: Pick<Group, "name">): Promise<void> {
-    // Validate input data first
-    const validation = validateObject(group, {
-      name: { maxLength: 255 }
-    });
-    if (!validation.isValid) {
-      this.setStatus(400);
-      throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
-    }
-
     // Validate UUID path parameter
     validateUUIDParam('groupId', groupId);
 
@@ -107,13 +71,6 @@ export class GroupsController extends Controller {
   @SuccessResponse(201, "Created")
   @Security("bearerAuth")
   public async inviteShopper(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() shopper: Pick<Shopper, "email">): Promise<void> {
-    // Validate input data first
-    const validation = validateShopperEmailInput(shopper);
-    if (!validation.isValid) {
-      this.setStatus(400);
-      throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
-    }
-
     // Validate UUID path parameter
     validateUUIDParam('groupId', groupId);
 
@@ -195,7 +152,8 @@ export class GroupsController extends Controller {
   @Security("bearerAuth")
   public async removeShopperFromGroup(@Header("X-Auth-User") email: string, @Path() groupId: string, @Path() shopperId: string): Promise<void> {
     // Validate both UUID path parameters
-    validateMultipleUUIDs({ groupId, shopperId });
+    validateUUIDParam('groupId', groupId);
+    validateUUIDParam('shopperId', shopperId);
 
     await mayProceed({ email, id: groupId, accessTemplate: mayModifyGroupTemplate });
     return await GroupsService.removeShopperFromGroup(groupId, shopperId);

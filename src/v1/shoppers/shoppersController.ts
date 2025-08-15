@@ -30,22 +30,10 @@ import { RecentLocation } from "../locations/location";
 import { recentLocationsExample } from "../locations/locationsExamples";
 import { ShoppersService } from "./shoppersService";
 import { mayProceed } from "../../shared/mayProceed";
-import { validateUUIDParam, validateMultipleUUIDs, validateBodyUUIDs } from "../../shared/uuidValidation";
-import { validateObject, commonValidations, ValidationResult } from "../../shared/inputValidation";
+import { validateUUIDParam, validateBodyUUIDs } from "../../shared/uuidValidation";
 
 const mayAccessShopperTemplate = path.join(__dirname, './sql/mayAccessShopper.sql');
 const maySeeShopperDetailsTemplate = path.join(__dirname, './sql/maySeeShopperDetails.sql');
-
-/**
- * Validates shopper input data
- */
-function validateShopperInput(data: any): ValidationResult {
-  return validateObject(data, {
-    id: commonValidations.uuid,
-    nickname: commonValidations.nickname,
-    email: commonValidations.email
-  });
-}
 
 @Route("shoppers")
 @Tags("Shoppers")
@@ -66,13 +54,6 @@ export class ShoppersController extends Controller {
   @Example<Shopper>(shopperExample)
   @Security("bearerAuth")
   public async createShopper(@Body() person: Shopper ): Promise<Shopper> {
-    // Validate input data first
-    const validation = validateShopperInput(person);
-    if (!validation.isValid) {
-      this.setStatus(400);
-      throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
-    }
-
     validateBodyUUIDs(person, ['id'], 'Invalid shopper ID format');
     return ShoppersService.create(person);
   }
@@ -94,13 +75,6 @@ export class ShoppersController extends Controller {
   @Example<Pick<Shopper, "id">>(shopperIdExample)
   @Security("bearerAuth")
   public async updateShopper(@Header("X-Auth-User") email: string, @Path() shopperId: string, @Body() shopper: Shopper): Promise<Pick<Shopper, "id">> {
-    // Validate input data first
-    const validation = validateShopperInput(shopper);
-    if (!validation.isValid) {
-      this.setStatus(400);
-      throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
-    }
-
     validateUUIDParam('shopperId', shopperId);
     validateBodyUUIDs(shopper, ['id'], 'Invalid shopper ID format');
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
