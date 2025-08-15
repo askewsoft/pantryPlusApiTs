@@ -120,7 +120,7 @@ export function validateEmail(email: any): ValidationResult {
  * Validates a UUID field
  */
 export function validateUuid(uuid: any): ValidationResult {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
   return validateString(uuid, 'UUID', {
     pattern: uuidRegex
@@ -194,5 +194,5 @@ export const commonValidations = {
   nickname: { maxLength: 100, allowEmpty: false },
   name: { maxLength: 255 },
   description: { maxLength: 1000, allowEmpty: true },
-  uuid: { pattern: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i }
+  uuid: { pattern: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i }
 };

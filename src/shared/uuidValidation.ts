@@ -9,15 +9,15 @@ const log = logger('uuidValidation');
  */
 
 /**
- * Validates if a string is a valid UUID v4 format
+ * Validates if a string is a valid UUID v4 or v7 format
  */
 export function isValidUUID(uuid: string): boolean {
   if (!uuid || typeof uuid !== 'string') {
     return false;
   }
 
-  // UUID v4 regex pattern
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  // UUID v4 and v7 regex pattern (supports both versions)
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   return uuidRegex.test(uuid);
 }
 
@@ -42,7 +42,7 @@ export function validateUUIDParam(
     error.details = {
       invalidParameter: paramName,
       receivedValue: paramValue,
-      expectedFormat: 'UUID v4 (e.g., 123e4567-e89b-12d3-a456-426614174000)'
+      expectedFormat: 'UUID v4 or v7 (e.g., 123e4567-e89b-12d3-a456-426614174000)'
     };
 
     throw error;
@@ -82,7 +82,7 @@ export function validateMultipleUUIDs(
     error.name = ErrorCode.INVALID_UUID;
     error.details = {
       invalidParameters: invalidParams,
-      expectedFormat: 'UUID v4 (e.g., 123e4567-e89b-12d3-a456-426614174000)',
+      expectedFormat: 'UUID v4 or v7 (e.g., 123e4567-e89b-12d3-a456-426614174000)',
       receivedValues: invalidParams.reduce((acc, param) => {
         acc[param] = validationResults[param].value;
         return acc;
