@@ -8,8 +8,7 @@ const log: Logger = logger('Item Service')
 export abstract class ItemsService {
   public static async create(item: Item): Promise<void> {
     const createTemplate = path.join(__dirname, './sql/createItem.sql');
-    const results = await dbPost(createTemplate, item);
-    const itemId = results[0].id;
+    await dbPost(createTemplate, item);
     return;
   };
 
