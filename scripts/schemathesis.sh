@@ -97,7 +97,7 @@ TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 
 # Run comprehensive API tests using Schemathesis CLI directly
 echo -e "${YELLOW}Running comprehensive API tests against ${API_VERSION}...${NC}"
-APIPORT=$API_PORT schemathesis run "http://localhost:${API_PORT}/${API_VERSION}/swagger.json" --hypothesis-max-examples 10 --hypothesis-deadline 5000 --validate-schema true > "$OUTPUT_DIR/schemathesis_${API_VERSION}_${TIMESTAMP}.log" 2>&1
+APIPORT=$API_PORT schemathesis run "http://localhost:${API_PORT}/${API_VERSION}/swagger.json" --hypothesis-max-examples 10 --hypothesis-deadline 5000 --validate-schema true --checks all > "$OUTPUT_DIR/schemathesis_${API_VERSION}_${TIMESTAMP}.log" 2>&1
 
 # Generate summary
 echo -e "${GREEN}✅ Comprehensive API tests completed for ${API_VERSION}!${NC}"
