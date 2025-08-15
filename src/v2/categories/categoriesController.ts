@@ -1,5 +1,5 @@
 // CATEGORIES
-import { Body, Controller, Delete, Get, Header, Path, Post, Put, Route, Security, SuccessResponse, Tags} from "tsoa";
+import { Body, Controller, Delete, Get, Header, Path, Post, Put, Route, Security, SuccessResponse, Tags, Response} from "tsoa";
 import path from "path";
 
 import { CategoriesService } from "./categoriesService";
@@ -35,6 +35,8 @@ export class CategoriesController extends Controller {
    */
   @Post("{categoryId}/items/{itemId}")
   @SuccessResponse(201, "Created")
+  @Response(400, "Bad Request", { error: "Invalid UUID format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async addItemToCategory(@Header("X-Auth-User") email: string, @Path() categoryId: string, @Path() itemId: string): Promise<void> {
     // Validate both UUID path parameters
@@ -56,6 +58,8 @@ export class CategoriesController extends Controller {
    */
   @Delete("{categoryId}/items/{itemId}")
   @SuccessResponse(204, "No Content")
+  @Response(400, "Bad Request", { error: "Invalid UUID format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async removeItemFromCategory(@Header("X-Auth-User") email: string, @Path() categoryId: string, @Path() itemId: string): Promise<void> {
     // Validate both UUID path parameters
@@ -79,6 +83,8 @@ export class CategoriesController extends Controller {
    */
   @Put("{categoryId}")
   @SuccessResponse(205, "Content Updated")
+  @Response(400, "Bad Request", { error: "Validation failed or invalid input format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async updateCategory(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() categoryId: string, @Body() category: Pick<Category, "name" | "ordinal">): Promise<void> {
     // Validate input data first
@@ -104,6 +110,9 @@ export class CategoriesController extends Controller {
    * @example categoryId "123E4567-E89B-12D3-A456-426614174000"
    */
   @Get("{categoryId}/items")
+  @SuccessResponse(200, "OK")
+  @Response(400, "Bad Request", { error: "Invalid UUID format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async getCategoryItems(@Header("X-Auth-User") email: string, @Path() categoryId: string): Promise<Array<Item>> {
     // Validate UUID path parameter

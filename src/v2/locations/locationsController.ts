@@ -1,9 +1,9 @@
 // LOCATIONS
-import { Body, Controller, Example, Header, Path, Post, Put, Route, Security, SuccessResponse, Tags } from "tsoa";
+import { Body, Controller, Example, Header, Path, Post, Put, Route, Security, SuccessResponse, Tags, Response } from "tsoa";
 
 import { Location, NearbyLocation, LocationArea } from "./location";
 import { LocationsService } from "./locationsService";
-import { locationIdExample, nearbyLocationsExample } from "./locationsExamples";
+import { nearbyLocationsExample } from "./locationsExamples";
 import { validateUUIDParam, validateBodyUUIDs } from "../../shared/uuidValidation";
 import { validateObject, commonValidations, ValidationResult } from "../../shared/inputValidation";
 
@@ -48,6 +48,8 @@ export class LocationsController extends Controller {
    */
   @Post()
   @SuccessResponse(201, "Created")
+  @Response(400, "Bad Request", { error: "Validation failed or invalid input format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async createLocation(@Header("X-Auth-User") email: string, @Body() location: Location ): Promise<void> {
     // Validate input data first
@@ -75,6 +77,8 @@ export class LocationsController extends Controller {
    */
   @Put("{locationId}")
   @SuccessResponse(205, "Content Updated")
+  @Response(400, "Bad Request", { error: "Validation failed or invalid input format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async updateLocation(@Header("X-Auth-User") email: string, @Path() locationId: string, @Body() location: Pick<Location, "name">): Promise<void> {
     // Validate input data first
@@ -107,6 +111,8 @@ export class LocationsController extends Controller {
    */
   @Post("nearby")
   @SuccessResponse(200, "OK")
+  @Response(400, "Bad Request", { error: "Validation failed or invalid input format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Example<Array<NearbyLocation>>(nearbyLocationsExample)
   @Security("bearerAuth")
   public async getNearbyLocations(@Header("X-Auth-User") email: string, @Body() locationArea: LocationArea): Promise<Array<NearbyLocation>> {

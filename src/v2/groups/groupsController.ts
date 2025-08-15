@@ -1,5 +1,5 @@
 // GROUPS
-import { Body, Controller, Delete, Example, Get, Header, Path, Post, Put, Route, Security, SuccessResponse, Tags} from "tsoa";
+import { Body, Controller, Delete, Example, Get, Header, Path, Post, Put, Route, Security, SuccessResponse, Tags, Response} from "tsoa";
 import path from "path";
 
 import { Group } from "./group";
@@ -47,6 +47,8 @@ export class GroupsController extends Controller {
    */
   @Post()
   @SuccessResponse(201, "Created")
+  @Response(400, "Bad Request", { error: "Validation failed or invalid input format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async createGroup(@Header("X-Auth-User") email: string, @Body() group: Pick<Group, "name" | "id">): Promise<void> {
     // Validate input data first
@@ -77,6 +79,8 @@ export class GroupsController extends Controller {
    */
   @Put("{groupId}")
   @SuccessResponse(205, "Content Updated")
+  @Response(400, "Bad Request", { error: "Validation failed or invalid input format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async updateGroupName(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() group: Pick<Group, "name">): Promise<void> {
     // Validate input data first
@@ -106,6 +110,8 @@ export class GroupsController extends Controller {
    */
   @Post("{groupId}/invitees")
   @SuccessResponse(201, "Created")
+  @Response(400, "Bad Request", { error: "Validation failed or invalid input format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async inviteShopper(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() shopper: Pick<Shopper, "email">): Promise<void> {
     // Validate input data first
@@ -131,6 +137,8 @@ export class GroupsController extends Controller {
    */
   @Get("{groupId}/invitees")
   @SuccessResponse(200, "OK")
+  @Response(400, "Bad Request", { error: "Invalid UUID format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Example<Array<Pick<Shopper, "email">>>(shoppersExample)
   @Security("bearerAuth")
   public async getInvitees(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<Array<Pick<Shopper, "email">>> {
@@ -152,6 +160,8 @@ export class GroupsController extends Controller {
    */
   @Delete("{groupId}/invitees")
   @SuccessResponse(204, "No Content")
+  @Response(400, "Bad Request", { error: "Validation failed or invalid input format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async uninviteShopper(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() shopper: Pick<Shopper, "email">): Promise<void> {
     // Validate UUID path parameter
@@ -172,6 +182,8 @@ export class GroupsController extends Controller {
    */
   @Post("{groupId}/shoppers")
   @SuccessResponse(201, "Created")
+  @Response(400, "Bad Request", { error: "Validation failed or invalid input format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async addShopperToGroup(@Header("X-Auth-User") email: string, @Path() groupId: string, @Body() shopper: Pick<Shopper, "id">): Promise<void> {
     // Validate UUIDs in path and body
@@ -193,6 +205,8 @@ export class GroupsController extends Controller {
    */
   @Delete("{groupId}/shoppers/{shopperId}")
   @SuccessResponse(204, "No Content")
+  @Response(400, "Bad Request", { error: "Invalid UUID format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async removeShopperFromGroup(@Header("X-Auth-User") email: string, @Path() groupId: string, @Path() shopperId: string): Promise<void> {
     // Validate both UUID path parameters
@@ -212,6 +226,8 @@ export class GroupsController extends Controller {
    */
   @Delete("{groupId}")
   @SuccessResponse(204, "No Content")
+  @Response(400, "Bad Request", { error: "Invalid UUID format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async deleteGroup(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<void> {
     // Validate UUID path parameter
@@ -231,6 +247,8 @@ export class GroupsController extends Controller {
    */
   @Get("{groupId}")
   @SuccessResponse(200, "OK")
+  @Response(400, "Bad Request", { error: "Invalid UUID format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Example<Pick<Group, "id" | "name" | "owner">>(groupExample)
   @Security("bearerAuth")
   public async getGroup(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<Pick<Group, "id" | "name" | "owner">> {
@@ -251,6 +269,8 @@ export class GroupsController extends Controller {
    */
   @Get("{groupId}/shoppers")
   @SuccessResponse(200, "OK")
+  @Response(400, "Bad Request", { error: "Invalid UUID format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Example<Array<Shopper>>(shoppersExample)
   @Security("bearerAuth")
   public async getGroupShoppers(@Header("X-Auth-User") email: string, @Path() groupId: string): Promise<Array<Shopper>> {

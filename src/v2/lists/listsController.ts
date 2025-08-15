@@ -1,5 +1,5 @@
 // LISTS
-import { Body, Controller, Delete, Example, Get, Header, Path, Post, Put, Route, Security, SuccessResponse, Tags} from "tsoa";
+import { Body, Controller, Delete, Example, Get, Header, Path, Post, Put, Route, Security, SuccessResponse, Tags, Response} from "tsoa";
 import path from "path";
 
 import { List } from "./list";
@@ -56,6 +56,8 @@ export class ListsController extends Controller {
    */
   @Post()
   @SuccessResponse(201, "Created")
+  @Response(400, "Bad Request", { error: "Validation failed or invalid input format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Example<Pick<List, "id">>(listIdExample)
   @Security("bearerAuth")
   public async createList(@Header("X-Auth-User") email: string, @Body() newList: List ): Promise<void> {
@@ -88,6 +90,8 @@ export class ListsController extends Controller {
    */
   @Post("{listId}/categories")
   @SuccessResponse(201, "Created")
+  @Response(400, "Bad Request", { error: "Validation failed or invalid input format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async createCategory(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() listId: string, @Body() category: Category): Promise<void> {
     // Validate input data first
@@ -117,6 +121,8 @@ export class ListsController extends Controller {
    */
   @Post("{listId}/items/{itemId}")
   @SuccessResponse(201, "Created")
+  @Response(400, "Bad Request", { error: "Invalid UUID format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async addItem(@Header("X-Auth-User") email: string, @Path() listId: string, @Path() itemId: string): Promise<void> {
     // Validate both UUID path parameters
@@ -140,6 +146,8 @@ export class ListsController extends Controller {
    */
   @Post("{listId}/items/{itemId}/purchase")
   @SuccessResponse(201, "Created")
+  @Response(400, "Bad Request", { error: "Invalid UUID format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async purchaseItem(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() listId: string, @Path() itemId: string): Promise<void> {
     // Validate both UUID path parameters
@@ -165,6 +173,8 @@ export class ListsController extends Controller {
    */
   @Delete("{listId}/items/{itemId}/purchase")
   @SuccessResponse(204, "No Content")
+  @Response(400, "Bad Request", { error: "Invalid UUID format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async unpurchaseItem(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() listId: string, @Path() itemId: string, @Body() purchase: { purchaseDate: string }): Promise<void> {
     // Validate both UUID path parameters
@@ -186,6 +196,8 @@ export class ListsController extends Controller {
    */
   @Put("{listId}")
   @SuccessResponse(205, "Content Updated")
+  @Response(400, "Bad Request", { error: "Validation failed or invalid input format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async updateList(@Header("X-Auth-User") email: string, @Path() listId: string, @Body() list: Pick<List, "name" | "groupId" | "ordinal">): Promise<void> {
     // Validate UUID path parameter
@@ -210,6 +222,8 @@ export class ListsController extends Controller {
    */
   @Delete("{listId}")
   @SuccessResponse(204, "No Content")
+  @Response(400, "Bad Request", { error: "Invalid UUID format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async deleteList(@Header("X-Auth-User") email: string, @Path() listId: string): Promise<void> {
     // Validate UUID path parameter
@@ -231,6 +245,8 @@ export class ListsController extends Controller {
    */
   @Delete("{listId}/categories/{categoryId}")
   @SuccessResponse(204, "No Content")
+  @Response(400, "Bad Request", { error: "Invalid UUID format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async removeCategory(@Header("X-Auth-User") email: string, @Path() listId: string, @Path() categoryId: string): Promise<void> {
     // Validate both UUID path parameters
@@ -252,6 +268,8 @@ export class ListsController extends Controller {
    */
   @Delete("{listId}/items/{itemId}")
   @SuccessResponse(204, "No Content")
+  @Response(400, "Bad Request", { error: "Invalid UUID format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async removeItem(@Header("X-Auth-User") email: string, @Path() listId: string, @Path() itemId: string): Promise<void> {
     // Validate both UUID path parameters
@@ -274,6 +292,8 @@ export class ListsController extends Controller {
    */
   @Get("{listId}/categories")
   @SuccessResponse(200, "OK")
+  @Response(400, "Bad Request", { error: "Invalid UUID format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Example<Array<Category>>(categoriesExample)
   @Security("bearerAuth")
   public async getCategories(@Header("X-Auth-User") email: string, @Header("X-Auth-Location") locationId: string, @Path() listId: string): Promise<Array<Category>> {
@@ -294,6 +314,8 @@ export class ListsController extends Controller {
    */
   @Get("{listId}/items")
   @SuccessResponse(200, "OK")
+  @Response(400, "Bad Request", { error: "Invalid UUID format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Example<Array<Item>>(itemsExample)
   @Security("bearerAuth")
   public async getListItems(@Header("X-Auth-User") email: string, @Path() listId: string): Promise<Array<Item>> {
@@ -314,6 +336,8 @@ export class ListsController extends Controller {
    */
   @Get("{listId}/items/count")
   @SuccessResponse(200, "OK")
+  @Response(400, "Bad Request", { error: "Invalid UUID format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Example<{ count: number }>({ count: 5 })
   @Security("bearerAuth")
   public async getListItemsCount(@Header("X-Auth-User") email: string, @Path() listId: string): Promise<{ count: number }> {

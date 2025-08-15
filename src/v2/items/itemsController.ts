@@ -1,5 +1,5 @@
 // ITEMS
-import { Body, Controller, Header, Path, Post, Put, Route, Security, Tags} from "tsoa";
+import { Body, Controller, Header, Path, Post, Put, Route, Security, Tags, SuccessResponse, Response} from "tsoa";
 import { mayProceed } from "../../shared/mayProceed";
 import { ItemsService } from "./itemsService";
 import path from "path";
@@ -31,6 +31,9 @@ export class ItemsController extends Controller {
    * @example item {"name": "Milk", "upc": "049000000000"}
    */
   @Put("{itemId}")
+  @SuccessResponse(204, "Content Updated")
+  @Response(400, "Bad Request", { error: "Validation failed or invalid input format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async updateItem(@Header("X-Auth-User") email: string, @Path() itemId: string, @Body() item: Pick<Item, "name" | "upc">): Promise<void> {
     // Validate input data first
@@ -57,6 +60,9 @@ export class ItemsController extends Controller {
    * @example item {"id": "123E4567-E89B-12D3-A456-426614174000", "name": "Milk", "upc": "049000000000"}
    */
   @Post()
+  @SuccessResponse(204, "Content Updated")
+  @Response(400, "Bad Request", { error: "Validation failed or invalid input format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
   public async createItem(@Header("X-Auth-User") email: string, @Body() item: Item): Promise<void> {
     // Validate input data first
