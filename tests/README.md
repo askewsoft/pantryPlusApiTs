@@ -38,8 +38,8 @@ export AUTH_TOKEN='your.jwt.token.here'
 Tests support different API versions. Add the version as the first argument:
 
 ```sh
-npm run test:schemathesis v1          # Test entire v1 API
-npm run test:schemathesis v2          # Test entire v2 API
+npm run schemathesis v1          # Test entire v1 API
+npm run schemathesis v2          # Test entire v2 API
 
 ```
 
