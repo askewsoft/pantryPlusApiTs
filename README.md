@@ -30,15 +30,17 @@ We also recommend that you use [nvm](https://nvm.sh) to manage different version
   * `./src/v1/**/*Controllers.ts`
   * `./src/v1/**/sql/`
 
-#### Adding New Versions
-* Make a new version directory for source code: `cp ./src/v1 ./src/v2`
-* Copy then modify the tsoa config: `cp ./tsoa.v1.json ./tsoa.v2.json`
-* Edit the server file `./src/server.ts` to create a new set of routes
-  * e.g., `import { RegisterRoutes as RegisterV2Routes } from "./routes.v2";`
-* Edit `package.json` scripts:
+### Adding New Versions
+1. Make a new version directory for source code: `cp ./src/v1 ./src/v2`
+1. Copy then modify the tsoa config: `cp ./tsoa.v1.json ./tsoa.v2.json`
+1. Edit the server file `./src/server.ts` to create a new set of routes
+    * e.g., `import { RegisterRoutes as RegisterV2Routes } from "./routes.v2";`
+1. Edit `package.json` scripts:
   ```json
     "buildv1": "tsoa spec-and-routes && tsc",
     "buildv2": "tsoa spec-and-routes -c tsoa.v2.json && tsc",
+    "copysqlv1": "node scripts/copy-sql.js v1",
+    "copysqlv2": "node scripts/copy-sql.js v2",
     "build": "npm run buildv1 && npm run buildv2",
     "codegenv1": "openapi-generator generate -g typescript-axios -i build/swagger.json -o ../pantryPlusApiClient",
     "codegenv2": "openapi-generator generate -g typescript-axios -i build/swagger.v2.json -o ../pantryPlusApiClientV2",
@@ -61,51 +63,27 @@ We also recommend that you use [nvm](https://nvm.sh) to manage different version
 
 ## Code Generation
 An API client can be generated from the OpenAPI specification using the `openapi-generator` tool.
-1. install the openapi-generator cli
-  - e.g., `brew install openapi-generator`
+1. `brew install openapi-generator`
+    - this will install the openapi-generator cli
 1. `npm run codegen`
-  - This will generate a new client into a `../pantryPlusApiClient` peer directory
+    - this will generate a new client into a `../pantryPlusApiClient` peer directory
 
 ## Testing
 ### Schemathesis
 
-1. In one terminal window, start the API server and pipe the output to a `api.log` file.
-1. Generate an auth token via pantryPlus mobile app repo script.
-1. In another terminal window, make it available to the test harness so that it can access the API.
-1. Then in the same terminal run the tests in question and run the analysis.
-1. Finally, kill the API server.
-
-For example:
-
-```sh
-# 1st terminal window
-npm run dev > api.log 2>&1 &
-```
-
-```sh
-# 2nd terminal window
-export AUTH_TOKEN=<your.jwt.token.here>  # For protected endpoints
-npm run test:schemathesis # all tests
-
-# Then after the test run completes, run the analysis:
-npm run test:schemathesis:analyze
-```
-
-To stop the server, find and kill the process:
-
-```sh
-# 1st terminal window
-ps aux | grep "node run dev" | grep -v grep
-kill -9 <PID>
-```
+1. `npm run log`
+    - start the API server in one terminal window / shell and log to a file `./api.log`
+1. `export AUTH_TOKEN=<your.jwt.token.here>`
+    - in another terminal window / shell export a valid recent bearer token
+1. `npm run schemathesis v2`
+    - in the 2nd terminal window / shell, run the tests
 
 
 ### Docker
-To test the containerized application locally:
-```sh
-docker compose up --build
-```
-This builds and runs the application with the same environment as App Runner.
+* `docker compose up --build`
+    - builds and runs the application with the same environment as App Runner
+    - test the containerized application locally
+
 
 ## Deploy
 The API is being deployed to AWS App Runner for better scalability and managed operations.
@@ -116,8 +94,10 @@ The API is being deployed to AWS App Runner for better scalability and managed o
 - Database configuration stored in AWS Systems Manager Parameter Store
 
 #### Deployment Process
-1. `npm run build` — generates tsoa spec
-1. run the `./scripts/build-push-to-ecr.sh` script
+1. `npm run build`
+    — generates tsoa spec
+1. `./scripts/build-push-to-ecr.sh`
+    - builds and pushes the current docker image to AWS ECR
 1. ECR updates should trigger an automatic deployment via App Runner
 1. monitor CloudWatch App Runner service events log to confirm success
 1. verify deployment using
@@ -126,6 +106,12 @@ The API is being deployed to AWS App Runner for better scalability and managed o
 
 #### Code Generation (When API changes)
 If you modify API endpoints or schemas:
-1. `npm run codegen` — generates updated client code
-1. Commit and push the generated client code
-1. Follow the Client repos [README](https://github.com/askewsoft/pantryPlusApiClient/blob/main/README.md) to update the mobile app to the latest version
+
+1. `npm run codegen`
+    - generates updated client code
+1. `cd ../pantryPlusApiClient`
+    - switch to the client library repo
+1. `git commit -am "<some update message>"`
+    - commit and push the generated client code
+1. [README](https://github.com/askewsoft/pantryPlusApiClient/blob/main/README.md)
+    - Follow the Client repo's instructions to update the mobile app to the latest version

@@ -22,5 +22,18 @@ const copySqlFiles = (src, dest) => {
   }
 };
 
-// Copy SQL files from src/v1 to build/v1 maintaining directory structure
-copySqlFiles('src/v1', 'build/v1'); 
+// Get version from command line argument
+const version = process.argv[2];
+
+// Validate version argument matches v[0-9] pattern
+if (!version || !/^v[0-9]+$/.test(version)) {
+  console.error('❌ Error: Version argument required and must match pattern v[0-9]+');
+  console.error('Usage: node scripts/copy-sql.js <version>');
+  console.error('Example: node scripts/copy-sql.js v1');
+  process.exit(1);
+}
+
+// Copy SQL files from src/{version} to build/{version} maintaining directory structure
+copySqlFiles(`src/${version}`, `build/${version}`);
+
+console.log(`✅ SQL files copied from src/${version} to build/${version}`);
