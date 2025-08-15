@@ -30,7 +30,7 @@ import { RecentLocation } from "../locations/location";
 import { recentLocationsExample } from "../locations/locationsExamples";
 import { ShoppersService } from "./shoppersService";
 import { mayProceed } from "../../shared/mayProceed";
-import { validateUUIDParam, validateBodyUUIDs } from "../../shared/uuidValidation";
+import { validateUUIDParam, validateBodyUUIDs, validateMultipleUUIDs } from "../../shared/uuidValidation";
 
 const mayAccessShopperTemplate = path.join(__dirname, './sql/mayAccessShopper.sql');
 const maySeeShopperDetailsTemplate = path.join(__dirname, './sql/maySeeShopperDetails.sql');
