@@ -54,7 +54,8 @@ export function validateString(
     if (!options.allowEmpty) {
       errors.push(`${fieldName} is required`);
     }
-    return { isValid: errors.length === 0, errors };
+    const result = { isValid: errors.length === 0, errors };
+    return result;
   }
 
   // Convert to string if needed
@@ -65,13 +66,15 @@ export function validateString(
     if (!options.allowEmpty) {
       errors.push(`${fieldName} cannot be empty`);
     }
-    return { isValid: errors.length === 0, errors };
+    const result = { isValid: errors.length === 0, errors };
+    return result;
   }
 
   // Check UTF-8 validity
   if (!isValidUtf8(stringValue)) {
     errors.push(`${fieldName} contains invalid UTF-8 characters`);
-    return { isValid: false, errors };
+    const result = { isValid: false, errors };
+    return result;
   }
 
   // Check length
@@ -89,11 +92,13 @@ export function validateString(
     errors.push(`${fieldName} failed custom validation`);
   }
 
-  return {
+  const result = {
     isValid: errors.length === 0,
     errors,
     sanitizedData: stringValue.trim()
   };
+
+  return result;
 }
 
 /**
@@ -128,6 +133,66 @@ export function validateUuid(uuid: any): ValidationResult {
 }
 
 /**
+ * Validates a number field with various options
+ */
+export function validateNumber(
+  value: any,
+  fieldName: string,
+  options: ValidationOptions = {}
+): ValidationResult {
+  const errors: string[] = [];
+
+  // Check if value exists
+  if (value === null || value === undefined) {
+    if (!options.allowEmpty) {
+      errors.push(`${fieldName} is required`);
+    }
+    const result = { isValid: errors.length === 0, errors };
+    return result;
+  }
+
+  // Handle TSOA body coercion - if the value is a string that represents a number, convert it
+  let numericValue = value;
+  if (typeof value === 'string') {
+    const parsed = parseFloat(value);
+    if (!isNaN(parsed) && isFinite(parsed)) {
+      numericValue = parsed;
+    } else {
+      errors.push(`${fieldName} must be a valid number`);
+      const result = { isValid: false, errors };
+      return result;
+    }
+  }
+
+  // Check if it's a number
+  if (typeof numericValue !== 'number') {
+    errors.push(`${fieldName} must be a number`);
+    const result = { isValid: false, errors };
+    return result;
+  }
+
+  // Check if it's NaN or Infinity
+  if (isNaN(numericValue) || !isFinite(numericValue)) {
+    errors.push(`${fieldName} must be a finite number`);
+    const result = { isValid: false, errors };
+    return result;
+  }
+
+  // Custom validation
+  if (options.customValidator && !options.customValidator(numericValue)) {
+    errors.push(`${fieldName} failed custom validation`);
+  }
+
+  const result = {
+    isValid: errors.length === 0,
+    errors,
+    sanitizedData: numericValue
+  };
+
+  return result;
+}
+
+/**
  * Validates an object with multiple fields
  */
 export function validateObject(
@@ -138,7 +203,15 @@ export function validateObject(
   const sanitizedData: any = {};
 
   for (const [fieldName, options] of Object.entries(validations)) {
-    const result = validateString(data[fieldName], fieldName, options);
+    let result: ValidationResult;
+
+    // Check if this field should be validated as a number
+    if (options.customValidator &&
+        (fieldName === 'latitude' || fieldName === 'longitude' || fieldName === 'radius')) {
+      result = validateNumber(data[fieldName], fieldName, options);
+    } else {
+      result = validateString(data[fieldName], fieldName, options);
+    }
 
     if (!result.isValid) {
       errors.push(...result.errors);
