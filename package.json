@@ -16,7 +16,7 @@
     "codegen": "npm run codegenv1 && npm run codegenv2",
     "start": "node build/server.js",
     "dev": "npm run build && nodemon",
-    "test": "npm run build && node build/server.js > api.log 2>&1",
+    "test": "npm run dev > api.log 2>&1",
     "schemathesis": "./scripts/schemathesis.sh"
   },
   "nodemonConfig": {
