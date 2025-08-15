@@ -17,7 +17,7 @@ function validateItemInput(data: any): ValidationResult {
   return validateObject(data, {
     id: commonValidations.uuid,
     name: { maxLength: 255 },
-    upc: { maxLength: 50 }
+    upc: { maxLength: 50, allowEmpty: true }
   });
 }
 
@@ -39,7 +39,7 @@ export class ItemsController extends Controller {
     // Validate input data first
     const validation = validateObject(item, {
       name: { maxLength: 255 },
-      upc: { maxLength: 50 }
+      upc: { maxLength: 50, allowEmpty: true }
     });
     if (!validation.isValid) {
       this.setStatus(400);
