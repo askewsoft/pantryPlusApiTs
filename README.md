@@ -42,8 +42,8 @@ We also recommend that you use [nvm](https://nvm.sh) to manage different version
     "copysqlv1": "node scripts/copy-sql.js v1",
     "copysqlv2": "node scripts/copy-sql.js v2",
     "build": "npm run buildv1 && npm run buildv2",
-    "codegenv1": "openapi-generator generate -g typescript-axios -i build/swagger.json -o ../pantryPlusApiClient",
-    "codegenv2": "openapi-generator generate -g typescript-axios -i build/swagger.v2.json -o ../pantryPlusApiClientV2",
+    "codegenv1": "openapi-generator generate -g typescript-axios -i build/swagger.json -o ../pantryPlusApiClient/v1",
+    "codegenv2": "openapi-generator generate -g typescript-axios -i build/swagger.v2.json -o ../pantryPlusApiClient/v2",
     "codegen": "npm run codegenv1 && npm run codegenv2",
   ```
 
