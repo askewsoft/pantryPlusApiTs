@@ -1,0 +1,22 @@
+---
+description: Use session variables at top of SQL files
+alwaysApply: true
+---
+
+# SQL Session Variable Style
+
+- For SQL templates in this project, define parameters as session variables at the top of the file.
+- Prefer `SET @name = ...;` before any `SELECT`, `INSERT`, `UPDATE`, or `DELETE`.
+- Reuse `@variables` in query bodies instead of repeating inline transforms like `UUID_TO_BIN(:id)`.
+
+## Preferred Pattern
+
+```sql
+SET @entityId = UUID_TO_BIN(:entityId);
+SET @name = :name;
+
+UPDATE ENTITY
+SET NAME = @name
+WHERE ID = @entityId
+;
+```
