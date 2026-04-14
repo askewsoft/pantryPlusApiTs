@@ -2,6 +2,7 @@ import path from "path";
 import { dbPost } from "../../shared/dbDriver";
 import { Logger, logger } from "../../shared/logger";
 import { Item } from "../items/item";
+import { LocationsService } from "../locations/locationsService";
 
 const log: Logger = logger('Category Service')
 
@@ -19,8 +20,11 @@ export abstract class CategoriesService {
   };
 
   public static async updateCategory(categoryId: string, categoryName: string, categoryOrdinal: number, locationId: string): Promise<void> {
-    const updateTemplate = path.join(__dirname, './sql/updateCategory.sql');
-    await dbPost(updateTemplate, { categoryId, categoryName, categoryOrdinal, locationId });
+    await LocationsService.assertLocationExists(locationId);
+    const updateNameTemplate = path.join(__dirname, './sql/updateCategoryName.sql');
+    const upsertOrderTemplate = path.join(__dirname, './sql/upsertCategoryOrdinal.sql');
+    await dbPost(updateNameTemplate, { categoryId, categoryName });
+    await dbPost(upsertOrderTemplate, { categoryId, categoryOrdinal, locationId });
     return;
   };
 

@@ -96,6 +96,7 @@ export class CategoriesController extends Controller {
 
     // Validate UUID path parameter
     validateUUIDParam('categoryId', categoryId);
+    validateUUIDParam('X-Auth-Location', locationId);
 
     await mayProceed({ email, id: categoryId, accessTemplate: mayModifyCategoryTemplate });
     await CategoriesService.updateCategory(categoryId, category.name, category.ordinal, locationId);
