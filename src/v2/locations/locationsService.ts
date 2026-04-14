@@ -1,5 +1,6 @@
 import path from "path";
 import { dbPost } from "../../shared/dbDriver";
+import { ErrorCode } from "../../shared/errorHandler";
 import { Location, NearbyLocation, LocationArea } from "./location";
 import { Logger, logger } from "../../shared/logger";
 
@@ -50,5 +51,16 @@ export abstract class LocationsService {
     const { longitude, latitude, radius } = locationArea;
     const getNearbyLocationsTemplate = path.join(__dirname, './sql/getNearbyLocations.sql');
     return await dbPost(getNearbyLocationsTemplate, { longitude, latitude, radius });
+  };
+
+  /** Throws NOT_FOUND if LOCATION row is missing (e.g. FK on CATEGORY_ORDER.LOCATION_ID). */
+  public static async assertLocationExists(locationId: string): Promise<void> {
+    const template = path.join(__dirname, './sql/locationExists.sql');
+    const rows = await dbPost(template, { locationId });
+    if (!rows || rows.length === 0) {
+      const err = new Error('Location not found') as any;
+      err.name = ErrorCode.NOT_FOUND;
+      throw err;
+    }
   };
 };
