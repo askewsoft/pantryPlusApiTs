@@ -8,18 +8,18 @@ const loggableHeaders = [
 ];
 
 const debugOnlyPaths = [
-  "/v1/docs",
-  "/v1/swagger.json",
+  "/v2/docs",
+  "/v2/swagger.json",
   "/healthcheck"
 ];
 
 const apiPaths = [
-  "/v1/categories",
-  "/v1/groups",
-  "/v1/items",
-  "/v1/lists",
-  "/v1/locations",
-  "/v1/shoppers"
+  "/v2/categories",
+  "/v2/groups",
+  "/v2/items",
+  "/v2/lists",
+  "/v2/locations",
+  "/v2/shoppers"
   
 ];
 

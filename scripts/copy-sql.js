@@ -29,7 +29,7 @@ const version = process.argv[2];
 if (!version || !/^v[0-9]+$/.test(version)) {
   console.error('❌ Error: Version argument required and must match pattern v[0-9]+');
   console.error('Usage: node scripts/copy-sql.js <version>');
-  console.error('Example: node scripts/copy-sql.js v1');
+  console.error('Example: node scripts/copy-sql.js v2');
   process.exit(1);
 }
 

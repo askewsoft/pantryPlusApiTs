@@ -27,21 +27,17 @@ if [ -z "$1" ]; then
     echo -e "${BLUE}🧪 Schemathesis Comprehensive API Test Runner${NC}"
     echo "=================================================="
     echo -e "${YELLOW}No API version specified. Please choose:${NC}"
-    echo "1) v1 (default)"
-    echo "2) v2"
-    echo "3) Other (custom)"
+    echo "1) v2 (default)"
+    echo "2) Other (custom)"
     echo ""
-    read -p "Enter your choice (1-3) or press Enter for v1: " choice
+    read -p "Enter your choice (1-2) or press Enter for v2: " choice
 
     case $choice in
         2)
-            API_VERSION="v2"
-            ;;
-        3)
             read -p "Enter custom API version (e.g., v3): " API_VERSION
             ;;
         *)
-            API_VERSION="v1"
+            API_VERSION="v2"
             ;;
     esac
 else
@@ -119,6 +115,5 @@ echo -e "${YELLOW}💡 To view only failures:${NC}"
 echo "  grep 'FAILED\|ERROR' $ROOT_TO_OUTPUTS/public_tests_${API_VERSION}_${TIMESTAMP}.log"
 echo ""
 echo -e "${YELLOW}💡 Usage examples:${NC}"
-echo "  ./scripts/schemathesis-comprehensive.sh v1    # Test v1 API"
 echo "  ./scripts/schemathesis-comprehensive.sh v2    # Test v2 API"
 echo "  ./scripts/schemathesis-comprehensive.sh       # Interactive version selection"

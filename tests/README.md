@@ -9,13 +9,13 @@ This directory contains testing implementations using multiple frameworks to ens
 
 ### What It Tests
 - **Comprehensive API Coverage** - Tests all endpoints in the API specification
-- **Version Support** - Works with v1, v2, or any future API version
+- **Version Support** - Works with v2 or any future API version
 - **Authentication Handling** - Automatically handles protected vs public endpoints
 - **Edge Case Discovery** - Uses Hypothesis for property-based testing
 
 ### How It Works
 The testing system uses Schemathesis CLI directly against the swagger endpoints:
-- Loads OpenAPI spec from `/v1/swagger.json` or `/v2/swagger.json`
+- Loads OpenAPI spec from `/<version>/swagger.json` (for example: `/v2/swagger.json`)
 - Generates test cases using Hypothesis
 - Runs tests against the live API
 - Handles authentication and error responses appropriately
@@ -38,7 +38,6 @@ export AUTH_TOKEN='your.jwt.token.here'
 Tests support different API versions. Add the version as the first argument:
 
 ```sh
-npm run schemathesis v1          # Test entire v1 API
 npm run schemathesis v2          # Test entire v2 API
 
 ```
@@ -49,7 +48,6 @@ If no version is specified, the scripts will prompt you to choose one.
 Results are saved to timestamped log files:
 ```
 tests/schemathesis/test_outputs/
-├── schemathesis_v1_20250814_165423.log
 ├── schemathesis_v2_20250814_171803.log
 └── ...
 ```
