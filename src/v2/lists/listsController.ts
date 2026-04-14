@@ -111,6 +111,37 @@ export class ListsController extends Controller {
   };
 
   /**
+   * @summary Reorders all categories for a list at the given store location
+   * @param email the email address of the user
+   * @param locationId the ID of the store location (CATEGORY_ORDER is per location)
+   * @param listId the ID of the list
+   * @param body orderedCategoryIds — every category id on the list, in display order
+   */
+  @Put("{listId}/categories/order")
+  @SuccessResponse(205, "Content Updated")
+  @Response(400, "Bad Request", { error: "Validation failed or invalid input format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
+  @Security("bearerAuth")
+  public async reorderCategoriesAtLocation(
+    @Header("X-Auth-User") email: string,
+    @Header("X-Auth-Location") locationId: string,
+    @Path() listId: string,
+    @Body() body: { orderedCategoryIds: string[] }
+  ): Promise<void> {
+    validateUUIDParam('listId', listId);
+    validateUUIDParam('locationId', locationId);
+    if (!body?.orderedCategoryIds || !Array.isArray(body.orderedCategoryIds) || body.orderedCategoryIds.length === 0) {
+      this.setStatus(400);
+      throw new Error('orderedCategoryIds must be a non-empty array');
+    }
+    body.orderedCategoryIds.forEach((id, index) => {
+      validateUUIDParam(`orderedCategoryIds[${index}]`, id);
+    });
+    await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
+    await ListsService.reorderCategoriesForLocation(listId, locationId, body.orderedCategoryIds);
+  }
+
+  /**
    * @summary Associates an item with a list
    * @param email the email address of the user
    * @param listId the ID of the list

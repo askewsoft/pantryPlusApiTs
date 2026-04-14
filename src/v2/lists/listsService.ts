@@ -1,5 +1,6 @@
 import path from "path";
-import { dbPost } from "../../shared/dbDriver";
+import { dbPost, dbTransaction, extractQuery } from "../../shared/dbDriver";
+import { LocationsService } from "../locations/locationsService";
 import { List } from "./list";
 import { Category } from "../categories/category";
 import { Item } from "../items/item";
@@ -40,6 +41,39 @@ export abstract class ListsService {
     const getCategoriesTemplate = path.join(__dirname, './sql/getCategories.sql');
     const results = await dbPost(getCategoriesTemplate, { listId, locationId });
     return results;
+  };
+
+  /**
+   * Sets CATEGORY_ORDER ordinals for all categories in one transaction (avoids partial writes
+   * when the client previously sent many PUTs).
+   */
+  public static async reorderCategoriesForLocation(
+    listId: string,
+    locationId: string,
+    orderedCategoryIds: string[]
+  ): Promise<void> {
+    await LocationsService.assertLocationExists(locationId);
+    const existing = await this.getCategories(listId, locationId);
+    const existingIds = new Set(existing.map(c => c.id));
+    if (orderedCategoryIds.length !== existingIds.size) {
+      throw new Error('Category count does not match list');
+    }
+    for (const id of orderedCategoryIds) {
+      if (!existingIds.has(id)) {
+        throw new Error('Category id does not belong to list');
+      }
+    }
+    const upsertTemplate = path.join(__dirname, '../categories/sql/upsertCategoryOrdinal.sql');
+    const sqlStr = await extractQuery(upsertTemplate);
+    await dbTransaction(async (conn) => {
+      for (let i = 0; i < orderedCategoryIds.length; i++) {
+        await conn.query(sqlStr, {
+          categoryId: orderedCategoryIds[i],
+          locationId,
+          categoryOrdinal: i
+        });
+      }
+    });
   };
 
   public static async getListItems(listId: string): Promise<Array<Item>> {
