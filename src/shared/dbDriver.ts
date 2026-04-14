@@ -1,6 +1,6 @@
 import { logger, Logger } from './logger';
 import { ErrorCode } from './errorHandler';
-import mysql, { PoolOptions, RowDataPacket, Pool } from 'mysql2/promise';
+import mysql, { PoolOptions, Pool, PoolConnection } from 'mysql2/promise';
 import { readFile } from 'fs/promises';
 import { snakeToCamel } from './camelCaseKeys';
 import config from './config';
@@ -10,7 +10,7 @@ import process from 'process';
 import fs from 'fs';
 const log: Logger = logger('dbDriver');
 
-const extractQuery = async (template: string): Promise<string> => {
+export const extractQuery = async (template: string): Promise<string> => {
   try {
     const sqlFile = await readFile(template, 'utf8');
     return processSqlFile(sqlFile);
@@ -182,6 +182,24 @@ const dbPost = async (template: string, params: Object, debug: boolean = false):
 };
 
 /**
+ * Run queries in a single transaction (same connection).
+ */
+const dbTransaction = async (callback: (conn: PoolConnection) => Promise<void>): Promise<void> => {
+  const pool = await getPool();
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    await callback(conn);
+    await conn.commit();
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    conn.release();
+  }
+};
+
+/**
  * Determines if an error is non-retryable
  */
 function isNonRetryableError(err: any): boolean {
@@ -211,6 +229,12 @@ function isNonRetryableError(err: any): boolean {
 
 // returns the array of results w/o all the MySQL wrapping
 const extractDbResult = (rows: any, debug: boolean = false): Array<any> | undefined => {
+  // Single-statement INSERT/UPDATE/DELETE: mysql2 returns OkPacket (not an array)
+  if (rows && typeof rows === 'object' && !Array.isArray(rows)) {
+    if ('affectedRows' in rows || 'warningStatus' in rows || 'info' in rows) {
+      return [];
+    }
+  }
   if (Array.isArray(rows) && rows.length > 0) {
     const results = rows.pop();
     if (debug) {
@@ -218,6 +242,8 @@ const extractDbResult = (rows: any, debug: boolean = false): Array<any> | undefi
     }
     const normalizedResults = snakeToCamel(results);
     return Array.isArray(normalizedResults) ? normalizedResults : [normalizedResults];
+  } else if (Array.isArray(rows) && rows.length === 0) {
+    return [];
   } else {
     const errObj = new Error('invalid database response') as any;
     errObj.name = ErrorCode.DATABASE_ERR;
@@ -226,4 +252,4 @@ const extractDbResult = (rows: any, debug: boolean = false): Array<any> | undefi
   }
 };
 
-export { dbPost };
+export { dbPost, dbTransaction };
