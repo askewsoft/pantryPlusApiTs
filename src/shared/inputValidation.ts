@@ -207,7 +207,7 @@ export function validateObject(
 
     // Check if this field should be validated as a number
     if (options.customValidator &&
-        (fieldName === 'latitude' || fieldName === 'longitude' || fieldName === 'radius')) {
+        (fieldName === 'latitude' || fieldName === 'longitude' || fieldName === 'radius' || fieldName === 'ordinal')) {
       result = validateNumber(data[fieldName], fieldName, options);
     } else {
       result = validateString(data[fieldName], fieldName, options);
