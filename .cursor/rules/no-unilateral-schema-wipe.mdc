@@ -1,0 +1,26 @@
+---
+description: Never wipe or apply DB schema without explicit user confirmation
+alwaysApply: true
+---
+
+# Database schema: no unilateral wipe or apply
+
+## Never do these unless the user explicitly asks
+
+- Run, execute, or pipe [`schema/dropAll.sql`](schema/dropAll.sql) (or any equivalent “drop all tables” / full schema wipe).
+- Drop, truncate, or recreate the local or remote database to “fix” schema drift.
+- Re-run [`schema/setup.sql`](schema/setup.sql) against a non-empty database as an upgrade path.
+- Run `npm run migrate` (or otherwise apply migrations) against any database without asking first.
+
+## Always ask first
+
+Before any destructive or environment-mutating DDL (drops, wipes, migrate against a shared/prod/local DB the user owns), **stop and get explicit confirmation**. “Implement the migration file” is not permission to apply it.
+
+## Normal agent workflow
+
+1. Update [`schema/setup.sql`](schema/setup.sql) **and** add an idempotent file under [`schema/migrations/`](schema/migrations/) in the same change (setup = new DBs; migration = existing DBs). Never require “setup then migrate” for one install.
+2. Document the change; leave applying SQL to the user (`npm run migrate` on existing DBs, or DataGrip / another DB IDE).
+
+## If schema appears wrong locally
+
+Do **not** assume wipe + recreate. Tell the user what looks wrong and ask how they want to proceed (they usually migrate or apply SQL themselves).

@@ -9,7 +9,9 @@ TypeScript Express API for the pantryPlus mobile app, with OpenAPI via [TSOA](ht
 1. `nvm use` — Node 22 (see `package.json` `engines`)
 2. `npm install`
 3. `cp env.example .env` and set DB + `APIPORT` (see [Environment](#environment))
-4. Apply [schema/setup.sql](schema/setup.sql) to your MySQL instance if the schema is empty
+4. Apply schema (one path only — see [schema/README.md](schema/README.md)):
+   - **New DB:** [schema/setup.sql](schema/setup.sql) only
+   - **Existing DB:** `npm run migrate` only (or apply pending SQL in a DB IDE)
 5. `npm run dev` — build, watch, and run
 
 - Swagger UI: `http://localhost:<APIPORT>/v2/docs`
@@ -48,7 +50,7 @@ src/
     ├── categories/
     ├── items/
     └── locations/
-schema/                 # setup.sql, dropAll.sql, diagram
+schema/                 # setup.sql, migrations/, dropAll.sql, diagram
 docs/                   # developer conventions (this folder’s siblings)
 ```
 
@@ -64,12 +66,13 @@ Request flow: **Controller** (TSOA + `mayProceed`) → **Service** → **SQL** (
 - [SQL & dbDriver](docs/SQL_AND_DBDRIVER.md) — session vars, multi-statement, UUID creates
 - [Groups & Data Model](docs/GROUPS_AND_DATA_MODEL.md) — cohort mapping, tables, invites
 - [Deployment](docs/DEPLOYMENT.md) — Docker, ECR, App Runner, codegen handoff
-- [Schema](schema/README.md) — ER diagram
+- [Schema](schema/README.md) — ER diagram, setup vs migrations
 - [Testing](tests/README.md) — Schemathesis
 
 ## Develop
 
 - `npm run build` — TSOA `spec-and-routes` (v2), `tsc`, copy SQL to `build/`
+- `npm run migrate` — apply pending `schema/migrations/*.sql` (uses `.env` DB settings)
 - `npm run dev` — nodemon + rebuild on `src` / `.env` changes
 - Prettier + ESLint — keep formatting consistent
 - Non-admin changes go through GitHub PRs
