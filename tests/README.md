@@ -1,61 +1,52 @@
-# Testing for PantryPlus API
+# Testing the pantryPlus API
 
-This directory contains testing implementations using multiple frameworks to ensure API quality and security.
-- **Schemathesis** - Property-based testing and API contract validation
-- **Snyk** - Security vulnerability scanning (coming soon)
+Current automated coverage is primarily **Schemathesis** (property-based checks from the OpenAPI spec) against a **live** local server. There is no separate unit/integration suite in this repo yet.
 
 ## Schemathesis
-[Schemathesis](https://schemathesis.readthedocs.io/en/stable/) automatically generates tests from your OpenAPI specification and discovers edge cases through property-based testing.
 
-### What It Tests
-- **Comprehensive API Coverage** - Tests all endpoints in the API specification
-- **Version Support** - Works with v2 or any future API version
-- **Authentication Handling** - Automatically handles protected vs public endpoints
-- **Edge Case Discovery** - Uses Hypothesis for property-based testing
-
-### How It Works
-The testing system uses Schemathesis CLI directly against the swagger endpoints:
-- Loads OpenAPI spec from `/<version>/swagger.json` (for example: `/v2/swagger.json`)
-- Generates test cases using Hypothesis
-- Runs tests against the live API
-- Handles authentication and error responses appropriately
+[Schemathesis](https://schemathesis.readthedocs.io/en/stable/) loads `/v2/swagger.json` and generates requests with Hypothesis.
 
 ### Setup
-No special setup required! The system automatically:
-- Sources environment variables from `.env`
-- Validates API accessibility on the configured port
-- Creates output directories as needed
 
-### Running Tests
+1. Install the Schemathesis CLI (see upstream docs for your OS).
+2. Ensure `.env` has a valid `APIPORT` (and DB settings so the API can start).
+3. Start the API in another terminal:
 
-#### Authentication
-For testing protected endpoints, set an auth token:
-```sh
-export AUTH_TOKEN='your.jwt.token.here'
-```
+   ```sh
+   npm run log          # or npm run dev
+   ```
 
-#### API Version Selection
-Tests support different API versions. Add the version as the first argument:
+### Run
 
 ```sh
-npm run schemathesis v2          # Test entire v2 API
-
+npm run schemathesis v2
+# or
+./scripts/schemathesis.sh v2
 ```
 
-If no version is specified, the scripts will prompt you to choose one.
+The script:
 
-#### Test Output
-Results are saved to timestamped log files:
+- Sources `.env` for `APIPORT`
+- Fails if `http://localhost:$APIPORT/healthcheck` is down
+- Runs against `http://localhost:$APIPORT/v2/swagger.json`
+- Writes logs under `tests/schemathesis/test_outputs/schemathesis_v2_<timestamp>.log`
+
+### Auth note
+
+Older notes mentioned `AUTH_TOKEN`. The current `scripts/schemathesis.sh` does **not** inject Authorization / `X-Auth-User` headers. Expect many protected routes to fail auth unless you extend the runner. Treat results as contract/fuzz signal, not a full authenticated regression suite.
+
+### Env
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `APIPORT` | Yes | Port of the running API |
+| DB_* / etc. | For server | So `npm run log` can serve real responses |
+
+## Manual smoke
+
+```sh
+curl -s "http://localhost:$APIPORT/healthcheck"
+curl -s "http://localhost:$APIPORT/v2/swagger.json" | head
 ```
-tests/schemathesis/test_outputs/
-├── schemathesis_v2_20250814_171803.log
-└── ...
-```
 
-
-
-### Environment Variables
-- **`APIPORT`** - API server port (required, read from `.env`)
-- **`AUTH_TOKEN`** - JWT token for authenticated endpoints
-
-The system will fail explicitly if required environment variables are missing.
+Authenticated calls need Bearer + `X-Auth-User` (see [Auth & Identity](../docs/AUTH_AND_IDENTITY.md)). The mobile repo’s `npm run gettoken` can mint a Cognito access token when configured.
