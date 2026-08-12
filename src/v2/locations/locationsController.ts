@@ -134,7 +134,7 @@ export class LocationsController extends Controller {
    */
   @Post()
   @SuccessResponse(201, "Created")
-  @Response(200, "OK")
+  @Response<Location>(200, "OK")
   @Response(400, "Bad Request", { error: "Validation failed or invalid input format" })
   @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
