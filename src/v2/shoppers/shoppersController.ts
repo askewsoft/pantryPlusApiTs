@@ -239,11 +239,11 @@ export class ShoppersController extends Controller {
   }
 
   /**
-   * @summary Retrieves all locations associated with a Shopper
+   * @summary Retrieves known locations for a Shopper
    * @param email the email address of the user
    * @param shopperId the ID of the shopper for whom locations will be returned
-   * @param lookBackDays the number of days to look back for purchases
-   * @returns The locations at which items were purchased by a shopper
+   * @param lookBackDays the number of days to look back for purchases (purchase-history half only)
+   * @returns Locations the shopper created, locations created by cohort mates, and locations from recent purchases on accessible lists
    */
   @Get("{shopperId}/locations")
   @SuccessResponse(200, "OK")

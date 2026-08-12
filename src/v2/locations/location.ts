@@ -23,8 +23,8 @@ export interface NearbyLocation extends Location {
 }
 
 export interface RecentLocation extends Location {
-    /** The date of the purchase */
-    lastPurchaseDate: string;
+    /** Most recent purchase at this location on an accessible list, if any */
+    lastPurchaseDate?: string;
 }
 
 export interface LocationArea {
