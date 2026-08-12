@@ -6,7 +6,9 @@ How the API is built, containerized, and shipped to AWS App Runner.
 
 1. `nvm use` (see `.nvmrc` / `package.json` engines — Node 22)
 2. `cp env.example .env` and fill DB + `APIPORT` values
-3. Apply schema if needed: `schema/setup.sql` against your MySQL
+3. Apply schema if needed (one path only — see [schema/README.md](../schema/README.md)):
+   - **New DB:** `schema/setup.sql` only
+   - **Existing DB:** `npm run migrate` only (or apply pending SQL in a DB IDE)
 4. `npm install && npm run build && npm start`
    Or hot rebuild: `npm run dev`
 
