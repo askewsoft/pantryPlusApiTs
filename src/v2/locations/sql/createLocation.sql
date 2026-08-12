@@ -6,8 +6,9 @@ SET @longitude = :longitude;
 SET @userEmail = :email;
 SET @createdBy = (SELECT ID FROM SHOPPER WHERE EMAIL = @userEmail);
 
--- POINT(X longitude, Y latitude) for SRID 4326; matches ST_Longitude / ST_Latitude and nearby queries
-SET @geoLocation = ST_GeomFromText(CONCAT('POINT(', @longitude, ' ', @latitude, ')'), 4326);
+-- POINT(X longitude, Y latitude) for SRID 4326 — same as getNearbyLocations.sql.
+-- Prefer POINT() over ST_GeomFromText WKT: geographic SRS WKT axis order can swap lon/lat.
+SET @geoLocation = ST_SRID(POINT(@longitude, @latitude), 4326);
 
 INSERT IGNORE INTO LOCATION (ID, NAME, GEO_LOCATION, CREATED_BY)
 VALUES (@locationId, @name, @geoLocation, @createdBy)
