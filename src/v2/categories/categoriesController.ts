@@ -48,7 +48,26 @@ export class CategoriesController extends Controller {
   };
 
   /**
-   * @summary Removes an item from a category
+   * @summary Unlinks an item from a category without removing it from the list
+   * @param email the email address of the user
+   * @param categoryId the ID of the category
+   * @param itemId the ID of the item
+   */
+  @Delete("{categoryId}/items/{itemId}/link")
+  @SuccessResponse(204, "No Content")
+  @Response(400, "Bad Request", { error: "Invalid UUID format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
+  @Security("bearerAuth")
+  public async unlinkItemFromCategory(@Header("X-Auth-User") email: string, @Path() categoryId: string, @Path() itemId: string): Promise<void> {
+    validateMultipleUUIDs({ categoryId, itemId });
+
+    await mayProceed({ email, id: categoryId, accessTemplate: mayModifyCategoryTemplate });
+    await CategoriesService.unlinkItemFromCategory(itemId, categoryId);
+    return;
+  };
+
+  /**
+   * @summary Removes an item from a category and from the list
    * @param email the email address of the user
    * @param categoryId the ID of the category
    * @param itemId the ID of the item
