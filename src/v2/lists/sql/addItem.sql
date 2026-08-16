@@ -2,8 +2,8 @@
 SET @itemId = UUID_TO_BIN(:itemId);
 SET @listId = UUID_TO_BIN(:listId);
 
--- add the item to the list
-INSERT INTO LIST_ITEM_RELATION (LIST_ID, ITEM_ID)
+-- add the item to the list (ignore if already present — find-or-create may reuse an id)
+INSERT IGNORE INTO LIST_ITEM_RELATION (LIST_ID, ITEM_ID)
 VALUES (@listId, @itemId)
 ;
 
