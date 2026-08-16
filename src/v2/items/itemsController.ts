@@ -1,10 +1,11 @@
 // ITEMS
-import { Body, Controller, Header, Path, Post, Put, Route, Security, Tags, SuccessResponse, Response} from "tsoa";
+import { Body, Controller, Example, Header, Path, Post, Put, Route, Security, Tags, SuccessResponse, Response} from "tsoa";
 import { mayProceed } from "../../shared/mayProceed";
 import { ItemsService } from "./itemsService";
 import path from "path";
 import { ShoppersService } from "../shoppers/shoppersService";
 import { Item } from "./item";
+import { itemsExample } from "./itemsExamples";
 import { validateUUIDParam, validateBodyUUIDs } from "../../shared/uuidValidation";
 import { validateObject, commonValidations, ValidationResult } from "../../shared/inputValidation";
 
@@ -55,16 +56,17 @@ export class ItemsController extends Controller {
   };
 
   /**
-   * @summary Creates an item
-   * @param item an object containing the ID, name, and UPC of the item
+   * @summary Find or create an item by normalized name. Returns the canonical item (existing or newly created).
+   * @param item an object containing a candidate ID, name, and optional UPC. The returned id may differ from the candidate when a match already exists.
    * @example item {"id": "123E4567-E89B-12D3-A456-426614174000", "name": "Milk", "upc": "049000000000"}
    */
   @Post()
-  @SuccessResponse(204, "Content Updated")
+  @SuccessResponse(200, "OK")
   @Response(400, "Bad Request", { error: "Validation failed or invalid input format" })
   @Response(401, "Unauthorized", { error: "Invalid token format" })
+  @Example<Item>(itemsExample[0])
   @Security("bearerAuth")
-  public async createItem(@Header("X-Auth-User") email: string, @Body() item: Item): Promise<void> {
+  public async createItem(@Header("X-Auth-User") email: string, @Body() item: Item): Promise<Item> {
     // Validate input data first
     const validation = validateItemInput(item);
     if (!validation.isValid) {
@@ -77,7 +79,8 @@ export class ItemsController extends Controller {
 
     // any valid user can create an item
     await ShoppersService.validateUser(email);
-    await ItemsService.create(item);
-    return;
+    const canonical = await ItemsService.findOrCreate(item);
+    this.setStatus(200);
+    return canonical;
   };
 };
