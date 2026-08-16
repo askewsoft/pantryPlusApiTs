@@ -56,7 +56,9 @@ CREATE TABLE IF NOT EXISTS PANTRY_PLUS.CATEGORY (
 CREATE TABLE IF NOT EXISTS PANTRY_PLUS.ITEM (
     ID binary(16) default (uuid_to_bin(uuid())) not null primary key,
     NAME varchar(100) NOT NULL,
-    UPC char(15)
+    NAME_NORMALIZED varchar(100) NOT NULL,
+    UPC char(15),
+    UNIQUE KEY uq_item_name_normalized (NAME_NORMALIZED)
 );
 
 CREATE TABLE IF NOT EXISTS PANTRY_PLUS.INVITEES (
