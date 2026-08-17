@@ -203,10 +203,12 @@ export class ShoppersController extends Controller {
   }
 
   /**
-   * @summary Retrieves all previously purchased items associated with a Shopper
+   * @summary Retrieves cohort-scoped items for typeahead: purchase history plus items on household lists
    * @param email the email address of the user
    * @param shopperId the ID of the shopper for whom items will be returned
-   * @returns The items previously purchased by a shopper
+   * @param lookBackDays how far back to include purchase history (default 365)
+   * @param cohortId optional household (group) id; omit for private-list corpus
+   * @returns Distinct items purchased or listed on accessible cohort lists
    */
   @Get("{shopperId}/items")
   @SuccessResponse(200, "OK")
@@ -214,10 +216,18 @@ export class ShoppersController extends Controller {
   @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Example<Array<Item>>(itemsExample)
   @Security("bearerAuth")
-  public async getPurchasedItems(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Item>> {
+  public async getPurchasedItems(
+    @Header("X-Auth-User") email: string,
+    @Path() shopperId: string,
+    @Query() lookBackDays: number = 365,
+    @Query() cohortId?: string,
+  ): Promise<Array<Item>> {
     validateUUIDParam('shopperId', shopperId);
+    if (cohortId) {
+      validateUUIDParam('cohortId', cohortId);
+    }
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
-    return ShoppersService.getPurchasedItems(shopperId);
+    return ShoppersService.getPurchasedItems(shopperId, lookBackDays, cohortId ?? null);
   }
 
   /**

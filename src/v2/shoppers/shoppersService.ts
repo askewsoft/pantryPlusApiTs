@@ -85,9 +85,17 @@ export abstract class ShoppersService {
     await dbPost(template, { shopperId, inviteId });
   };
 
-  public static async getPurchasedItems(shopperId: string): Promise<Array<Item>> {
+  public static async getPurchasedItems(
+    shopperId: string,
+    lookBackDays: number,
+    cohortId?: string | null,
+  ): Promise<Array<Item>> {
     const template = path.join(__dirname, './sql/getPurchasedItems.sql');
-    const results = await dbPost(template, { shopperId });
+    const results = await dbPost(template, {
+      shopperId,
+      lookBackDays,
+      cohortId: cohortId ?? null,
+    });
     return results;
   };
 
