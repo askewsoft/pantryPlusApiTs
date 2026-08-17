@@ -26,7 +26,7 @@ function validateItemInput(data: any): ValidationResult {
 @Tags("Items")
 export class ItemsController extends Controller {
   /**
-   * @summary Updates an item
+   * @summary Updates an item's display name. Case-only changes (e.g. "Aaa batteries" → "AAA batteries") update the existing item in place. Semantic renames are not applied here.
    * @param itemId the ID of the item
    * @param item an object containing the new name and UPC of the item
    * @example item {"name": "Milk", "upc": "049000000000"}

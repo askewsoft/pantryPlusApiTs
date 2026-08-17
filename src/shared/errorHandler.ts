@@ -42,6 +42,10 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
       errMessage = err.message;
       res.status(403).send(errMessage);
       break;
+    case ErrorCode.INVALID_OBJECT:
+      errMessage = err.message;
+      res.status(400).send(errMessage);
+      break;
     case ErrorCode.NOT_FOUND:
       errMessage = err.message;
       res.status(404).send(errMessage);

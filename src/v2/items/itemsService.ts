@@ -3,6 +3,7 @@ import { dbPost } from "../../shared/dbDriver";
 import { displayItemName, normalizeItemName } from "../../shared/itemName";
 import { Item } from "./item";
 import { Logger, logger } from "../../shared/logger";
+import { ErrorCode } from "../../shared/errorHandler";
 
 const log: Logger = logger('Item Service')
 
@@ -69,8 +70,30 @@ export abstract class ItemsService {
   }
 
   public static async updateItem(item: Item): Promise<void> {
+    const name = displayItemName(item.name);
+    const nameNormalized = normalizeItemName(item.name);
+    if (!name) {
+      const err = new Error('Item name is required') as any;
+      err.name = ErrorCode.INVALID_OBJECT;
+      throw err;
+    }
+
+    const current = await ItemsService.getById(item.id);
+    if (!current) {
+      const err = new Error('Item not found') as any;
+      err.name = ErrorCode.NOT_FOUND;
+      throw err;
+    }
+
+    // #101: case-only display updates in place. Semantic rename is #163.
+    if (normalizeItemName(current.name) !== nameNormalized) {
+      const err = new Error('Only case-only name changes are allowed') as any;
+      err.name = ErrorCode.INVALID_OBJECT;
+      throw err;
+    }
+
     const updateTemplate = path.join(__dirname, './sql/updateItem.sql');
-    await dbPost(updateTemplate, item);
+    await dbPost(updateTemplate, { itemId: item.id, name, nameNormalized });
     return;
   };
 };

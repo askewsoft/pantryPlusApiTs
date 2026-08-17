@@ -1,7 +1,9 @@
 SET @itemId = UUID_TO_BIN(:itemId);
-SET @itemName = :name;
+SET @name = :name;
+SET @nameNormalized = :nameNormalized;
 
 UPDATE ITEM
-SET NAME = @itemName
+SET NAME = @name,
+    NAME_NORMALIZED = @nameNormalized
 WHERE ID = @itemId
-; 
+;
