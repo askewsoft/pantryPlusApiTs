@@ -4,12 +4,14 @@ import { mayProceed } from "../../shared/mayProceed";
 import { ItemsService } from "./itemsService";
 import path from "path";
 import { ShoppersService } from "../shoppers/shoppersService";
-import { Item } from "./item";
+import { Item, ItemUpdate } from "./item";
 import { itemsExample } from "./itemsExamples";
 import { validateUUIDParam, validateBodyUUIDs } from "../../shared/uuidValidation";
 import { validateObject, commonValidations, ValidationResult } from "../../shared/inputValidation";
+import { ErrorCode } from "../../shared/errorHandler";
 
 const mayModifyItemTemplate = path.join(__dirname, './sql/mayModifyItem.sql');
+const mayContributeToListTemplate = path.join(__dirname, '../lists/sql/mayContributeToList.sql');
 
 /**
  * Validates item input data
@@ -26,33 +28,43 @@ function validateItemInput(data: any): ValidationResult {
 @Tags("Items")
 export class ItemsController extends Controller {
   /**
-   * @summary Updates an item's display name. Case-only changes (e.g. "Aaa batteries" → "AAA batteries") update the existing item in place. Semantic renames are not applied here.
-   * @param itemId the ID of the item
-   * @param item an object containing the new name and UPC of the item
-   * @example item {"name": "Milk", "upc": "049000000000"}
+   * @summary Rename an item on a list. Returns the item the client should use (id may change on find-existing or fork). Case-only changes update display name in place.
+   * @param itemId the ID of the item currently on the list
+   * @param item name, optional UPC, and the list whose membership to re-point
+   * @example item {"name": "Milk", "upc": "049000000000", "listId": "123E4567-E89B-12D3-A456-426614174000"}
    */
   @Put("{itemId}")
-  @SuccessResponse(204, "Content Updated")
+  @SuccessResponse(200, "OK")
   @Response(400, "Bad Request", { error: "Validation failed or invalid input format" })
   @Response(401, "Unauthorized", { error: "Invalid token format" })
+  @Example<Item>(itemsExample[0])
   @Security("bearerAuth")
-  public async updateItem(@Header("X-Auth-User") email: string, @Path() itemId: string, @Body() item: Pick<Item, "name" | "upc">): Promise<void> {
-    // Validate input data first
+  public async updateItem(@Header("X-Auth-User") email: string, @Path() itemId: string, @Body() item: ItemUpdate): Promise<Item> {
     const validation = validateObject(item, {
-      name: { maxLength: 255 },
-      upc: { maxLength: 50, allowEmpty: true }
+      name: { maxLength: 100 },
+      upc: { maxLength: 50, allowEmpty: true },
+      listId: commonValidations.uuid,
     });
     if (!validation.isValid) {
       this.setStatus(400);
       throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
     }
 
-    // Validate UUID path parameter
     validateUUIDParam('itemId', itemId);
+    validateUUIDParam('listId', item.listId);
 
+    await mayProceed({ email, id: item.listId, accessTemplate: mayContributeToListTemplate });
     await mayProceed({ email, id: itemId, accessTemplate: mayModifyItemTemplate });
-    await ItemsService.updateItem({ id: itemId, name: item.name, upc: item.upc });
-    return;
+    const onList = await ItemsService.isOnList(itemId, item.listId);
+    if (!onList) {
+      this.setStatus(404);
+      const err = new Error('Item is not on this list') as any;
+      err.name = ErrorCode.NOT_FOUND;
+      throw err;
+    }
+    const renamed = await ItemsService.renameOnList(itemId, item.listId, item.name, item.upc);
+    this.setStatus(200);
+    return renamed;
   };
 
   /**

@@ -36,6 +36,8 @@ WHERE LIST_ID = @listId
 ;
 
 -- update the item's purchased status
-INSERT INTO ITEM_HISTORY_RELATION (ITEM_ID, PURCHASE_HISTORY_ID, PURCHASED_BY, CATEGORY_NAME)
-VALUES (@itemId, @historyId, @userId, @categoryName)
+INSERT INTO ITEM_HISTORY_RELATION (ITEM_ID, PURCHASE_HISTORY_ID, PURCHASED_BY, CATEGORY_NAME, ITEM_NAME)
+SELECT @itemId, @historyId, @userId, @categoryName, i.NAME
+FROM ITEM i
+WHERE i.ID = @itemId
 ;

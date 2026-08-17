@@ -1,4 +1,5 @@
 import path from "path";
+import { randomUUID } from "crypto";
 import { dbPost } from "../../shared/dbDriver";
 import { displayItemName, normalizeItemName } from "../../shared/itemName";
 import { Item } from "./item";
@@ -10,6 +11,16 @@ const log: Logger = logger('Item Service')
 function isDuplicateKeyError(err: any): boolean {
   const original = err?.originalError ?? err;
   return original?.errno === 1062 || original?.code === 'ER_DUP_ENTRY';
+}
+
+function requiredName(raw: string): { name: string; nameNormalized: string } {
+  const name = displayItemName(raw);
+  if (!name) {
+    const err = new Error('Item name is required') as any;
+    err.name = ErrorCode.INVALID_OBJECT;
+    throw err;
+  }
+  return { name, nameNormalized: normalizeItemName(raw) };
 }
 
 export abstract class ItemsService {
@@ -30,12 +41,7 @@ export abstract class ItemsService {
    * On concurrent insert race, re-select the winner by normalized name.
    */
   public static async findOrCreate(item: Item): Promise<Item> {
-    const name = displayItemName(item.name);
-    const nameNormalized = normalizeItemName(item.name);
-
-    if (!name) {
-      throw new Error('Item name is required');
-    }
+    const { name, nameNormalized } = requiredName(item.name);
 
     const existing = await ItemsService.findByNormalizedName(nameNormalized);
     if (existing) {
@@ -69,31 +75,81 @@ export abstract class ItemsService {
     return ItemsService.findOrCreate(item);
   }
 
-  public static async updateItem(item: Item): Promise<void> {
-    const name = displayItemName(item.name);
-    const nameNormalized = normalizeItemName(item.name);
-    if (!name) {
-      const err = new Error('Item name is required') as any;
-      err.name = ErrorCode.INVALID_OBJECT;
-      throw err;
-    }
+  public static async isOnList(itemId: string, listId: string): Promise<boolean> {
+    const template = path.join(__dirname, './sql/itemIsOnList.sql');
+    const results = await dbPost(template, { itemId, listId });
+    return Boolean(results?.[0]?.onList);
+  }
 
-    const current = await ItemsService.getById(item.id);
+  public static async hasPurchaseHistory(itemId: string): Promise<boolean> {
+    const template = path.join(__dirname, './sql/itemHasPurchaseHistory.sql');
+    const results = await dbPost(template, { itemId });
+    return Number(results?.[0]?.hasHistory) > 0;
+  }
+
+  public static async usedOutsideCohort(itemId: string, listId: string): Promise<boolean> {
+    const template = path.join(__dirname, './sql/itemUsedOutsideCohort.sql');
+    const results = await dbPost(template, { itemId, listId });
+    return Boolean(results?.[0]?.usedElsewhere);
+  }
+
+  public static async repointOnList(listId: string, fromItemId: string, toItemId: string): Promise<void> {
+    if (fromItemId === toItemId) return;
+    const template = path.join(__dirname, './sql/repointItemOnList.sql');
+    await dbPost(template, { listId, fromItemId, toItemId });
+  }
+
+  /**
+   * Rename an item on a list. Returns the ITEM the client should use (id may change).
+   * - case-only: update display name in place
+   * - name exists: attach this list to that ITEM
+   * - novel name, no history and not used outside this cohort: update in place
+   * - otherwise: fork a new ITEM and re-point this list only
+   */
+  public static async renameOnList(itemId: string, listId: string, rawName: string, upc?: string): Promise<Item> {
+    const { name, nameNormalized } = requiredName(rawName);
+
+    const current = await ItemsService.getById(itemId);
     if (!current) {
       const err = new Error('Item not found') as any;
       err.name = ErrorCode.NOT_FOUND;
       throw err;
     }
 
-    // #101: case-only display updates in place. Semantic rename is #163.
-    if (normalizeItemName(current.name) !== nameNormalized) {
-      const err = new Error('Only case-only name changes are allowed') as any;
-      err.name = ErrorCode.INVALID_OBJECT;
-      throw err;
+    if (normalizeItemName(current.name) === nameNormalized) {
+      if (current.name !== name) {
+        const updateTemplate = path.join(__dirname, './sql/updateItem.sql');
+        await dbPost(updateTemplate, { itemId, name, nameNormalized });
+        log.debug({ message: 'rename case-only', itemId, name });
+      }
+      return { id: itemId, name, upc: current.upc };
     }
 
-    const updateTemplate = path.join(__dirname, './sql/updateItem.sql');
-    await dbPost(updateTemplate, { itemId: item.id, name, nameNormalized });
-    return;
-  };
+    const existing = await ItemsService.findByNormalizedName(nameNormalized);
+    if (existing && existing.id !== itemId) {
+      await ItemsService.repointOnList(listId, itemId, existing.id);
+      log.debug({ message: 'rename find-existing', from: itemId, to: existing.id });
+      return existing;
+    }
+
+    const mustFork =
+      (await ItemsService.hasPurchaseHistory(itemId)) ||
+      (await ItemsService.usedOutsideCohort(itemId, listId));
+
+    if (!mustFork) {
+      const updateTemplate = path.join(__dirname, './sql/updateItem.sql');
+      await dbPost(updateTemplate, { itemId, name, nameNormalized });
+      log.debug({ message: 'rename in-place', itemId, name });
+      return { id: itemId, name, upc: upc ?? current.upc };
+    }
+
+    const forked = await ItemsService.findOrCreate({
+      id: randomUUID(),
+      name,
+      upc: upc ?? current.upc,
+    });
+    await ItemsService.repointOnList(listId, itemId, forked.id);
+    log.debug({ message: 'rename fork', from: itemId, to: forked.id, name });
+    return forked;
+  }
 };
