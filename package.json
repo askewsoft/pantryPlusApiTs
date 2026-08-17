@@ -16,6 +16,8 @@
     "log": "npm run dev > api.log 2>&1",
     "schemathesis": "./scripts/schemathesis.sh",
     "migrate": "node scripts/migrate.js",
+    "item-dedupe:generate": "node scripts/item-dedupe-generate.js",
+    "item-dedupe:apply": "node scripts/item-dedupe-apply.js",
     "deploy": "./scripts/build-push-to-ecr.sh"
   },
   "nodemonConfig": {
