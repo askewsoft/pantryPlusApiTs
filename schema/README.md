@@ -16,6 +16,7 @@ MySQL schema for the pantryPlus API.
 | --- | --- |
 | [setup.sql](./setup.sql) | Full **current** schema for **new** databases only |
 | [migrations/](./migrations/) | Incremental DDL for **existing** databases only |
+| [item-dedupe/](./item-dedupe/) | Reviewed ITEM merge: generate mapping, edit, apply (not migrate) |
 | [dropAll.sql](./dropAll.sql) | Tear down (use carefully; never run unless explicitly intended) |
 
 ## Apply schema (pick one path)
