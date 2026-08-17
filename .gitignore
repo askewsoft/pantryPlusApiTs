@@ -15,4 +15,5 @@ tests/schemathesis/test_outputs/
 tests/schemathesis/analysis/
 **/.hypothesis/
 **/__pycache__
-schema/item-dedupe/mapping.local.json
+schema/item-transforms/mapping.local.json
+schema/item-transforms/casing.local.json

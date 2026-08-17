@@ -1,0 +1,57 @@
+{
+  "generatedAt": "example — do not apply; run npm run item-dedupe:generate",
+  "fuzzyMaxDistance": 2,
+  "instructions": [
+    "Set apply to true to merge a group; false skips it.",
+    "keep_id is the surviving ITEM. keep_name is the display casing written onto it.",
+    "Remove a member object to leave that ITEM unmerged.",
+    "To merge two groups, combine members, pick one keep_id, and set apply true.",
+    "Exact groups default to apply true. Fuzzy groups default to apply false."
+  ],
+  "groups": [
+    {
+      "apply": true,
+      "reason": "exact_normalized",
+      "keep_id": "11111111-1111-1111-1111-111111111111",
+      "keep_name": "Milk",
+      "members": [
+        {
+          "id": "11111111-1111-1111-1111-111111111111",
+          "name": "Milk",
+          "purchases": 12,
+          "last_purchase": "2026-01-15",
+          "upc": null
+        },
+        {
+          "id": "22222222-2222-2222-2222-222222222222",
+          "name": "milk",
+          "purchases": 3,
+          "last_purchase": "2025-11-02",
+          "upc": null
+        }
+      ]
+    },
+    {
+      "apply": false,
+      "reason": "fuzzy",
+      "keep_id": "33333333-3333-3333-3333-333333333333",
+      "keep_name": "Garbanzo beans",
+      "members": [
+        {
+          "id": "33333333-3333-3333-3333-333333333333",
+          "name": "Garbanzo beans",
+          "purchases": 4,
+          "last_purchase": "2026-02-01",
+          "upc": null
+        },
+        {
+          "id": "44444444-4444-4444-4444-444444444444",
+          "name": "Garbanzo bean",
+          "purchases": 1,
+          "last_purchase": null,
+          "upc": null
+        }
+      ]
+    }
+  ]
+}

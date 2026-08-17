@@ -18,6 +18,8 @@
     "migrate": "node scripts/migrate.js",
     "item-dedupe:generate": "node scripts/item-dedupe-generate.js",
     "item-dedupe:apply": "node scripts/item-dedupe-apply.js",
+    "item-casing:generate": "node scripts/item-casing-generate.js",
+    "item-casing:apply": "node scripts/item-casing-apply.js",
     "deploy": "./scripts/build-push-to-ecr.sh"
   },
   "nodemonConfig": {
