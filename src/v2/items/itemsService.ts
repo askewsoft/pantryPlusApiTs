@@ -30,6 +30,82 @@ export abstract class ItemsService {
     return results?.[0];
   }
 
+  public static async findByAliasNormalized(nameNormalized: string): Promise<Item | undefined> {
+    const findTemplate = path.join(__dirname, './sql/findItemByAliasNormalized.sql');
+    const results = await dbPost(findTemplate, { aliasNormalized: nameNormalized });
+    return results?.[0];
+  }
+
+  /** Match ITEM.NAME_NORMALIZED first, then ITEM_ALIAS (reviewed aliases only). */
+  public static async resolveByNormalizedName(nameNormalized: string): Promise<Item | undefined> {
+    const direct = await ItemsService.findByNormalizedName(nameNormalized);
+    if (direct) return direct;
+    return ItemsService.findByAliasNormalized(nameNormalized);
+  }
+
+  public static async listAliases(itemId: string): Promise<Array<{ name: string }>> {
+    const template = path.join(__dirname, './sql/listItemAliases.sql');
+    const results = await dbPost(template, { itemId });
+    return results ?? [];
+  }
+
+  public static async addAlias(itemId: string, rawAliasName: string): Promise<{ name: string }> {
+    const aliasName = displayItemName(rawAliasName);
+    const aliasNormalized = normalizeItemName(rawAliasName);
+    if (!aliasName) {
+      const err = new Error('Alias name is required') as any;
+      err.name = ErrorCode.INVALID_OBJECT;
+      throw err;
+    }
+
+    const item = await ItemsService.getById(itemId);
+    if (!item) {
+      const err = new Error('Item not found') as any;
+      err.name = ErrorCode.NOT_FOUND;
+      throw err;
+    }
+    if (normalizeItemName(item.name) === aliasNormalized) {
+      const err = new Error('Alias cannot match the item canonical name') as any;
+      err.name = ErrorCode.INVALID_OBJECT;
+      throw err;
+    }
+
+    const nameTaken = await ItemsService.findByNormalizedName(aliasNormalized);
+    if (nameTaken && nameTaken.id !== itemId) {
+      const err = new Error('Alias matches another item name') as any;
+      err.name = ErrorCode.INVALID_OBJECT;
+      throw err;
+    }
+
+    try {
+      const template = path.join(__dirname, './sql/createItemAlias.sql');
+      await dbPost(template, { itemId, aliasName, aliasNormalized });
+      return { name: aliasName };
+    } catch (err: any) {
+      if (isDuplicateKeyError(err)) {
+        const existing = await ItemsService.findByAliasNormalized(aliasNormalized);
+        if (existing?.id === itemId) {
+          return { name: aliasName };
+        }
+        const conflict = new Error('Alias is already registered') as any;
+        conflict.name = ErrorCode.INVALID_OBJECT;
+        throw conflict;
+      }
+      throw err;
+    }
+  }
+
+  public static async removeAlias(itemId: string, rawAliasName: string): Promise<void> {
+    const aliasNormalized = normalizeItemName(rawAliasName);
+    if (!aliasNormalized) {
+      const err = new Error('Alias name is required') as any;
+      err.name = ErrorCode.INVALID_OBJECT;
+      throw err;
+    }
+    const template = path.join(__dirname, './sql/deleteItemAlias.sql');
+    await dbPost(template, { itemId, aliasNormalized });
+  }
+
   public static async getById(itemId: string): Promise<Item | undefined> {
     const getTemplate = path.join(__dirname, './sql/getItemById.sql');
     const results = await dbPost(getTemplate, { itemId });
@@ -43,7 +119,7 @@ export abstract class ItemsService {
   public static async findOrCreate(item: Item): Promise<Item> {
     const { name, nameNormalized } = requiredName(item.name);
 
-    const existing = await ItemsService.findByNormalizedName(nameNormalized);
+    const existing = await ItemsService.resolveByNormalizedName(nameNormalized);
     if (existing) {
       log.debug({ message: 'findOrCreate hit', id: existing.id, nameNormalized });
       return existing;
@@ -60,7 +136,7 @@ export abstract class ItemsService {
       return { id: item.id, name, upc: item.upc };
     } catch (err: any) {
       if (isDuplicateKeyError(err)) {
-        const winner = await ItemsService.findByNormalizedName(nameNormalized);
+        const winner = await ItemsService.resolveByNormalizedName(nameNormalized);
         if (winner) {
           log.debug({ message: 'findOrCreate race resolved', id: winner.id, nameNormalized });
           return winner;
@@ -125,7 +201,7 @@ export abstract class ItemsService {
       return { id: itemId, name, upc: current.upc };
     }
 
-    const existing = await ItemsService.findByNormalizedName(nameNormalized);
+    const existing = await ItemsService.resolveByNormalizedName(nameNormalized);
     if (existing && existing.id !== itemId) {
       await ItemsService.repointOnList(listId, itemId, existing.id);
       log.debug({ message: 'rename find-existing', from: itemId, to: existing.id });

@@ -27,3 +27,19 @@ export interface ItemUpdate {
      */
     listId: string;
 }
+
+/**
+ * An alternate search name that resolves to an ITEM without merging rows.
+ */
+export interface ItemAlias {
+    /** Display form of the alias (e.g. "coke") */
+    name: string;
+}
+
+/**
+ * Body for registering a new alias on an item.
+ */
+export interface ItemAliasCreate {
+    /** The alias text shoppers may type or speak */
+    name: string;
+}

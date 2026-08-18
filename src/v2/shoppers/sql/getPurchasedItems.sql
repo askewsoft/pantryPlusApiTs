@@ -56,11 +56,18 @@ corpus AS (
   SELECT ITEM_ID, NAME, UPC FROM purchasedItems
   UNION
   SELECT ITEM_ID, NAME, UPC FROM listItems
+),
+corpusWithAliases AS (
+  SELECT ITEM_ID, NAME, UPC FROM corpus
+  UNION
+  SELECT ia.ITEM_ID, ia.ALIAS_NAME AS NAME, c.UPC AS UPC
+  FROM ITEM_ALIAS ia
+  INNER JOIN corpus c ON c.ITEM_ID = ia.ITEM_ID
 )
 
 SELECT
   BIN_TO_UUID(ITEM_ID) AS id,
   NAME AS name,
   UPC AS upc
-FROM corpus
+FROM corpusWithAliases
 ;

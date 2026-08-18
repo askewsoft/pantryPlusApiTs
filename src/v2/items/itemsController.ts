@@ -1,10 +1,10 @@
 // ITEMS
-import { Body, Controller, Example, Header, Path, Post, Put, Route, Security, Tags, SuccessResponse, Response} from "tsoa";
+import { Body, Controller, Delete, Example, Get, Header, Path, Post, Put, Route, Security, Tags, SuccessResponse, Response} from "tsoa";
 import { mayProceed } from "../../shared/mayProceed";
 import { ItemsService } from "./itemsService";
 import path from "path";
 import { ShoppersService } from "../shoppers/shoppersService";
-import { Item, ItemUpdate } from "./item";
+import { Item, ItemAlias, ItemAliasCreate, ItemUpdate } from "./item";
 import { itemsExample } from "./itemsExamples";
 import { validateUUIDParam, validateBodyUUIDs } from "../../shared/uuidValidation";
 import { validateObject, commonValidations, ValidationResult } from "../../shared/inputValidation";
@@ -95,4 +95,63 @@ export class ItemsController extends Controller {
     this.setStatus(200);
     return canonical;
   };
+
+  /**
+   * @summary List reviewed alternate names that resolve to this item
+   */
+  @Get("{itemId}/aliases")
+  @SuccessResponse(200, "OK")
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
+  @Security("bearerAuth")
+  public async listItemAliases(
+    @Header("X-Auth-User") email: string,
+    @Path() itemId: string,
+  ): Promise<Array<ItemAlias>> {
+    validateUUIDParam('itemId', itemId);
+    await mayProceed({ email, id: itemId, accessTemplate: mayModifyItemTemplate });
+    return ItemsService.listAliases(itemId);
+  }
+
+  /**
+   * @summary Register an alternate name for find-or-create and typeahead (not a merge)
+   */
+  @Post("{itemId}/aliases")
+  @SuccessResponse(201, "Created")
+  @Response(400, "Bad Request", { error: "Validation failed or invalid input format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
+  @Security("bearerAuth")
+  public async createItemAlias(
+    @Header("X-Auth-User") email: string,
+    @Path() itemId: string,
+    @Body() body: ItemAliasCreate,
+  ): Promise<ItemAlias> {
+    validateUUIDParam('itemId', itemId);
+    const validation = validateObject(body, { name: { maxLength: 100 } });
+    if (!validation.isValid) {
+      this.setStatus(400);
+      throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
+    }
+    await mayProceed({ email, id: itemId, accessTemplate: mayModifyItemTemplate });
+    const alias = await ItemsService.addAlias(itemId, body.name);
+    this.setStatus(201);
+    return alias;
+  }
+
+  /**
+   * @summary Remove an alias from an item (path segment is normalized form of the alias name)
+   */
+  @Delete("{itemId}/aliases/{aliasName}")
+  @SuccessResponse(204, "No Content")
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
+  @Security("bearerAuth")
+  public async deleteItemAlias(
+    @Header("X-Auth-User") email: string,
+    @Path() itemId: string,
+    @Path() aliasName: string,
+  ): Promise<void> {
+    validateUUIDParam('itemId', itemId);
+    await mayProceed({ email, id: itemId, accessTemplate: mayModifyItemTemplate });
+    await ItemsService.removeAlias(itemId, decodeURIComponent(aliasName));
+    this.setStatus(204);
+  }
 };
