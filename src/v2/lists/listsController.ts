@@ -9,6 +9,7 @@ import { categoriesExample } from "../categories/categoriesExamples";
 import { Item } from "../items/item";
 import { itemsExample } from "../items/itemsExamples";
 import { ListsService } from "./listsService";
+import { ItemsService } from "../items/itemsService";
 import { mayProceed } from "../../shared/mayProceed";
 import { ShoppersService } from "../shoppers/shoppersService";
 import { logger } from "../../shared/logger";
@@ -377,5 +378,28 @@ export class ListsController extends Controller {
 
     await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
     return await ListsService.getListItemsCount(listId);
+  };
+
+  /**
+   * @summary Returns whether an item is currently a member of a list
+   * @param email the email address of the user
+   * @param listId the ID of the list
+   * @param itemId the ID of the item
+   */
+  @Get("{listId}/items/{itemId}/onList")
+  @SuccessResponse(200, "OK")
+  @Response(400, "Bad Request", { error: "Invalid UUID format" })
+  @Response(401, "Unauthorized", { error: "Invalid token format" })
+  @Example<{ onList: boolean }>({ onList: true })
+  @Security("bearerAuth")
+  public async isItemOnList(
+    @Header("X-Auth-User") email: string,
+    @Path() listId: string,
+    @Path() itemId: string,
+  ): Promise<{ onList: boolean }> {
+    validateMultipleUUIDs({ listId, itemId });
+    await mayProceed({ email, id: listId, accessTemplate: mayContributeToListTemplate });
+    const onList = await ItemsService.isOnList(itemId, listId);
+    return { onList };
   };
 };
