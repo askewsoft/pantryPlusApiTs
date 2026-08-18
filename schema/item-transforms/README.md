@@ -1,10 +1,10 @@
-# Item transforms — merge mapping and casing review
+# Item transforms — merge mapping, aliases, and casing review
 
-Do **not** auto-merge via `npm run migrate`. Consolidation is a reviewed mapping file plus an apply script.
+Do **not** auto-merge or auto-alias via `npm run migrate`. Consolidation is reviewed mapping files plus apply scripts. **Runtime find-or-create never fuzzy-merges** — only exact normalized names and reviewed `ITEM_ALIAS` rows resolve.
 
-## Workflow
+## Exact + fuzzy merge (#143)
 
-1. Ensure migration `003_item_merge_log.sql` has been applied (`npm run migrate`).
+1. Ensure migrations `003_item_merge_log.sql` and `005_item_alias.sql` have been applied (`npm run migrate`).
 2. Generate candidates:
 
 ```sh
@@ -30,7 +30,31 @@ npm run item-dedupe:apply -- --dry-run
 npm run item-dedupe:apply
 ```
 
-Apply re-points `LIST_ITEM_RELATION`, `ITEM_CATEGORY_RELATION`, and `ITEM_HISTORY_RELATION` with collision-safe `INSERT IGNORE`, writes `ITEM_MERGE_LOG`, deletes loser `ITEM` rows, and adds `uq_item_name_normalized` if no duplicates remain.
+Apply re-points FKs with collision-safe `INSERT IGNORE`, migrates `ITEM_ALIAS` rows, writes `ITEM_MERGE_LOG`, deletes loser `ITEM` rows, and adds `uq_item_name_normalized` if no duplicates remain.
+
+Exact groups default to `apply: true`. **Fuzzy groups default to `apply: false`** — opt in after review.
+
+## Aliases instead of merge (#165)
+
+When fuzzy pairs should **stay separate products** but search together (e.g. coke → Coca-Cola):
+
+```sh
+npm run item-alias:generate
+# edit schema/item-transforms/aliases.local.json — set apply true on desired rows
+npm run item-alias:apply -- --dry-run
+npm run item-alias:apply
+```
+
+Generate reads fuzzy groups (`apply: false`) from `mapping.local.json` and proposes alias rows from non-keeper member names → `keep_id`. See [`aliases.example.json`](./aliases.example.json).
+
+| Field | Meaning |
+| --- | --- |
+| `apply` | Register this alias on apply |
+| `alias_name` | Text shoppers type or speak |
+| `item_id` | Canonical ITEM the alias resolves to |
+| `canonical_name` | Reference only (from mapping) |
+
+Runtime: `POST /items` (find-or-create) and typeahead corpus resolve reviewed aliases. API: `GET/POST/DELETE /items/{id}/aliases`.
 
 ## Casing review (unique items)
 
@@ -62,8 +86,6 @@ See [`mapping.example.json`](./mapping.example.json).
 | `keep_id` | Canonical ITEM id (must be one of `members[].id`) |
 | `keep_name` | Display name stored on the canonical row |
 | `members` | All ITEM rows in the group, including the keeper |
-
-Exact groups default to `apply: true`. Fuzzy groups default to `apply: false`.
 
 Suggested canonical (you can override): most purchases → most recent purchase → longest name → name ASC → id ASC.
 

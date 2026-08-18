@@ -1,0 +1,20 @@
+{
+  "generatedAt": "2026-01-01T00:00:00.000Z",
+  "sourceMapping": "schema/item-transforms/mapping.local.json",
+  "instructions": [
+    "Set apply to true to register an alias.",
+    "item_id is the canonical ITEM the alias resolves to for find-or-create and typeahead.",
+    "Does not merge ITEM rows — use item-dedupe:apply for that."
+  ],
+  "aliases": [
+    {
+      "apply": false,
+      "alias_name": "coke",
+      "alias_normalized": "coke",
+      "item_id": "123E4567-E89B-12D3-A456-426614174000",
+      "canonical_name": "Coca-Cola",
+      "source_member_id": "223E4567-E89B-12D3-A456-426614174001",
+      "source_reason": "fuzzy"
+    }
+  ]
+}
