@@ -17,3 +17,4 @@ tests/schemathesis/analysis/
 **/__pycache__
 schema/item-transforms/mapping.local.json
 schema/item-transforms/casing.local.json
+schema/item-transforms/aliases.local.json

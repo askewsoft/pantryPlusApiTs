@@ -133,14 +133,26 @@ async function applyGroup(conn, group) {
   );
 
   await conn.query(
-    `INSERT IGNORE INTO ITEM_HISTORY_RELATION (ITEM_ID, PURCHASE_HISTORY_ID, PURCHASED_BY, CATEGORY_NAME)
-     SELECT UUID_TO_BIN(?), ihr.PURCHASE_HISTORY_ID, ihr.PURCHASED_BY, ihr.CATEGORY_NAME
+    `INSERT IGNORE INTO ITEM_HISTORY_RELATION (ITEM_ID, PURCHASE_HISTORY_ID, PURCHASED_BY, CATEGORY_NAME, ITEM_NAME)
+     SELECT UUID_TO_BIN(?), ihr.PURCHASE_HISTORY_ID, ihr.PURCHASED_BY, ihr.CATEGORY_NAME, ihr.ITEM_NAME
      FROM ITEM_HISTORY_RELATION ihr
      WHERE ihr.ITEM_ID IN (${placeholders})`,
     [keepId, ...loserIds]
   );
   await conn.query(
     `DELETE FROM ITEM_HISTORY_RELATION WHERE ITEM_ID IN (${placeholders})`,
+    loserIds
+  );
+
+  await conn.query(
+    `INSERT IGNORE INTO ITEM_ALIAS (ALIAS_NORMALIZED, ITEM_ID, ALIAS_NAME)
+     SELECT ia.ALIAS_NORMALIZED, UUID_TO_BIN(?), ia.ALIAS_NAME
+     FROM ITEM_ALIAS ia
+     WHERE ia.ITEM_ID IN (${placeholders})`,
+    [keepId, ...loserIds]
+  );
+  await conn.query(
+    `DELETE FROM ITEM_ALIAS WHERE ITEM_ID IN (${placeholders})`,
     loserIds
   );
 
