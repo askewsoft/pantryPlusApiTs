@@ -1,0 +1,7 @@
+SET @itemId = UUID_TO_BIN(:itemId);
+
+SELECT ia.ALIAS_NAME AS name
+FROM ITEM_ALIAS ia
+WHERE ia.ITEM_ID = @itemId
+ORDER BY ia.ALIAS_NAME ASC
+;
