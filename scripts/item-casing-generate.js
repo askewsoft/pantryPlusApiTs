@@ -3,18 +3,16 @@
  * Generate a hand-editable casing review file for items that are unique
  * by normalized name (not exact-dupe merge candidates).
  *
- * Usage (from pantryPlusApiTs root, with .env):
+ * Usage (from pantryPlusApiTs root):
  *   npm run item-casing:generate
- *   npm run item-casing:generate -- --out schema/item-transforms/casing.local.json
+ *   npm run item-casing:generate -- --env prod
  *
- * Prefer running this after merge apply so survivors of merges are included once.
- * Edit keep_name; apply writes only where keep_name differs from name.
+ * `--env prod` loads `.env.prod` (gitignored). Default is `.env`.
  */
 
-require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
-const { createDbConnection } = require('./lib/mysqlEnv');
+const { createDbConnection, loadEnv } = require('./lib/mysqlEnv');
 const { normalizeItemName, loadItems } = require('./lib/itemDedupe');
 
 function parseArgs(argv) {
@@ -45,7 +43,7 @@ function uniqueItems(items) {
 }
 
 async function main() {
-  const args = parseArgs(process.argv.slice(2));
+  const args = parseArgs(loadEnv());
   const conn = await createDbConnection();
   try {
     const items = await loadItems(conn);

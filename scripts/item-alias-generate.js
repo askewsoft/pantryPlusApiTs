@@ -5,13 +5,14 @@
  *
  * Usage:
  *   npm run item-alias:generate
- *   npm run item-alias:generate -- --from schema/item-transforms/mapping.local.json
+ *   npm run item-alias:generate -- --env prod
+ *
+ * `--env prod` loads `.env.prod` (gitignored). Default is `.env`.
  */
 
-require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
-const { createDbConnection } = require('./lib/mysqlEnv');
+const { createDbConnection, loadEnv } = require('./lib/mysqlEnv');
 const { displayItemName, normalizeItemName } = require('./lib/itemDedupe');
 
 function parseArgs(argv) {
@@ -95,7 +96,7 @@ async function filterExisting(conn, candidates) {
 }
 
 async function main() {
-  const args = parseArgs(process.argv.slice(2));
+  const args = parseArgs(loadEnv());
   const fromPath = path.resolve(args.from);
   const mapping = loadMapping(fromPath);
   const candidates = buildAliasCandidates(mapping.groups);

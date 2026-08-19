@@ -34,7 +34,7 @@ Required variables (validated in `src/shared/config.ts`):
 | `NODE_ENV` | `development` or `production` (default production if unset) |
 | `LOG_LEVEL` | Optional; default `info` |
 
-Template: [env.example](env.example). Never commit `.env`.
+Template: [env.example](env.example) for local `.env`, [env.prod.example](env.prod.example) for `.env.prod`. Never commit `.env` or `.env.prod`.
 
 ## Project layout
 
@@ -72,7 +72,7 @@ Request flow: **Controller** (TSOA + `mayProceed`) → **Service** → **SQL** (
 ## Develop
 
 - `npm run build` — TSOA `spec-and-routes` (v2), `tsc`, copy SQL to `build/`
-- `npm run migrate` — apply pending `schema/migrations/*.sql` (uses `.env` DB settings)
+- `npm run migrate` — apply pending `schema/migrations/*.sql` (default `.env`; `npm run migrate -- --env prod` uses `.env.prod`)
 - `npm run dev` — nodemon + rebuild on `src` / `.env` changes
 - Prettier + ESLint — keep formatting consistent
 - Non-admin changes go through GitHub PRs

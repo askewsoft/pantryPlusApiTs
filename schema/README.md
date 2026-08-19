@@ -34,7 +34,12 @@ Do **not** re-run `setup.sql` as an upgrade path on a populated database.
 npm run migrate
 ```
 
-Migrate loads `.env` (`DBHOST`, `DBUSER`, `DBPASSWORD`, `DATABASE`, `DBPORT`, SSL flags), ensures `SCHEMA_MIGRATIONS` exists, and runs any `schema/migrations/*.sql` not yet recorded (lexical order by filename).
+Migrate loads `.env` by default (`DBHOST`, `DBUSER`, `DBPASSWORD`, `DATABASE`, `DBPORT`, SSL flags). Pass `--env prod` to load `.env.prod` instead. Then it ensures `SCHEMA_MIGRATIONS` exists, and runs any `schema/migrations/*.sql` not yet recorded (lexical order by filename).
+
+```sh
+npm run migrate
+npm run migrate -- --env prod
+```
 
 Production (`NODE_ENV=production`) expects `certs/rds-ca.pem` (`npm run downloadcerts`).
 

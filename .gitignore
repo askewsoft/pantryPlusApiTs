@@ -3,6 +3,7 @@ api.log
 npm-debug.log
 node_modules
 .env
+.env.*
 pantry_store.dbs.bak
 build
 client

@@ -2,19 +2,18 @@
 /**
  * Generate a hand-editable ITEM merge mapping from the current database.
  *
- * Usage (from pantryPlusApiTs root, with .env):
+ * Usage (from pantryPlusApiTs root):
  *   npm run item-dedupe:generate
+ *   npm run item-dedupe:generate -- --env prod
  *   npm run item-dedupe:generate -- --out schema/item-transforms/mapping.local.json
- *   npm run item-dedupe:generate -- --fuzzy-max-distance 2
+ *   npm run item-dedupe:generate -- --env prod --fuzzy-max-distance 2
  *
- * Exact/case-only groups default to apply: true.
- * Fuzzy groups default to apply: false — opt in after review.
+ * `--env prod` loads `.env.prod` (gitignored). Default is `.env`.
  */
 
-require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
-const { createDbConnection } = require('./lib/mysqlEnv');
+const { createDbConnection, loadEnv } = require('./lib/mysqlEnv');
 const { normalizeItemName, groupRecord, clusterFuzzy, loadItems } = require('./lib/itemDedupe');
 
 function parseArgs(argv) {
@@ -59,7 +58,7 @@ function buildGroups(items, fuzzyMaxDistance) {
 }
 
 async function main() {
-  const args = parseArgs(process.argv.slice(2));
+  const args = parseArgs(loadEnv());
   const conn = await createDbConnection();
   try {
     const items = await loadItems(conn);

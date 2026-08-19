@@ -4,14 +4,14 @@
  *
  * Usage:
  *   npm run item-alias:apply -- --dry-run
- *   npm run item-alias:apply
- *   npm run item-alias:apply -- --file schema/item-transforms/aliases.local.json
+ *   npm run item-alias:apply -- --env prod --dry-run
+ *
+ * `--env prod` loads `.env.prod` (gitignored). Default is `.env`.
  */
 
-require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
-const { createDbConnection } = require('./lib/mysqlEnv');
+const { createDbConnection, loadEnv } = require('./lib/mysqlEnv');
 const { displayItemName, normalizeItemName } = require('./lib/itemDedupe');
 
 function parseArgs(argv) {
@@ -56,7 +56,7 @@ function validateRows(rows) {
 }
 
 async function main() {
-  const args = parseArgs(process.argv.slice(2));
+  const args = parseArgs(loadEnv());
   const filePath = path.resolve(args.file);
   const doc = loadAliases(filePath);
   const rows = plannedRows(doc);

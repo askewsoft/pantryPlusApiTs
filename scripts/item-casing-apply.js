@@ -2,18 +2,16 @@
 /**
  * Apply reviewed display casing for unique ITEM rows. Does not merge or delete.
  *
- * Usage (from pantryPlusApiTs root, with .env):
+ * Usage (from pantryPlusApiTs root):
  *   npm run item-casing:apply -- --dry-run
- *   npm run item-casing:apply
- *   npm run item-casing:apply -- --file schema/item-transforms/casing.local.json
+ *   npm run item-casing:apply -- --env prod --dry-run
  *
- * Only rows whose keep_name differs from name (after trim/whitespace collapse) are updated.
+ * `--env prod` loads `.env.prod` (gitignored). Default is `.env`.
  */
 
-require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
-const { createDbConnection } = require('./lib/mysqlEnv');
+const { createDbConnection, loadEnv } = require('./lib/mysqlEnv');
 const { displayItemName, normalizeItemName } = require('./lib/itemDedupe');
 
 function parseArgs(argv) {
@@ -96,7 +94,7 @@ async function applyUpdate(conn, update) {
 }
 
 async function main() {
-  const args = parseArgs(process.argv.slice(2));
+  const args = parseArgs(loadEnv());
   const filePath = path.resolve(args.file);
   const review = loadReview(filePath);
   const updates = plannedUpdates(review);

@@ -2,19 +2,18 @@
 /**
  * Apply a reviewed ITEM merge mapping. Does not run as part of npm run migrate.
  *
- * Usage (from pantryPlusApiTs root, with .env):
+ * Usage (from pantryPlusApiTs root):
  *   npm run item-dedupe:apply -- --dry-run
+ *   npm run item-dedupe:apply -- --env prod --dry-run
  *   npm run item-dedupe:apply
- *   npm run item-dedupe:apply -- --file schema/item-transforms/mapping.local.json
+ *   npm run item-dedupe:apply -- --env prod
  *
- * Requires ITEM_MERGE_LOG (migration 003). After successful merges, adds
- * uq_item_name_normalized when no duplicate NAME_NORMALIZED values remain.
+ * `--env prod` loads `.env.prod` (gitignored). Default is `.env`.
  */
 
-require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
-const { createDbConnection } = require('./lib/mysqlEnv');
+const { createDbConnection, loadEnv } = require('./lib/mysqlEnv');
 const { displayItemName, normalizeItemName } = require('./lib/itemDedupe');
 
 function parseArgs(argv) {
@@ -203,7 +202,7 @@ async function addUniqueIndexIfPossible(conn) {
 }
 
 async function main() {
-  const args = parseArgs(process.argv.slice(2));
+  const args = parseArgs(loadEnv());
   const filePath = path.resolve(args.file);
   const mapping = loadMapping(filePath);
   const groups = plannedGroups(mapping);

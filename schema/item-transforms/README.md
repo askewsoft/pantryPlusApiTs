@@ -9,7 +9,10 @@ Do **not** auto-merge or auto-alias via `npm run migrate`. Consolidation is revi
 
 ```sh
 npm run item-dedupe:generate
+npm run item-dedupe:generate -- --env prod
 ```
+
+`--env prod` uses gitignored `.env.prod` (template: [`env.prod.example`](../../env.prod.example)). Default is `.env`. These scripts connect **directly to MySQL**, not the HTTP API. Production (`NODE_ENV=production` in `.env.prod`) requires `certs/rds-ca.pem` (`npm run downloadcerts`) and a security group / user that allows your client IP.
 
 Writes [`mapping.local.json`](./mapping.local.json) (gitignored). Optional:
 
@@ -28,6 +31,7 @@ npm run item-dedupe:generate -- --out schema/item-transforms/mapping.local.json 
 ```sh
 npm run item-dedupe:apply -- --dry-run
 npm run item-dedupe:apply
+npm run item-dedupe:apply -- --env prod --dry-run
 ```
 
 Apply re-points FKs with collision-safe `INSERT IGNORE`, migrates `ITEM_ALIAS` rows, writes `ITEM_MERGE_LOG`, deletes loser `ITEM` rows, and adds `uq_item_name_normalized` if no duplicates remain.
