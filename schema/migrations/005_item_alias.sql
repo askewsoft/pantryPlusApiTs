@@ -1,6 +1,8 @@
 -- Alternate search names for ITEM rows (reviewed batch apply; not runtime fuzzy merge).
 -- Idempotent.
 
+USE PANTRY_PLUS;
+
 SET @tbl_exists = (
   SELECT COUNT(*)
   FROM information_schema.TABLES

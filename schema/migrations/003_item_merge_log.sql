@@ -1,5 +1,7 @@
 -- Additive: audit log for ITEM consolidations (Phase 1+). Idempotent.
 
+USE PANTRY_PLUS;
+
 CREATE TABLE IF NOT EXISTS ITEM_MERGE_LOG (
     ID binary(16) default (uuid_to_bin(uuid())) not null primary key,
     LOSER_ID binary(16) NOT NULL,

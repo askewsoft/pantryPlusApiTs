@@ -2,6 +2,8 @@
 -- Uniqueness is enforced in v3 application code (find-or-create), not the schema,
 -- while /v2 remains mounted. Idempotent.
 
+USE PANTRY_PLUS;
+
 SET @idx_exists = (
   SELECT COUNT(*)
   FROM information_schema.STATISTICS

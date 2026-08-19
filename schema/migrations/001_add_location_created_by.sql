@@ -1,6 +1,8 @@
 -- Additive: LOCATION.CREATED_BY so known locations can include creator + cohort mates.
 -- Idempotent: no-op when the column already exists (e.g. fresh setup.sql).
 
+USE PANTRY_PLUS;
+
 SET @col_exists = (
   SELECT COUNT(*)
   FROM information_schema.COLUMNS

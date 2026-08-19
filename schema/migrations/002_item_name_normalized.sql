@@ -3,6 +3,8 @@
 -- (run Phase 1 exact/case-only merge first, then re-run or add the unique index).
 -- Migration 006 drops the unique index while /v2 is live (v2 inserts duplicate names).
 
+USE PANTRY_PLUS;
+
 SET @col_exists = (
   SELECT COUNT(*)
   FROM information_schema.COLUMNS

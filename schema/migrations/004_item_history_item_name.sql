@@ -1,6 +1,8 @@
 -- Additive: snapshot ITEM.NAME onto purchase history so later renames/forks
 -- do not rewrite historical display. Idempotent.
 
+USE PANTRY_PLUS;
+
 SET @col_exists = (
   SELECT COUNT(*)
   FROM information_schema.COLUMNS
