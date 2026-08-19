@@ -1,8 +1,8 @@
--- creates a shopping item (caller supplies display name + normalized uniqueness key)
+-- creates a shopping item (v2: always insert the client UUID; names may duplicate)
 SET @id = UUID_TO_BIN(:id);
-SET @name = :name;
-SET @nameNormalized = :nameNormalized;
+SET @name = LOWER(:name);
+SET @nameNormalized = LOWER(TRIM(:name));
 SET @upc = :upc;
 
-INSERT INTO ITEM (ID, NAME, NAME_NORMALIZED, UPC)
+INSERT IGNORE INTO ITEM (ID, NAME, NAME_NORMALIZED, UPC)
 VALUES (@id, @name, @nameNormalized, @upc);

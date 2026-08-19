@@ -1,6 +1,6 @@
-SET @itemId = UUID_TO_BIN(:itemId);
+SET @itemId = UUID_TO_BIN(COALESCE(:itemId, :id));
 SET @name = :name;
-SET @nameNormalized = :nameNormalized;
+SET @nameNormalized = LOWER(TRIM(:name));
 
 UPDATE ITEM
 SET NAME = @name,

@@ -1,6 +1,7 @@
 -- Additive: ITEM.NAME_NORMALIZED for case/whitespace-insensitive uniqueness.
 -- Idempotent column/index adds. Unique index is skipped when duplicate keys remain
 -- (run Phase 1 exact/case-only merge first, then re-run or add the unique index).
+-- Migration 006 drops the unique index while /v2 is live (v2 inserts duplicate names).
 
 SET @col_exists = (
   SELECT COUNT(*)

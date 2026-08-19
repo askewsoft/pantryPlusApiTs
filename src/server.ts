@@ -3,6 +3,7 @@ import cors from 'cors';
 import swaggerUi, { SwaggerUiOptions } from 'swagger-ui-express';
 
 import { RegisterRoutes as RegisterV2Routes } from "./routes.v2";
+import { RegisterRoutes as RegisterV3Routes } from "./routes.v3";
 import config from './shared/config';
 import { errorHandler } from './shared/errorHandler';
 import {
@@ -39,24 +40,36 @@ app.use(requestLogger);
 
 RegisterV2Routes(app);
 console.log("v2 routes registered successfully");
+RegisterV3Routes(app);
+console.log("v3 routes registered successfully");
+
+const swaggerUiOptions = (): SwaggerUiOptions =>
+  config?.node_env !== 'development' ? {
+    swaggerOptions: {
+      supportedSubmitMethods: [],
+      tryItOutEnabled: false
+    }
+  } : {};
 
 // Serve OpenAPI documentation for v2
 app.use(["/v2/docs", "/v2/docs/", "/v2/docs/swagger-ui.html"], swaggerUi.serve, async (_req: Request, res: Response) => {
-  const options: SwaggerUiOptions = config?.node_env !== 'development' ? {
-    swaggerOptions: {
-      supportedSubmitMethods: [], // This disables all HTTP methods for all endpoints' form submissions
-      tryItOutEnabled: false // This disables the "Try it out" feature for all endpoints
-    }
-  } : {};
-  // Must use `require` here because `import` tries to immediately load the file
-  // at build time and the file is not generated yet.
   return res.send(
-    swaggerUi.generateHTML(require("../build/swagger.v2.json"), options)
+    swaggerUi.generateHTML(require("../build/swagger.v2.json"), swaggerUiOptions())
   );
 });
 
 app.get("/v2/swagger.json", (req, res) => {
   res.send(require("../build/swagger.v2.json"));
+});
+
+app.use(["/v3/docs", "/v3/docs/", "/v3/docs/swagger-ui.html"], swaggerUi.serve, async (_req: Request, res: Response) => {
+  return res.send(
+    swaggerUi.generateHTML(require("../build/swagger.v3.json"), swaggerUiOptions())
+  );
+});
+
+app.get("/v3/swagger.json", (req, res) => {
+  res.send(require("../build/swagger.v3.json"));
 });
 
 app.get('/healthcheck', (req, res) => {

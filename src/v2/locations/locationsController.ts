@@ -120,9 +120,9 @@ function validateLocationAreaInput(data: any): ValidationResult {
 @Tags("Locations")
 export class LocationsController extends Controller {
   /**
-   * @summary Find or create a location
+   * @summary Creates a new location
    * @param email the email address of the user
-   * @param location the location to create (or match within ~50m)
+   * @param location the location to create
    * @example email "test@test.com"
    * @example location {
    *  "id": "123E4567-E89B-12D3-A456-426614174000",
@@ -130,15 +130,14 @@ export class LocationsController extends Controller {
    *  "latitude": 42.7456,
    *  "longitude": -71.4910
    * }
-   * @returns The resolved location (existing within 50m, or newly created)
+   * @returns void - confirms successful creation
    */
   @Post()
   @SuccessResponse(201, "Created")
-  @Response<Location>(200, "OK")
   @Response(400, "Bad Request", { error: "Validation failed or invalid input format" })
   @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Security("bearerAuth")
-  public async createLocation(@Header("X-Auth-User") email: string, @Body() location: Location ): Promise<Location> {
+  public async createLocation(@Header("X-Auth-User") email: string, @Body() location: Location ): Promise<void> {
     const log = logger('LocationsController');
     log.debug({
       message: 'Creating location',
@@ -185,9 +184,7 @@ export class LocationsController extends Controller {
     // Validate UUID in request body
     validateBodyUUIDs(location, ['id'], 'Invalid location ID format');
 
-    const result = await LocationsService.create(location, email);
-    this.setStatus(result.created ? 201 : 200);
-    return result.location;
+    await LocationsService.create(location, email);
   };
 
   /**

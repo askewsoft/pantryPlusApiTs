@@ -1,4 +1,4 @@
--- creates a location (caller must have already ruled out a near-duplicate)
+-- creates a location using the client-supplied id (v2 contract; no find-or-create)
 SET @name = :name;
 SET @locationId = UUID_TO_BIN(:locationId);
 SET @latitude = :latitude;

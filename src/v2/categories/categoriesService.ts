@@ -19,13 +19,6 @@ export abstract class CategoriesService {
     return;
   };
 
-  /** Removes category association only; item stays on the list (uncategorized if no other category). */
-  public static async unlinkItemFromCategory(itemId: string, categoryId: string): Promise<void> {
-    const unlinkTemplate = path.join(__dirname, './sql/unlinkItemFromCategory.sql');
-    await dbPost(unlinkTemplate, { itemId, categoryId });
-    return;
-  };
-
   public static async updateCategory(categoryId: string, categoryName: string, categoryOrdinal: number, locationId: string): Promise<void> {
     await LocationsService.assertLocationExists(locationId);
     const updateNameTemplate = path.join(__dirname, './sql/updateCategoryName.sql');

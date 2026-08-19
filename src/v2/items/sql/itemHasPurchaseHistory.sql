@@ -1,6 +1,0 @@
-SET @itemId = UUID_TO_BIN(:itemId);
-
-SELECT COUNT(*) AS hasHistory
-FROM ITEM_HISTORY_RELATION
-WHERE ITEM_ID = @itemId
-;

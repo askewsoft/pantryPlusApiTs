@@ -4,77 +4,31 @@ import { ErrorCode } from "../../shared/errorHandler";
 import { Location, NearbyLocation, LocationArea } from "./location";
 import { Logger, logger } from "../../shared/logger";
 
-const log: Logger = logger('Location Service');
-
-/** Radius (meters) for treating an existing store as the same place on create. */
-export const LOCATION_FIND_OR_CREATE_RADIUS_METERS = 50;
-
-export type CreateLocationResult = {
-  location: Location;
-  created: boolean;
-};
+const log: Logger = logger('Location Service')
 
 export abstract class LocationsService {
-  public static async create(location: Location, email: string): Promise<CreateLocationResult> {
+  public static async create(location: Location, email: string): Promise<void> {
     const { latitude, longitude, name, id } = location;
+    const createTemplate = path.join(__dirname, './sql/createLocation.sql');
 
     try {
-      const nearby = await LocationsService.getNearbyLocations({
-        latitude,
-        longitude,
-        radius: LOCATION_FIND_OR_CREATE_RADIUS_METERS,
-      });
-      if (nearby.length > 0) {
-        const match = nearby[0];
-        log.debug({
-          message: 'Reusing existing location within find-or-create radius',
-          requestedLocationId: id,
-          existingLocationId: match.id,
-          distance: match.distance,
-        });
-        return {
-          created: false,
-          location: {
-            id: match.id,
-            name: match.name,
-            latitude: match.latitude,
-            longitude: match.longitude,
-          },
-        };
-      }
-
-      const createTemplate = path.join(__dirname, './sql/createLocation.sql');
       log.debug({
         message: 'Creating location in database',
         locationId: id,
         name,
         latitude,
-        longitude,
+        longitude
       });
 
-      const rows = await dbPost(createTemplate, {
-        latitude,
-        longitude,
-        name,
-        locationId: id,
-        email,
-      });
-      const createdRow = Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
-      const resolved: Location = createdRow
-        ? {
-            id: createdRow.id,
-            name: createdRow.name,
-            latitude: Number(createdRow.latitude),
-            longitude: Number(createdRow.longitude),
-          }
-        : { id, name, latitude, longitude };
+      const result = await dbPost(createTemplate, { latitude, longitude, name, locationId: id, email });
 
       log.debug({
         message: 'Location created successfully in database',
-        locationId: resolved.id,
+        locationId: id,
+        dbResult: result
       });
 
-      return { created: true, location: resolved };
+      return; // Return void as expected by the mobile app
     } catch (error) {
       log.error({
         message: 'Failed to create location in database',
@@ -82,22 +36,22 @@ export abstract class LocationsService {
         locationId: id,
         name,
         latitude,
-        longitude,
+        longitude
       });
       throw error;
     }
-  }
+  };
 
   public static async update(locationId: string, name: string, email: string): Promise<void> {
     const updateTemplate = path.join(__dirname, './sql/updateLocation.sql');
     return await dbPost(updateTemplate, { locationId, name, email });
-  }
+  };
 
   public static async getNearbyLocations(locationArea: LocationArea): Promise<Array<NearbyLocation>> {
     const { longitude, latitude, radius } = locationArea;
     const getNearbyLocationsTemplate = path.join(__dirname, './sql/getNearbyLocations.sql');
     return await dbPost(getNearbyLocationsTemplate, { longitude, latitude, radius });
-  }
+  };
 
   /** Throws NOT_FOUND if LOCATION row is missing (e.g. FK on CATEGORY_ORDER.LOCATION_ID). */
   public static async assertLocationExists(locationId: string): Promise<void> {
@@ -108,5 +62,5 @@ export abstract class LocationsService {
       err.name = ErrorCode.NOT_FOUND;
       throw err;
     }
-  }
-}
+  };
+};

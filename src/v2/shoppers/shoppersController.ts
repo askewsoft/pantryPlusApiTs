@@ -203,12 +203,10 @@ export class ShoppersController extends Controller {
   }
 
   /**
-   * @summary Retrieves cohort-scoped items for typeahead: purchase history plus items on household lists
+   * @summary Retrieves all previously purchased items associated with a Shopper
    * @param email the email address of the user
    * @param shopperId the ID of the shopper for whom items will be returned
-   * @param lookBackDays how far back to include purchase history (default 365)
-   * @param cohortId optional household (group) id; omit for private-list corpus
-   * @returns Distinct items purchased or listed on accessible cohort lists
+   * @returns The items previously purchased by a shopper
    */
   @Get("{shopperId}/items")
   @SuccessResponse(200, "OK")
@@ -216,18 +214,10 @@ export class ShoppersController extends Controller {
   @Response(401, "Unauthorized", { error: "Invalid token format" })
   @Example<Array<Item>>(itemsExample)
   @Security("bearerAuth")
-  public async getPurchasedItems(
-    @Header("X-Auth-User") email: string,
-    @Path() shopperId: string,
-    @Query() lookBackDays: number = 365,
-    @Query() cohortId?: string,
-  ): Promise<Array<Item>> {
+  public async getPurchasedItems(@Header("X-Auth-User") email: string, @Path() shopperId: string): Promise<Array<Item>> {
     validateUUIDParam('shopperId', shopperId);
-    if (cohortId) {
-      validateUUIDParam('cohortId', cohortId);
-    }
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
-    return ShoppersService.getPurchasedItems(shopperId, lookBackDays, cohortId ?? null);
+    return ShoppersService.getPurchasedItems(shopperId);
   }
 
   /**
@@ -249,11 +239,11 @@ export class ShoppersController extends Controller {
   }
 
   /**
-   * @summary Retrieves known locations for a Shopper
+   * @summary Retrieves all locations associated with a Shopper
    * @param email the email address of the user
    * @param shopperId the ID of the shopper for whom locations will be returned
-   * @param lookBackDays the number of days to look back for purchases (purchase-history half only)
-   * @returns Locations the shopper created, locations created by cohort mates, and locations from recent purchases on accessible lists
+   * @param lookBackDays the number of days to look back for purchases
+   * @returns The locations at which items were purchased by a shopper
    */
   @Get("{shopperId}/locations")
   @SuccessResponse(200, "OK")

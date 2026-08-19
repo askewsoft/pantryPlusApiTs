@@ -18,7 +18,10 @@ pantryPlus clients are Expo/React Native builds (and OTA updates) that do not al
 
 For **breaking** API changes, add a new version directory and keep the previous version’s routes registered until enough clients have migrated. Additive, backward-compatible API changes can stay on the current version. Schema changes that support the new API must still leave old version SQL correct.
 
-**Today:** only **`v2`** is implemented (`src/v2/`, `tsoa.v2.json`, `/v2/*`). Legacy `v1` has been removed.
+**Today:** **`v2`** and **`v3`** are mounted (`src/v2/`, `src/v3/`, `tsoa.v2.json`, `tsoa.v3.json`, `/v2/*` and `/v3/*`). Legacy `v1` has been removed.
+
+- **`/v2`**: June 2026 contract for Store build **1.5.4** (create/update item return 204; rename body does not require `listId`; location create inserts the client id).
+- **`/v3`**: find-or-create items, list-scoped rename, aliases, location find-or-create. Current mobile main uses `/v3`.
 
 ## What “a version” includes
 

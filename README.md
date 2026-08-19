@@ -2,7 +2,7 @@
 
 TypeScript Express API for the pantryPlus mobile app, with OpenAPI via [TSOA](https://tsoa-community.github.io/docs/). Persistence is MySQL.
 
-**API versioning:** The live contract today is **v2** (`src/v2/`). The **database** must stay backward compatible for all live versions; the **API** may break only by adding `src/vN/` and shipping an in-sync mobile app that consumes it — see [API Versioning](docs/API_VERSIONING.md).
+**API versioning:** **v2** and **v3** are mounted (`src/v2/`, `src/v3/`). Store 1.5.4 uses `/v2`; current mobile uses `/v3`. The **database** must stay backward compatible for all live versions — see [API Versioning](docs/API_VERSIONING.md).
 
 ## Quick start
 
@@ -14,8 +14,8 @@ TypeScript Express API for the pantryPlus mobile app, with OpenAPI via [TSOA](ht
    - **Existing DB:** `npm run migrate` only (or apply pending SQL in a DB IDE)
 5. `npm run dev` — build, watch, and run
 
-- Swagger UI: `http://localhost:<APIPORT>/v2/docs`
-- OpenAPI: `http://localhost:<APIPORT>/v2/swagger.json`
+- Swagger UI: `http://localhost:<APIPORT>/v2/docs` and `/v3/docs`
+- OpenAPI: `http://localhost:<APIPORT>/v2/swagger.json` and `/v3/swagger.json`
 - Health: `http://localhost:<APIPORT>/healthcheck`
 
 ## Environment
@@ -90,7 +90,7 @@ Generates the TypeScript Axios client into a peer `pantryPlusApiClient` checkout
 
 ```sh
 brew install openapi-generator   # once
-npm run codegen                  # → ../pantryPlusApiClient/v2
+npm run codegen                  # → ../pantryPlusApiClient/v2 and v3
 ```
 
 Then commit/tag the client and bump the mobile app dependency.

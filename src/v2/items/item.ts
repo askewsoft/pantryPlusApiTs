@@ -13,33 +13,12 @@ export interface Item {
 }
 
 /**
- * Payload for renaming an item on a specific list.
- * The returned item id may differ from the path id (find-existing or fork).
+ * v2 update body. `id` is ignored (path itemId wins) but 1.5.4 sends it;
+ * listing it avoids TSOA throw-on-extras.
  */
-export interface ItemUpdate {
-    /** The display name to apply */
+export interface ItemUpdateBody {
     name: string;
-    /** The universal product code of the item */
     upc?: string;
-    /**
-     * List whose membership should be re-pointed on find-existing or fork.
-     * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$ Invalid UUID format
-     */
-    listId: string;
-}
-
-/**
- * An alternate search name that resolves to an ITEM without merging rows.
- */
-export interface ItemAlias {
-    /** Display form of the alias (e.g. "coke") */
-    name: string;
-}
-
-/**
- * Body for registering a new alias on an item.
- */
-export interface ItemAliasCreate {
-    /** The alias text shoppers may type or speak */
-    name: string;
+    /** UUID of the item; optional because some clients only send name/upc */
+    id?: string;
 }
