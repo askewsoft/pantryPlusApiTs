@@ -2,6 +2,7 @@
   "generatedAt": "example — do not apply; run npm run item-casing:generate",
   "instructions": [
     "These items have only one row for their normalized name (not exact-dupe merge candidates).",
+    "Ids already listed in the env-matching mapping file are omitted (dedupe keep_name covered them).",
     "Edit keep_name to set display casing. Leave keep_name equal to name to skip.",
     "npm run item-casing:apply writes only rows where keep_name differs from name.",
     "Generate this after merge apply when you want casing review of post-merge survivors."

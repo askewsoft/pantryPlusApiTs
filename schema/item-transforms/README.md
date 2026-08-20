@@ -63,7 +63,9 @@ Runtime: `POST /items` (find-or-create) and typeahead corpus resolve reviewed al
 
 ## Casing review (unique items)
 
-Items that already have a single row for their normalized name are **not** in the merge mapping. Generate a separate review file, edit `keep_name`, then apply. Best after merge so you review post-merge survivors once.
+Items that already have a single row for their normalized name are **not** merge candidates. Generate a separate review file, edit `keep_name`, then apply. Best after merge so you review remaining unique names once.
+
+Generate **omits any ITEM id that appears in the env-matching mapping file** (`keep_id` or `members`) — those already had display casing chosen via dedupe `keep_name`. Optional `--from path/to/mapping.json` overrides which mapping to exclude against.
 
 ```sh
 npm run item-casing:generate
