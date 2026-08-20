@@ -7,16 +7,17 @@
  *   npm run item-casing:generate
  *   npm run item-casing:generate -- --env prod
  *
- * `--env prod` loads `.env.prod` (gitignored). Default is `.env`.
+ * `--env prod` loads `.env.prod` and writes `casing.prod.json`.
+ * Default is `.env` → `casing.local.json`.
  */
 
 const fs = require('fs');
 const path = require('path');
-const { createDbConnection, loadEnv } = require('./lib/mysqlEnv');
+const { createDbConnection, loadEnv, transformPath } = require('./lib/mysqlEnv');
 const { normalizeItemName, loadItems } = require('./lib/itemDedupe');
 
-function parseArgs(argv) {
-  const args = { out: path.join('schema', 'item-transforms', 'casing.local.json') };
+function parseArgs(argv, envName) {
+  const args = { out: transformPath('casing', envName) };
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === '--out' && argv[i + 1]) {
       args.out = argv[i + 1];
@@ -43,7 +44,8 @@ function uniqueItems(items) {
 }
 
 async function main() {
-  const args = parseArgs(loadEnv());
+  const { rest, envName } = loadEnv();
+  const args = parseArgs(rest, envName);
   const conn = await createDbConnection();
   try {
     const items = await loadItems(conn);

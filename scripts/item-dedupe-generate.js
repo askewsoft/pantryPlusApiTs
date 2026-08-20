@@ -5,19 +5,19 @@
  * Usage (from pantryPlusApiTs root):
  *   npm run item-dedupe:generate
  *   npm run item-dedupe:generate -- --env prod
- *   npm run item-dedupe:generate -- --out schema/item-transforms/mapping.local.json
  *   npm run item-dedupe:generate -- --env prod --fuzzy-max-distance 2
  *
- * `--env prod` loads `.env.prod` (gitignored). Default is `.env`.
+ * `--env prod` loads `.env.prod` and writes `mapping.prod.json`.
+ * Default is `.env` → `mapping.local.json`.
  */
 
 const fs = require('fs');
 const path = require('path');
-const { createDbConnection, loadEnv } = require('./lib/mysqlEnv');
+const { createDbConnection, loadEnv, transformPath } = require('./lib/mysqlEnv');
 const { normalizeItemName, groupRecord, clusterFuzzy, loadItems } = require('./lib/itemDedupe');
 
-function parseArgs(argv) {
-  const args = { out: path.join('schema', 'item-transforms', 'mapping.local.json'), fuzzyMaxDistance: 2 };
+function parseArgs(argv, envName) {
+  const args = { out: transformPath('mapping', envName), fuzzyMaxDistance: 2 };
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === '--out' && argv[i + 1]) {
       args.out = argv[i + 1];
@@ -58,7 +58,8 @@ function buildGroups(items, fuzzyMaxDistance) {
 }
 
 async function main() {
-  const args = parseArgs(loadEnv());
+  const { rest, envName } = loadEnv();
+  const args = parseArgs(rest, envName);
   const conn = await createDbConnection();
   try {
     const items = await loadItems(conn);

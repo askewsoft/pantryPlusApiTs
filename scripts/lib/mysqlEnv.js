@@ -34,21 +34,44 @@ function consumeEnvArgs(argv) {
   return { envName, envFile, rest };
 }
 
-function resolveEnvPath(envName, envFile) {
-  if (envFile) {
-    return path.resolve(envFile);
-  }
+function normalizeEnvName(envName) {
   const normalized = envName.trim();
   if (!/^[a-zA-Z0-9_-]+$/.test(normalized)) {
     console.error(`Invalid --env name: ${envName}`);
     process.exit(1);
   }
+  return normalized;
+}
+
+/** File suffix for item-transform JSON: development/dev/local → local; prod → prod. */
+function transformFileSuffix(envName) {
+  const normalized = normalizeEnvName(envName);
+  if (normalized === 'development' || normalized === 'dev' || normalized === 'local') {
+    return 'local';
+  }
+  return normalized;
+}
+
+/** schema/item-transforms/{mapping|casing|aliases}.{suffix}.json */
+function transformPath(kind, envName) {
+  return path.join('schema', 'item-transforms', `${kind}.${transformFileSuffix(envName)}.json`);
+}
+
+function resolveEnvPath(envName, envFile) {
+  if (envFile) {
+    return path.resolve(envFile);
+  }
+  const normalized = normalizeEnvName(envName);
   if (normalized === 'development' || normalized === 'dev' || normalized === 'local') {
     return path.resolve(process.cwd(), '.env');
   }
   return path.resolve(process.cwd(), `.env.${normalized}`);
 }
 
+/**
+ * Load dotenv for `--env` / `--env-file`.
+ * @returns {{ rest: string[], envName: string, envPath: string, fileSuffix: string }}
+ */
 function loadEnv(argv = process.argv.slice(2)) {
   const { envName, envFile, rest } = consumeEnvArgs(argv);
   const envPath = resolveEnvPath(envName, envFile);
@@ -62,10 +85,11 @@ function loadEnv(argv = process.argv.slice(2)) {
     console.error(`Failed to load ${envPath}: ${result.error.message}`);
     process.exit(1);
   }
+  const fileSuffix = transformFileSuffix(envName);
   console.log(
-    `Using ${envPath} (DBHOST=${process.env.DBHOST} DBUSER=${process.env.DBUSER} DATABASE=${process.env.DATABASE} NODE_ENV=${process.env.NODE_ENV || ''})`
+    `Using ${envPath} (DBHOST=${process.env.DBHOST} DBUSER=${process.env.DBUSER} DATABASE=${process.env.DATABASE} NODE_ENV=${process.env.NODE_ENV || ''}; transform files *.${fileSuffix}.json)`
   );
-  return rest;
+  return { rest, envName, envPath, fileSuffix };
 }
 
 function getSslConfig() {
@@ -99,4 +123,12 @@ async function createDbConnection() {
   });
 }
 
-module.exports = { requireEnv, getSslConfig, createDbConnection, loadEnv, consumeEnvArgs };
+module.exports = {
+  requireEnv,
+  getSslConfig,
+  createDbConnection,
+  loadEnv,
+  consumeEnvArgs,
+  transformFileSuffix,
+  transformPath,
+};

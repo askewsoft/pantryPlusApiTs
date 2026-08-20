@@ -6,17 +6,18 @@
  *   npm run item-casing:apply -- --dry-run
  *   npm run item-casing:apply -- --env prod --dry-run
  *
- * `--env prod` loads `.env.prod` (gitignored). Default is `.env`.
+ * `--env prod` loads `.env.prod` and reads `casing.prod.json`.
+ * Default is `.env` → `casing.local.json`.
  */
 
 const fs = require('fs');
 const path = require('path');
-const { createDbConnection, loadEnv } = require('./lib/mysqlEnv');
+const { createDbConnection, loadEnv, transformPath } = require('./lib/mysqlEnv');
 const { displayItemName, normalizeItemName } = require('./lib/itemDedupe');
 
-function parseArgs(argv) {
+function parseArgs(argv, envName) {
   const args = {
-    file: path.join('schema', 'item-transforms', 'casing.local.json'),
+    file: transformPath('casing', envName),
     dryRun: false,
   };
   for (let i = 0; i < argv.length; i += 1) {
@@ -94,7 +95,8 @@ async function applyUpdate(conn, update) {
 }
 
 async function main() {
-  const args = parseArgs(loadEnv());
+  const { rest, envName } = loadEnv();
+  const args = parseArgs(rest, envName);
   const filePath = path.resolve(args.file);
   const review = loadReview(filePath);
   const updates = plannedUpdates(review);

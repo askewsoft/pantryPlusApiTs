@@ -14,7 +14,7 @@ npm run item-dedupe:generate -- --env prod
 
 `--env prod` uses gitignored `.env.prod` (template: [`env.prod.example`](../../env.prod.example)). Default is `.env`. These scripts connect **directly to MySQL**, not the HTTP API. Production (`NODE_ENV=production` in `.env.prod`) requires `certs/rds-ca.pem` (`npm run downloadcerts`) and a security group / user that allows your client IP.
 
-Writes [`mapping.local.json`](./mapping.local.json) (gitignored). Optional:
+Writes [`mapping.local.json`](./mapping.local.json) by default (gitignored), or `mapping.prod.json` with `--env prod`. Optional:
 
 ```sh
 npm run item-dedupe:generate -- --out schema/item-transforms/mapping.local.json --fuzzy-max-distance 2
@@ -44,12 +44,13 @@ When fuzzy pairs should **stay separate products** but search together (e.g. cok
 
 ```sh
 npm run item-alias:generate
-# edit schema/item-transforms/aliases.local.json — set apply true on desired rows
+npm run item-alias:generate -- --env prod
+# edit aliases.local.json / aliases.prod.json — set apply true on desired rows
 npm run item-alias:apply -- --dry-run
-npm run item-alias:apply
+npm run item-alias:apply -- --env prod --dry-run
 ```
 
-Generate reads fuzzy groups (`apply: false`) from `mapping.local.json` and proposes alias rows from non-keeper member names → `keep_id`. See [`aliases.example.json`](./aliases.example.json).
+Generate reads fuzzy groups from the env-matching mapping file (`mapping.local.json` or `mapping.prod.json`) and proposes alias rows from non-keeper member names → `keep_id`. See [`aliases.example.json`](./aliases.example.json).
 
 | Field | Meaning |
 | --- | --- |
@@ -66,9 +67,10 @@ Items that already have a single row for their normalized name are **not** in th
 
 ```sh
 npm run item-casing:generate
-# edit schema/item-transforms/casing.local.json — change keep_name where casing should change
+npm run item-casing:generate -- --env prod
+# edit casing.local.json / casing.prod.json — change keep_name where casing should change
 npm run item-casing:apply -- --dry-run
-npm run item-casing:apply
+npm run item-casing:apply -- --env prod --dry-run
 ```
 
 See [`casing.example.json`](./casing.example.json). Apply writes only rows where `keep_name` differs from `name`. Unchanged rows are skipped. A rename that collides with another item's normalized name is rejected.

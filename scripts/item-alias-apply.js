@@ -6,17 +6,18 @@
  *   npm run item-alias:apply -- --dry-run
  *   npm run item-alias:apply -- --env prod --dry-run
  *
- * `--env prod` loads `.env.prod` (gitignored). Default is `.env`.
+ * `--env prod` loads `.env.prod` and reads `aliases.prod.json`.
+ * Default is `.env` → `aliases.local.json`.
  */
 
 const fs = require('fs');
 const path = require('path');
-const { createDbConnection, loadEnv } = require('./lib/mysqlEnv');
+const { createDbConnection, loadEnv, transformPath } = require('./lib/mysqlEnv');
 const { displayItemName, normalizeItemName } = require('./lib/itemDedupe');
 
-function parseArgs(argv) {
+function parseArgs(argv, envName) {
   const args = {
-    file: path.join('schema', 'item-transforms', 'aliases.local.json'),
+    file: transformPath('aliases', envName),
     dryRun: false,
   };
   for (let i = 0; i < argv.length; i += 1) {
@@ -56,7 +57,8 @@ function validateRows(rows) {
 }
 
 async function main() {
-  const args = parseArgs(loadEnv());
+  const { rest, envName } = loadEnv();
+  const args = parseArgs(rest, envName);
   const filePath = path.resolve(args.file);
   const doc = loadAliases(filePath);
   const rows = plannedRows(doc);

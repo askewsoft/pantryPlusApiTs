@@ -7,18 +7,19 @@
  *   npm run item-alias:generate
  *   npm run item-alias:generate -- --env prod
  *
- * `--env prod` loads `.env.prod` (gitignored). Default is `.env`.
+ * `--env prod` loads `.env.prod` and reads/writes `mapping.prod.json` / `aliases.prod.json`.
+ * Default is `.env` → `*.local.json`.
  */
 
 const fs = require('fs');
 const path = require('path');
-const { createDbConnection, loadEnv } = require('./lib/mysqlEnv');
+const { createDbConnection, loadEnv, transformPath } = require('./lib/mysqlEnv');
 const { displayItemName, normalizeItemName } = require('./lib/itemDedupe');
 
-function parseArgs(argv) {
+function parseArgs(argv, envName) {
   const args = {
-    from: path.join('schema', 'item-transforms', 'mapping.local.json'),
-    out: path.join('schema', 'item-transforms', 'aliases.local.json'),
+    from: transformPath('mapping', envName),
+    out: transformPath('aliases', envName),
   };
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === '--from' && argv[i + 1]) {
@@ -96,7 +97,8 @@ async function filterExisting(conn, candidates) {
 }
 
 async function main() {
-  const args = parseArgs(loadEnv());
+  const { rest, envName } = loadEnv();
+  const args = parseArgs(rest, envName);
   const fromPath = path.resolve(args.from);
   const mapping = loadMapping(fromPath);
   const candidates = buildAliasCandidates(mapping.groups);
@@ -116,7 +118,7 @@ async function main() {
       'Set apply to true to register an alias on apply.',
       'item_id is the canonical ITEM that the alias resolves to.',
       'Generated from fuzzy merge groups (apply false). Does not merge rows.',
-      'Run item-dedupe:generate first if mapping.local.json is missing.',
+      'Run item-dedupe:generate first if the mapping file is missing.',
     ],
     aliases: filtered,
   };

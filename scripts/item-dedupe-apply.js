@@ -8,17 +8,18 @@
  *   npm run item-dedupe:apply
  *   npm run item-dedupe:apply -- --env prod
  *
- * `--env prod` loads `.env.prod` (gitignored). Default is `.env`.
+ * `--env prod` loads `.env.prod` and reads `mapping.prod.json`.
+ * Default is `.env` → `mapping.local.json`.
  */
 
 const fs = require('fs');
 const path = require('path');
-const { createDbConnection, loadEnv } = require('./lib/mysqlEnv');
+const { createDbConnection, loadEnv, transformPath } = require('./lib/mysqlEnv');
 const { displayItemName, normalizeItemName } = require('./lib/itemDedupe');
 
-function parseArgs(argv) {
+function parseArgs(argv, envName) {
   const args = {
-    file: path.join('schema', 'item-transforms', 'mapping.local.json'),
+    file: transformPath('mapping', envName),
     dryRun: false,
   };
   for (let i = 0; i < argv.length; i += 1) {
@@ -202,7 +203,8 @@ async function addUniqueIndexIfPossible(conn) {
 }
 
 async function main() {
-  const args = parseArgs(loadEnv());
+  const { rest, envName } = loadEnv();
+  const args = parseArgs(rest, envName);
   const filePath = path.resolve(args.file);
   const mapping = loadMapping(filePath);
   const groups = plannedGroups(mapping);
