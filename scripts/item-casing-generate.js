@@ -4,8 +4,9 @@
  * by normalized name (not exact-dupe merge candidates).
  *
  * By default skips any ITEM id that appears in the env-matching merge
- * mapping (keep_id or members) — those already had keep_name reviewed
- * during dedupe.
+ * mapping (keep_id or members) or in mapping-casing-collisions.*.json —
+ * those already had keep_name reviewed during dedupe. Also skips names
+ * that already contain uppercase letters.
  *
  * Usage (from pantryPlusApiTs root):
  *   npm run item-casing:generate
@@ -24,6 +25,7 @@ function parseArgs(argv, envName) {
   const args = {
     out: transformPath('casing', envName),
     from: transformPath('mapping', envName),
+    fromCollisions: transformPath('mapping-casing-collisions', envName),
   };
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === '--out' && argv[i + 1]) {
@@ -31,6 +33,9 @@ function parseArgs(argv, envName) {
       i += 1;
     } else if (argv[i] === '--from' && argv[i + 1]) {
       args.from = argv[i + 1];
+      i += 1;
+    } else if (argv[i] === '--from-collisions' && argv[i + 1]) {
+      args.fromCollisions = argv[i + 1];
       i += 1;
     }
   }
@@ -53,6 +58,12 @@ function uniqueItems(items) {
   return singles;
 }
 
+/** True when display name has no uppercase letters (entirely lowercase). */
+function isAllLowercaseName(name) {
+  const display = String(name ?? '');
+  return display.length > 0 && display === display.toLowerCase();
+}
+
 /** ITEM ids already covered by merge mapping (keep_id + every members[].id). */
 function collectMappedIds(mapping) {
   const ids = new Set();
@@ -65,10 +76,14 @@ function collectMappedIds(mapping) {
   return ids;
 }
 
-function loadMappedIds(mappingPath) {
+function loadMappedIds(mappingPath, { required = false, label = 'mapping' } = {}) {
   const resolved = path.resolve(mappingPath);
   if (!fs.existsSync(resolved)) {
-    console.log(`No mapping at ${resolved}; including all unique-name items`);
+    if (required) {
+      console.log(`No ${label} at ${resolved}; including all unique-name items`);
+    } else {
+      console.log(`No ${label} at ${resolved}; skipping`);
+    }
     return new Set();
   }
   const mapping = JSON.parse(fs.readFileSync(resolved, 'utf8'));
@@ -80,20 +95,35 @@ function loadMappedIds(mappingPath) {
   return ids;
 }
 
+function unionIds(...sets) {
+  const out = new Set();
+  for (const s of sets) {
+    for (const id of s) out.add(id);
+  }
+  return out;
+}
+
 async function main() {
   const { rest, envName } = loadEnv();
   const args = parseArgs(rest, envName);
-  const mappedIds = loadMappedIds(args.from);
+  const mappedIds = unionIds(
+    loadMappedIds(args.from, { required: true, label: 'primary mapping' }),
+    loadMappedIds(args.fromCollisions, { label: 'casing-collision mapping' })
+  );
   const conn = await createDbConnection();
   try {
     const items = await loadItems(conn);
     const singles = uniqueItems(items);
-    const forReview = singles.filter((item) => !mappedIds.has(item.id));
+    const notInMapping = singles.filter((item) => !mappedIds.has(item.id));
+    const skippedCased = notInMapping.filter((item) => !isAllLowercaseName(item.name));
+    const forReview = notInMapping.filter((item) => isAllLowercaseName(item.name));
     const review = {
       generatedAt: new Date().toISOString(),
       instructions: [
         'These items have only one row for their normalized name (not exact-dupe merge candidates).',
-        'Ids already listed in the env-matching mapping file are omitted (dedupe keep_name covered them).',
+        'Ids already listed in mapping.*.json or mapping-casing-collisions.*.json are omitted (dedupe keep_name covered them).',
+        'Only all-lowercase display names are included; names with any uppercase letter are skipped.',
+        'placements[] lists shopping list + category (null if uncategorized); review-only, ignored by apply.',
         'Edit keep_name to set display casing. Leave keep_name equal to name to skip.',
         'npm run item-casing:apply writes only rows where keep_name differs from name.',
         'Generate this after merge apply when you want casing review of post-merge survivors.',
@@ -105,6 +135,7 @@ async function main() {
         purchases: item.purchaseCount,
         last_purchase: item.lastPurchase,
         upc: item.upc || null,
+        placements: item.placements || [],
       })),
     };
 
@@ -115,7 +146,8 @@ async function main() {
     console.log(`Wrote ${outPath}`);
     console.log(`  catalog items: ${items.length}`);
     console.log(`  unique-name items: ${singles.length}`);
-    console.log(`  excluded (in mapping): ${singles.length - forReview.length}`);
+    console.log(`  excluded (in mapping): ${singles.length - notInMapping.length}`);
+    console.log(`  skipped (already has uppercase): ${skippedCased.length}`);
     console.log(`  casing review items: ${forReview.length}`);
   } finally {
     await conn.end();

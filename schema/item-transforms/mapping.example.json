@@ -6,7 +6,8 @@
     "keep_id is the surviving ITEM. keep_name is the display casing written onto it.",
     "Remove a member object to leave that ITEM unmerged.",
     "To merge two groups, combine members, pick one keep_id, and set apply true.",
-    "Exact groups default to apply true. Fuzzy groups default to apply false."
+    "Exact groups default to apply true. Fuzzy groups default to apply false.",
+    "members[].placements lists shopping list + category (null if uncategorized); review-only, ignored by apply."
   ],
   "groups": [
     {
@@ -20,14 +21,20 @@
           "name": "Milk",
           "purchases": 12,
           "last_purchase": "2026-01-15",
-          "upc": null
+          "upc": null,
+          "placements": [
+            { "list": "Family groceries", "category": "Dairy" }
+          ]
         },
         {
           "id": "22222222-2222-2222-2222-222222222222",
           "name": "milk",
           "purchases": 3,
           "last_purchase": "2025-11-02",
-          "upc": null
+          "upc": null,
+          "placements": [
+            { "list": "Family groceries", "category": "Dairy" }
+          ]
         }
       ]
     },
@@ -42,14 +49,20 @@
           "name": "Garbanzo beans",
           "purchases": 4,
           "last_purchase": "2026-02-01",
-          "upc": null
+          "upc": null,
+          "placements": [
+            { "list": "Family groceries", "category": "Canned goods" }
+          ]
         },
         {
           "id": "44444444-4444-4444-4444-444444444444",
           "name": "Garbanzo bean",
           "purchases": 1,
           "last_purchase": null,
-          "upc": null
+          "upc": null,
+          "placements": [
+            { "list": "Costco", "category": null }
+          ]
         }
       ]
     }

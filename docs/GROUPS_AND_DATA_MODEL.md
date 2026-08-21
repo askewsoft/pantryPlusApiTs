@@ -42,6 +42,7 @@ Owner-only mutations use `mayModifyGroup.sql`. Viewing uses `mayAccessGroup.sql`
 ## Location-scoped behavior
 
 - Category order is stored in `CATEGORY_ORDER` keyed by location — hence `X-Auth-Location` on category load/reorder/update and purchase flows.
+- Item↔category membership (`ITEM_CATEGORY_RELATION`) is **not** location-scoped today; an item can appear under multiple categories on one list. Enforcing one category per item per list is parked until location-aware placement is designed — see [ONE_CATEGORY_PER_LIST.md](./ONE_CATEGORY_PER_LIST.md).
 - Nearby store resolution uses geo queries against `LOCATION` (see locations SQL).
 - Creating a location sets `CREATED_BY` when a new row is inserted. Find-or-create within ~50m reuses an existing row and does not change `CREATED_BY`.
 - Known / “recent” locations for a shopper are the union of: (1) locations they created, (2) locations created by shoppers who share any cohort with them (member or owner), (3) locations from purchase history on accessible lists within the lookback window. No separate shopper–location junction table.

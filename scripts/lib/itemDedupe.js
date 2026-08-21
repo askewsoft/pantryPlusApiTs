@@ -70,6 +70,17 @@ function pickCanonical(members) {
   return [...members].sort(compareCanonical)[0];
 }
 
+function sortPlacements(placements) {
+  return [...placements].sort((a, b) => {
+    if (a.list !== b.list) return a.list.localeCompare(b.list);
+    const ac = a.category || '';
+    const bc = b.category || '';
+    if (!a.category && b.category) return 1;
+    if (a.category && !b.category) return -1;
+    return ac.localeCompare(bc);
+  });
+}
+
 function memberRecord(item) {
   return {
     id: item.id,
@@ -77,6 +88,7 @@ function memberRecord(item) {
     purchases: item.purchaseCount,
     last_purchase: item.lastPurchase,
     upc: item.upc || null,
+    placements: sortPlacements(item.placements || []),
   };
 }
 
@@ -131,6 +143,35 @@ function clusterFuzzy(items, maxDistance) {
   return [...buckets.values()].filter((group) => group.length > 1);
 }
 
+async function loadPlacementsByItemId(conn) {
+  const [rows] = await conn.query(`
+    SELECT
+      BIN_TO_UUID(lir.ITEM_ID) AS itemId,
+      l.NAME AS listName,
+      cat.NAME AS categoryName
+    FROM LIST_ITEM_RELATION lir
+    JOIN LIST l ON l.ID = lir.LIST_ID
+    LEFT JOIN (
+      SELECT icr.ITEM_ID, c.LIST_ID, c.NAME AS NAME
+      FROM ITEM_CATEGORY_RELATION icr
+      INNER JOIN CATEGORY c ON c.ID = icr.CATEGORY_ID
+    ) cat ON cat.ITEM_ID = lir.ITEM_ID AND cat.LIST_ID = lir.LIST_ID
+  `);
+
+  const byItem = new Map();
+  for (const row of rows) {
+    if (!byItem.has(row.itemId)) byItem.set(row.itemId, []);
+    byItem.get(row.itemId).push({
+      list: row.listName,
+      category: row.categoryName || null,
+    });
+  }
+  for (const [itemId, placements] of byItem.entries()) {
+    byItem.set(itemId, sortPlacements(placements));
+  }
+  return byItem;
+}
+
 async function loadItems(conn) {
   const [rows] = await conn.query(`
     SELECT
@@ -153,6 +194,7 @@ async function loadItems(conn) {
     ) h ON h.ITEM_ID = i.ID
     ORDER BY i.NAME ASC, i.ID ASC
   `);
+  const placementsByItem = await loadPlacementsByItemId(conn);
   return rows.map((row) => ({
     id: row.id,
     name: row.name,
@@ -160,6 +202,7 @@ async function loadItems(conn) {
     upc: row.upc,
     purchaseCount: Number(row.purchaseCount) || 0,
     lastPurchase: row.lastPurchase || null,
+    placements: placementsByItem.get(row.id) || [],
   }));
 }
 
@@ -176,4 +219,5 @@ module.exports = {
   groupRecord,
   clusterFuzzy,
   loadItems,
+  sortPlacements,
 };

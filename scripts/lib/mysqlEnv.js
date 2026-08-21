@@ -52,7 +52,7 @@ function transformFileSuffix(envName) {
   return normalized;
 }
 
-/** schema/item-transforms/{mapping|casing|aliases}.{suffix}.json */
+/** schema/item-transforms/{mapping|casing|aliases|mapping-casing-collisions}.{suffix}.json */
 function transformPath(kind, envName) {
   return path.join('schema', 'item-transforms', `${kind}.${transformFileSuffix(envName)}.json`);
 }

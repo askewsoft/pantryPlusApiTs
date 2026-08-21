@@ -73,6 +73,7 @@ async function main() {
         'Remove a member object to leave that ITEM unmerged.',
         'To merge two groups, combine members, pick one keep_id, and set apply true.',
         'Exact groups default to apply true. Fuzzy groups default to apply false.',
+        'members[].placements lists shopping list + category (null if uncategorized); review-only, ignored by apply.',
       ],
       groups: [...exactGroups, ...fuzzyGroups],
     };

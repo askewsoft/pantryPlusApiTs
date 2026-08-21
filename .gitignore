@@ -17,6 +17,7 @@ tests/schemathesis/analysis/
 **/.hypothesis/
 **/__pycache__
 schema/item-transforms/mapping.*.json
+schema/item-transforms/mapping-casing-collisions.*.json
 schema/item-transforms/casing.*.json
 schema/item-transforms/aliases.*.json
 !schema/item-transforms/*.example.json

@@ -3,6 +3,8 @@
   "instructions": [
     "These items have only one row for their normalized name (not exact-dupe merge candidates).",
     "Ids already listed in the env-matching mapping file are omitted (dedupe keep_name covered them).",
+    "Only all-lowercase display names are included; names with any uppercase letter are skipped.",
+    "placements[] lists shopping list + category (null if uncategorized); review-only, ignored by apply.",
     "Edit keep_name to set display casing. Leave keep_name equal to name to skip.",
     "npm run item-casing:apply writes only rows where keep_name differs from name.",
     "Generate this after merge apply when you want casing review of post-merge survivors."
@@ -14,15 +16,22 @@
       "keep_name": "AAA batteries",
       "purchases": 2,
       "last_purchase": "2026-03-01",
-      "upc": null
+      "upc": null,
+      "placements": [
+        { "list": "Family groceries", "category": "Household" }
+      ]
     },
     {
       "id": "66666666-6666-6666-6666-666666666666",
-      "name": "Ketchup",
+      "name": "ketchup",
       "keep_name": "Ketchup",
       "purchases": 8,
       "last_purchase": "2026-04-12",
-      "upc": null
+      "upc": null,
+      "placements": [
+        { "list": "Family groceries", "category": "Condiments" },
+        { "list": "Costco", "category": null }
+      ]
     }
   ]
 }
