@@ -6,9 +6,8 @@ JOIN ITEM_CATEGORY_RELATION itr
     ON itr.CATEGORY_ID = c.ID
 JOIN ITEM i
     ON i.ID = itr.ITEM_ID
-JOIN LIST l
-    ON l.ID = c.LIST_ID
 JOIN LIST_ITEM_RELATION lir
     ON lir.ITEM_ID = i.ID
+   AND lir.LIST_ID = c.LIST_ID
 WHERE c.ID = @categoryId
 ;

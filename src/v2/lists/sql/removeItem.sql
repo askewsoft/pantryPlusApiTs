@@ -1,10 +1,9 @@
--- removes an uncategorized item from a list
+-- Removes an item from a shopping list (membership only).
+-- ITEM_CATEGORY_RELATION is kept so re-add can auto-assign the last category.
 SET @itemId = UUID_TO_BIN(:itemId);
 SET @listId = UUID_TO_BIN(:listId);
 
--- TODO: consider validation to ensure item is not in a category
-
 DELETE FROM LIST_ITEM_RELATION
 WHERE ITEM_ID = @itemId
-    AND LIST_ID = @listId
+  AND LIST_ID = @listId
 ;

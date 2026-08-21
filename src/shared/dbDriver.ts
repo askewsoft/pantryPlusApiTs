@@ -212,9 +212,10 @@ function isNonRetryableError(err: any): boolean {
   // Data type errors are never transient
   if (err.errno === 1366) return true; // ER_TRUNCATED_WRONG_VALUE
 
-  // Constraint violations are never transient
+  // Constraint violations / deterministic query errors are never transient
   if (err.errno === 1062) return true; // ER_DUP_ENTRY
   if (err.errno === 1452) return true; // ER_NO_REFERENCED_ROW_2
+  if (err.errno === 1172) return true; // ER_TOO_MANY_ROWS (SELECT INTO)
 
   // Authentication/authorization errors are never transient
   if (err.errno === 1045) return true; // ER_ACCESS_DENIED_ERROR
