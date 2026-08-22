@@ -89,12 +89,14 @@ export abstract class ShoppersService {
     shopperId: string,
     lookBackDays: number,
     cohortId?: string | null,
+    listId?: string | null,
   ): Promise<Array<Item>> {
     const template = path.join(__dirname, './sql/getPurchasedItems.sql');
     const results = await dbPost(template, {
       shopperId,
       lookBackDays,
       cohortId: cohortId ?? null,
+      listId: listId ?? null,
     });
     return results;
   };

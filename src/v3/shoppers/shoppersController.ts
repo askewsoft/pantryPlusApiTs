@@ -208,6 +208,7 @@ export class ShoppersController extends Controller {
    * @param shopperId the ID of the shopper for whom items will be returned
    * @param lookBackDays how far back to include purchase history (default 365)
    * @param cohortId optional household (group) id; omit for private-list corpus
+   * @param listId optional target list id for category auto-assign hints
    * @returns Distinct items purchased or listed on accessible cohort lists
    */
   @Get("{shopperId}/items")
@@ -221,13 +222,17 @@ export class ShoppersController extends Controller {
     @Path() shopperId: string,
     @Query() lookBackDays: number = 365,
     @Query() cohortId?: string,
+    @Query() listId?: string,
   ): Promise<Array<Item>> {
     validateUUIDParam('shopperId', shopperId);
     if (cohortId) {
       validateUUIDParam('cohortId', cohortId);
     }
+    if (listId) {
+      validateUUIDParam('listId', listId);
+    }
     await mayProceed({ email, id: shopperId, accessTemplate: mayAccessShopperTemplate });
-    return ShoppersService.getPurchasedItems(shopperId, lookBackDays, cohortId ?? null);
+    return ShoppersService.getPurchasedItems(shopperId, lookBackDays, cohortId ?? null, listId ?? null);
   }
 
   /**

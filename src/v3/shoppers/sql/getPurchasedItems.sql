@@ -2,11 +2,13 @@
 -- currently on accessible lists. Never scans the full ITEM table.
 -- Live ITEM.NAME rows are emitted first (sort_key 0); purchase snapshots and
 -- ITEM_ALIAS rows follow (sort_key 1) so clients can treat first-seen as title.
+-- Optional @listId resolves categoryId per item for that list.
 
 SET @shopperId = UUID_TO_BIN(:shopperId);
 SET @lookBackDays = :lookBackDays;
 SET @lookBackDate = (SELECT ADDDATE(CURDATE(), -@lookBackDays));
 SET @cohortId = :cohortId;
+SET @listId = :listId;
 
 WITH shopperCohorts AS (
   SELECT c.ID AS COHORT_ID
@@ -31,7 +33,7 @@ shopperLists AS (
     AND @cohortId IS NULL
 ),
 shopperPurchaseHistory AS (
-  SELECT ph.ID AS HISTORY_ID
+  SELECT ph.ID AS HISTORY_ID, ph.LIST_ID, ph.PURCHASE_DATE
   FROM PANTRY_PLUS.PURCHASE_HISTORY ph
   JOIN shopperLists sl ON sl.LIST_ID = ph.LIST_ID
   WHERE ph.PURCHASE_DATE >= @lookBackDate
@@ -78,12 +80,74 @@ orderedCorpus AS (
   SELECT ia.ITEM_ID, ia.ALIAS_NAME AS NAME, c.UPC AS UPC, 1 AS sort_key
   FROM ITEM_ALIAS ia
   INNER JOIN corpus c ON c.ITEM_ID = ia.ITEM_ID
+),
+itemCategoryOnList AS (
+  SELECT
+    icr.ITEM_ID,
+    icr.CATEGORY_ID,
+    COALESCE(MAX(sph.PURCHASE_DATE), DATE('1970-01-01')) AS last_purchase_date
+  FROM ITEM_CATEGORY_RELATION icr
+  JOIN CATEGORY c ON c.ID = icr.CATEGORY_ID
+  LEFT JOIN ITEM_HISTORY_RELATION ihr ON ihr.ITEM_ID = icr.ITEM_ID
+  LEFT JOIN shopperPurchaseHistory sph
+    ON sph.HISTORY_ID = ihr.PURCHASE_HISTORY_ID
+   AND sph.LIST_ID = c.LIST_ID
+  WHERE @listId IS NOT NULL
+    AND c.LIST_ID = UUID_TO_BIN(@listId)
+  GROUP BY icr.ITEM_ID, icr.CATEGORY_ID
+),
+rankedDirectCategory AS (
+  SELECT
+    ITEM_ID,
+    CATEGORY_ID,
+    ROW_NUMBER() OVER (
+      PARTITION BY ITEM_ID
+      ORDER BY last_purchase_date DESC, CATEGORY_ID
+    ) AS rn
+  FROM itemCategoryOnList
+),
+directCategoryHint AS (
+  SELECT ITEM_ID, CATEGORY_ID
+  FROM rankedDirectCategory
+  WHERE rn = 1
+),
+latestPurchaseCategory AS (
+  SELECT
+    ihr.ITEM_ID,
+    ihr.CATEGORY_NAME,
+    ROW_NUMBER() OVER (
+      PARTITION BY ihr.ITEM_ID
+      ORDER BY sph.PURCHASE_DATE DESC, sph.HISTORY_ID DESC
+    ) AS rn
+  FROM ITEM_HISTORY_RELATION ihr
+  JOIN shopperPurchaseHistory sph ON sph.HISTORY_ID = ihr.PURCHASE_HISTORY_ID
+  WHERE @listId IS NOT NULL
+    AND ihr.CATEGORY_NAME IS NOT NULL
+),
+purchaseNameCategoryHint AS (
+  SELECT
+    lpc.ITEM_ID,
+    c.ID AS CATEGORY_ID
+  FROM latestPurchaseCategory lpc
+  JOIN CATEGORY c
+    ON c.LIST_ID = UUID_TO_BIN(@listId)
+   AND c.NAME = lpc.CATEGORY_NAME
+  LEFT JOIN directCategoryHint dch ON dch.ITEM_ID = lpc.ITEM_ID
+  WHERE lpc.rn = 1
+    AND dch.ITEM_ID IS NULL
+),
+itemCategoryHint AS (
+  SELECT ITEM_ID, CATEGORY_ID FROM directCategoryHint
+  UNION
+  SELECT ITEM_ID, CATEGORY_ID FROM purchaseNameCategoryHint
 )
 
 SELECT
-  BIN_TO_UUID(ITEM_ID) AS id,
-  NAME AS name,
-  UPC AS upc
-FROM orderedCorpus
-ORDER BY sort_key, id
+  BIN_TO_UUID(oc.ITEM_ID) AS id,
+  oc.NAME AS name,
+  oc.UPC AS upc,
+  BIN_TO_UUID(ich.CATEGORY_ID) AS categoryId
+FROM orderedCorpus oc
+LEFT JOIN itemCategoryHint ich ON ich.ITEM_ID = oc.ITEM_ID
+ORDER BY oc.sort_key, oc.ITEM_ID
 ;

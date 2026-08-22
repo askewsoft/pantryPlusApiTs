@@ -10,6 +10,8 @@ export interface Item {
     name: string;
     /** The universal product code of the item */
     upc?: string;
+    /** Category on the target list to auto-assign when re-adding; omitted when unknown */
+    categoryId?: string;
 }
 
 /**
